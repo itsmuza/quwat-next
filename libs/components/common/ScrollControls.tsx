@@ -4,6 +4,7 @@ import * as React from 'react';
 import { createRoot } from 'react-dom/client';
 import { context as fiberContext, useFrame, useThree } from '@react-three/fiber';
 import mergeRefs from 'react-merge-refs';
+import { listenToHorizontalWheel, wrapScrollOffset } from '../../fiberScroll';
 
 export type ScrollControlsProps = {
 	eps?: number;
@@ -22,6 +23,7 @@ export type ScrollControlsState = {
 	fill: HTMLDivElement;
 	fixed: HTMLDivElement;
 	horizontal: boolean | undefined;
+	infinite: boolean;
 	damping: number;
 	offset: number;
 	delta: number;
@@ -47,7 +49,7 @@ export function ScrollControls({
 	damping = 4,
 	children,
 }: ScrollControlsProps) {
-	const { gl, size, invalidate, events, raycaster } = useThree();
+	const { get, setEvents, gl, size, invalidate } = useThree();
 	const [el] = React.useState(() => document.createElement('div'));
 	const [fill] = React.useState(() => document.createElement('div'));
 	const [fixed] = React.useState(() => document.createElement('div'));
@@ -61,6 +63,7 @@ export function ScrollControls({
 			fill,
 			fixed,
 			horizontal,
+			infinite: Boolean(infinite),
 			damping,
 			offset: 0,
 			delta: 0,
@@ -84,13 +87,14 @@ export function ScrollControls({
 			},
 		};
 		return state;
-	}, [eps, damping, horizontal, pages, el, fill, fixed]);
+	}, [eps, damping, horizontal, infinite, pages, el, fill, fixed]);
 
 	React.useEffect(() => {
 		el.style.position = 'absolute';
 		el.style.width = '100%';
 		el.style.height = '100%';
-		el.style[horizontal ? 'overflowX' : 'overflowY'] = 'hidden';
+		el.className = 'quwat-fiber-scroll';
+		el.style[horizontal ? 'overflowX' : 'overflowY'] = 'auto';
 		el.style[horizontal ? 'overflowY' : 'overflowX'] = 'hidden';
 		el.style.top = '0px';
 		el.style.left = '0px';
@@ -112,75 +116,96 @@ export function ScrollControls({
 		// Init scroll one pixel in to allow upward/leftward scroll
 		el[horizontal ? 'scrollLeft' : 'scrollTop'] = 1;
 
-		requestAnimationFrame(() => events.connect?.(el));
-		const oldCompute = raycaster?.computeOffsets;
-		raycaster.computeOffsets = ({ clientX, clientY }) => ({
-			offsetX: clientX - (target as HTMLElement).offsetLeft,
-			offsetY: clientY - (target as HTMLElement).offsetTop,
-		});
-
-		const onScrollStart = () => (el.style.overflowY = 'hidden');
-		const onScrollEnd = () => (el.style.overflowY = 'hidden');
-		el.addEventListener('scroll', onScrollStart);
-
-		// Add a delay to determine when scrolling ends
-		let scrollEndTimeout: any = null;
-		el.addEventListener('scroll', () => {
-			clearTimeout(scrollEndTimeout);
-			scrollEndTimeout = setTimeout(onScrollEnd, 1000); // Adjust the delay as needed
+		// Read the event manager once: connecting replaces the events object.
+		// Depending on that object would remount/reset the scroller every frame.
+		const events = get().events;
+		const oldTarget = events.connected || gl.domElement;
+		const connectFrame = requestAnimationFrame(() => events.connect?.(el));
+		const oldCompute = events.compute;
+		setEvents({
+			compute(event, state) {
+				const { left, top } = target.getBoundingClientRect();
+				state.pointer.set(
+					((event.clientX - left) / state.size.width) * 2 - 1,
+					-((event.clientY - top) / state.size.height) * 2 + 1,
+				);
+				state.raycaster.setFromCamera(state.pointer, state.camera);
+			},
 		});
 
 		return () => {
+			cancelAnimationFrame(connectFrame);
 			target.removeChild(el);
-			raycaster.computeOffsets = oldCompute;
-
-			el.removeEventListener('scroll', onScrollStart);
-			el.removeEventListener('scroll', onScrollEnd);
-			clearTimeout(scrollEndTimeout);
+			setEvents({ compute: oldCompute });
+			events.connect?.(oldTarget);
 		};
-	}, [pages, distance, horizontal, el, fill, fixed, target, events, raycaster]);
+	}, [pages, distance, horizontal, el, fill, fixed, target, get, setEvents, gl]);
 
 	React.useEffect(() => {
-		const containerLength = size[horizontal ? 'width' : 'height'];
+		el.style[horizontal ? 'overflowX' : 'overflowY'] = enabled ? 'auto' : 'hidden';
+		const containerLength = el[horizontal ? 'clientWidth' : 'clientHeight'];
 		const scrollLength = el[horizontal ? 'scrollWidth' : 'scrollHeight'];
 		const scrollThreshold = scrollLength - containerLength;
 
 		let current = 0;
-		let disableScroll = true;
+		let disableScroll = false;
 		let firstRun = true;
+		let loopTimeout: ReturnType<typeof setTimeout> | undefined;
+		// Preserve the relative position when the viewport changes size.
+		if (scrollThreshold > 0) {
+			const offset = infinite ? wrapScrollOffset(scroll.current) : Math.max(0, Math.min(1, scroll.current));
+			state.offset += offset - scroll.current;
+			el[horizontal ? 'scrollLeft' : 'scrollTop'] = Math.max(
+				infinite ? 1 : 0,
+				Math.min(scrollThreshold - (infinite ? 1 : 0), offset * scrollThreshold),
+			);
+			scroll.current = el[horizontal ? 'scrollLeft' : 'scrollTop'] / scrollThreshold;
+		}
 
 		const onScroll = () => {
 			// Prevent first scroll because it is indirectly caused by the one pixel offset
-			if (!enabled || firstRun) return;
+			if (!enabled || firstRun || scrollThreshold <= 0) return;
+			// A resize may clamp scrollLeft before React updates this effect.
+			// Do not replace the saved fraction using the previous viewport's range.
+			if (
+				el[horizontal ? 'clientWidth' : 'clientHeight'] !== containerLength ||
+				el[horizontal ? 'scrollWidth' : 'scrollHeight'] !== scrollLength
+			) return;
 			invalidate();
 			current = el[horizontal ? 'scrollLeft' : 'scrollTop'];
 			scroll.current = current / scrollThreshold;
 			if (infinite) {
 				if (!disableScroll) {
-					if (scroll.current >= 1 - 0.001) {
+					if (current >= scrollThreshold) {
 						const damp = 1 - state.offset;
 						el[horizontal ? 'scrollLeft' : 'scrollTop'] = 1;
 						scroll.current = state.offset = -damp;
 						disableScroll = true;
 					} else if (current <= 0) {
 						const damp = 1 + state.offset;
-						el[horizontal ? 'scrollLeft' : 'scrollTop'] = scrollLength;
+						el[horizontal ? 'scrollLeft' : 'scrollTop'] = scrollThreshold - 1;
 						scroll.current = state.offset = damp;
 						disableScroll = true;
 					}
 				}
-				if (disableScroll) setTimeout(() => (disableScroll = false), 40);
+				if (disableScroll && loopTimeout === undefined) {
+					loopTimeout = setTimeout(() => {
+						disableScroll = false;
+						loopTimeout = undefined;
+						onScroll();
+					}, 40);
+				}
 			}
 		};
 		el.addEventListener('scroll', onScroll, { passive: true });
-		requestAnimationFrame(() => (firstRun = false));
-
-		const onWheel = (e: any) => (el.scrollLeft += e.deltaY / 2);
-		if (horizontal) el.addEventListener('wheel', onWheel, { passive: true });
+		const startFrame = requestAnimationFrame(() => (firstRun = false));
+		const removeWheel = horizontal ? listenToHorizontalWheel(el, enabled) : undefined;
 
 		return () => {
 			el.removeEventListener('scroll', onScroll);
-			if (horizontal) el.removeEventListener('wheel', onWheel);
+			removeWheel?.();
+			cancelAnimationFrame(startFrame);
+			clearTimeout(loopTimeout);
 		};
 	}, [el, size, infinite, state, invalidate, horizontal, enabled]);
 
@@ -198,8 +223,9 @@ const ScrollCanvas = React.forwardRef(function ScrollCanvas({ children }, ref) {
 	const state = useScroll();
 	const { width, height } = useThree((state) => state.viewport);
 	useFrame(() => {
-		group.current.position.x = state.horizontal ? -width * (state.pages - 1) * state.offset : 0;
-		group.current.position.y = state.horizontal ? 0 : height * (state.pages - 1) * state.offset;
+		const offset = state.infinite ? wrapScrollOffset(state.offset) : state.offset;
+		group.current.position.x = state.horizontal ? -width * (state.pages - 1) * offset : 0;
+		group.current.position.y = state.horizontal ? 0 : height * (state.pages - 1) * offset;
 	});
 	return <group ref={mergeRefs([ref, group])}>{children}</group>;
 });
@@ -214,9 +240,10 @@ const ScrollHtml = React.forwardRef(function ScrollHtml(
 	const fiberState = React.useContext(fiberContext);
 	useFrame(() => {
 		if (state.delta > state.eps) {
+			const offset = state.infinite ? wrapScrollOffset(state.offset) : state.offset;
 			group.current.style.transform = `translate3d(${
-				state.horizontal ? -width * (state.pages - 1) * state.offset : 0
-			}px,${state.horizontal ? 0 : height * (state.pages - 1) * -state.offset}px,0)`;
+				state.horizontal ? -width * (state.pages - 1) * offset : 0
+			}px,${state.horizontal ? 0 : height * (state.pages - 1) * -offset}px,0)`;
 		}
 	});
 	const root = React.useRef<ReturnType<typeof createRoot> | null>(null);

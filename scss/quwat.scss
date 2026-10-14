@@ -1,4 +1,11 @@
 #pc-wrap.quwat-shell {
+	.threeJSContainer .quwat-fiber-scroll {
+		scrollbar-width: none;
+		overscroll-behavior-x: contain;
+		&::-webkit-scrollbar {
+			display: none;
+		}
+	}
 	.quwat-original-brand {
 		display: flex;
 		align-items: center;
@@ -63,6 +70,83 @@
 	}
 	.quwat-no-banner {
 		padding-top: 100px;
+	}
+	.header-main {
+		background-image: linear-gradient(180deg, rgba(17, 20, 27, 0.82) 0%, rgba(17, 20, 27, 0.38) 45%, rgba(17, 20, 27, 0.58) 100%),
+			url('/img/banner/quwat-warehouse.webp');
+		background-position: center;
+	}
+	.header-main .quwat-hero-search {
+		display: grid;
+		grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr) auto;
+		align-items: center;
+		gap: 16px;
+		width: 1000px;
+		max-width: 100%;
+		margin-top: 56px;
+		padding: 24px;
+		box-sizing: border-box;
+		border: 1px solid rgba(255, 255, 255, 0.7);
+		border-radius: 20px;
+		background: rgba(255, 255, 255, 0.96);
+		box-shadow: 0 16px 48px rgba(0, 0, 0, 0.18);
+		.MuiFormControl-root {
+			min-width: 0;
+		}
+		.MuiOutlinedInput-root {
+			height: 56px;
+			border-radius: 12px;
+			background: #f8fafc;
+			fieldset {
+				border-color: #d9dfe7;
+			}
+			&:hover fieldset {
+				border-color: #929baa;
+			}
+			&.Mui-focused fieldset {
+				border-color: #c7352b;
+			}
+		}
+		.MuiInputLabel-root.Mui-focused {
+			color: #c7352b;
+		}
+		.MuiInputAdornment-root {
+			color: #737d8c;
+		}
+		.quwat-hero-search-submit {
+			height: 56px;
+			padding: 0 24px;
+			border: 0;
+			border-radius: 12px;
+			background: #c7352b;
+			color: #fff;
+			font-weight: 600;
+			text-transform: none;
+			white-space: nowrap;
+			box-shadow: none;
+			&:hover {
+				background: #a82c24;
+				box-shadow: 0 4px 12px rgba(199, 53, 43, 0.2);
+			}
+			&.Mui-focusVisible {
+				outline: 3px solid #eb6753;
+				outline-offset: 3px;
+			}
+		}
+		@media (max-width: 900px) {
+			grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+			margin-top: 32px;
+			.quwat-hero-search-submit {
+				grid-column: 1 / -1;
+			}
+		}
+		@media (max-width: 600px) {
+			grid-template-columns: minmax(0, 1fr);
+			gap: 18px;
+			margin-top: 32px;
+			padding: 20px;
+			border-radius: 16px;
+		}
 	}
 	.quwat-page {
 		width: 1300px;
