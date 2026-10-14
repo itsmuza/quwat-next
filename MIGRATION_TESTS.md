@@ -1,5 +1,21 @@
 # Frontend migration validation — 2026-10-12
 
+## Shared glass navbar across frontend pages — 2026-10-14
+
+- Removed the homepage-only navbar class/animation condition. The shared Top component now uses the same floating glass surface, rounded controls, responsive layout, focus styles and reduced-motion-aware Framer feedback on catalog/detail, agent/detail, profile, auth, about, help and error pages. Parent catalog/agent links remain active on their detail pages. The separate admin dashboard layout and all auth/cart/API logic are preserved.
+- Added clearance for the two-row navbar on bannerless detail pages at 601–1100px. At 768px the detail content begins at 200px below the navbar bottom of 151px; 375px remains free of overlap and horizontal document overflow.
+- Passed typecheck, non-autofix lint and git diff --check. Isolated SSR rendering checked 11 shared-navbar routes × four locales × anonymous/CLIENT/AGENT/ADMIN with no API calls. Browser verified catalog-to-about navigation, home, agents, auth, help, product detail, UZ/RU mobile labels, 375px/768px/desktop styling, active links and scroll contrast. Protected-role controls were checked by isolated rendering; no authenticated browser session or database writes were used.
+- Screenshots: /private/tmp/quwat-shared-navbar-desktop.jpg and /private/tmp/quwat-shared-navbar-mobile.jpg. Temporary viewport override was reset; running servers were retained.
+
+## Homepage glass navbar and animated search — 2026-10-14
+
+- Applied the explicitly requested swiftui-liquid-glass and framer-motion-animator skills. SwiftUI's iOS-native material API is not available in this Next.js app; its grouped materials, consistent rounded shapes, light edges and interaction principles were adapted to web CSS. The homepage navbar has a floating dark glass surface and active navigation pills; the name/category search has a light glass surface and a prominent Quwat-red gradient button. Other page navbar styling and all GraphQL/auth/cart/search contracts are preserved.
+- Added fixed-strength backdrop blur/saturation on the grouped surfaces, opaque unsupported-browser fallbacks, stronger contrast while scrolling, high-contrast/reduced-transparency CSS and visible keyboard focus. White search-button labels have at least 4.70:1 contrast against all normal/hover gradient endpoints. Kept blur out of animated values.
+- Used existing framer-motion@14.2.0 for mount-time settle animations, staggered field entry, spring link/button hover and press feedback, and account-state opacity transitions through AnimatePresence. MotionConfig/useReducedMotion and CSS honor Reduced Motion. Forms and navbar content remain visible during SSR; entrance controls do not restart on input keystrokes.
+- Passed phase/final typechecks, non-autofix lint, git diff --check, 421-key i18n audit, four existing i18n tests and five Fiber scroll tests. Isolated rendering of the real Top/HeaderFilter with existing providers passed 16 combinations (four locales × anonymous/CLIENT/AGENT/ADMIN), including role-specific cart/profile controls and visible SSR forms, with no API calls.
+- Browser checked desktop, 768px and 375px layouts, real Framer hover translation (~-2px), UZ/RU language menu navigation, category dropdown, PVA + category search returning PVA yelim with page 1/limit 18 and no unitList, existing catalog navbar without the home glass class, and horizontal Fiber movement with pageY unchanged. No horizontal document overflow. Screenshots: /private/tmp/quwat-glass-header-desktop.jpg and /private/tmp/quwat-glass-header-mobile.jpg. The operating-system Reduced Motion setting and low-end-device performance were not changed or separately measured.
+- No new dependency, database write or deployment. Existing user servers were preserved; temporary viewport override was reset.
+
 ## Fiber horizontal scroll repair — 2026-10-14
 
 - Reproduced the homepage failure: horizontal overflow was hidden and native horizontal input left scrollLeft at 1. ScrollControls also depended on the mutable R3F events object; reconnecting replaced that object, repeatedly remounted/reset the scroller and caused unstable movement. The passive wheel handler only used deltaY and allowed the outer page to scroll.

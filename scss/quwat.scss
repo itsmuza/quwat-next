@@ -6,6 +6,121 @@
 			display: none;
 		}
 	}
+	#top .navbar .navbar-main.quwat-glass-navbar {
+		height: auto !important;
+		padding: 16px 24px !important;
+		border: 0;
+		background: transparent !important;
+		> .container {
+			width: 1300px;
+			max-width: 100% !important;
+			min-width: 0;
+			padding: 12px 20px;
+			gap: 16px;
+			box-sizing: border-box;
+			border: 1px solid rgba(255, 255, 255, 0.24);
+			border-radius: 24px;
+			background: #202630;
+			box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 12px 32px rgba(0, 0, 0, 0.18);
+		}
+		&.transparent > .container {
+			background: #202630;
+		}
+		.logo-box,
+		.user-box {
+			flex-shrink: 0;
+		}
+		.router-box {
+			width: auto !important;
+			min-width: 0;
+			flex: 1;
+			justify-content: center;
+			gap: 4px !important;
+			a {
+				display: inline-flex;
+				align-items: center;
+				justify-content: center;
+				padding: 9px 10px;
+				border: 1px solid transparent;
+				border-radius: 14px;
+				color: #fff;
+				font-size: 14px;
+				white-space: nowrap;
+				transition: background-color 160ms ease, border-color 160ms ease;
+				&:hover {
+					background: rgba(255, 255, 255, 0.12);
+					border-color: rgba(255, 255, 255, 0.16);
+				}
+				&[aria-current='page'] {
+					background: rgba(235, 103, 83, 0.24);
+					border-color: rgba(255, 255, 255, 0.2);
+				}
+				&:focus-visible {
+					outline: 2px solid #fff;
+					outline-offset: 3px;
+				}
+			}
+		}
+		.user-box {
+			width: auto !important;
+			align-items: center;
+			gap: 12px;
+		}
+		.quwat-navbar-account {
+			display: flex;
+			align-items: center;
+		}
+		.lan-box {
+			margin-left: 0;
+		}
+		.join-box,
+		.btn-lang {
+			border: 1px solid rgba(255, 255, 255, 0.25);
+			border-radius: 14px;
+			background: rgba(255, 255, 255, 0.08);
+			box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+			&:hover {
+				background: rgba(255, 255, 255, 0.16);
+			}
+		}
+		@media (max-width: 1100px) {
+			> .container {
+				flex-wrap: wrap;
+				gap: 12px;
+			}
+			.router-box {
+				order: 3;
+				flex-basis: 100%;
+				flex-wrap: wrap;
+				justify-content: flex-start;
+			}
+			.user-box {
+				margin-left: auto;
+			}
+		}
+		@media (max-width: 600px) {
+			padding: 12px !important;
+			> .container {
+				padding: 12px;
+				gap: 10px;
+				border-radius: 20px;
+			}
+			.quwat-original-brand strong {
+				font-size: 26px;
+			}
+			.router-box a {
+				padding: 7px 8px;
+				font-size: 13px;
+			}
+			.user-box {
+				flex-wrap: wrap;
+				gap: 10px;
+			}
+			.join-box {
+				height: 42px;
+			}
+		}
+	}
 	.quwat-original-brand {
 		display: flex;
 		align-items: center;
@@ -70,6 +185,9 @@
 	}
 	.quwat-no-banner {
 		padding-top: 100px;
+		@media (min-width: 601px) and (max-width: 1100px) {
+			padding-top: 160px;
+		}
 	}
 	.header-main {
 		background-image: linear-gradient(180deg, rgba(17, 20, 27, 0.82) 0%, rgba(17, 20, 27, 0.38) 45%, rgba(17, 20, 27, 0.58) 100%),
@@ -87,18 +205,26 @@
 		padding: 24px;
 		box-sizing: border-box;
 		border: 1px solid rgba(255, 255, 255, 0.7);
-		border-radius: 20px;
-		background: rgba(255, 255, 255, 0.96);
-		box-shadow: 0 16px 48px rgba(0, 0, 0, 0.18);
+		border-radius: 26px;
+		background: #f4f6f8;
+		box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), inset 0 -1px 0 rgba(255, 255, 255, 0.2), 0 18px 48px rgba(0, 0, 0, 0.2);
+		.quwat-hero-search-field {
+			min-width: 0;
+		}
 		.MuiFormControl-root {
 			min-width: 0;
 		}
 		.MuiOutlinedInput-root {
 			height: 56px;
 			border-radius: 12px;
-			background: #f8fafc;
+			background: rgba(255, 255, 255, 0.82);
+			color: #1c2533;
 			fieldset {
+				top: 0;
 				border-color: #d9dfe7;
+				legend {
+					display: none;
+				}
 			}
 			&:hover fieldset {
 				border-color: #929baa;
@@ -107,8 +233,9 @@
 				border-color: #c7352b;
 			}
 		}
-		.MuiInputLabel-root.Mui-focused {
-			color: #c7352b;
+		.MuiOutlinedInput-input::placeholder {
+			color: #414956;
+			opacity: 1;
 		}
 		.MuiInputAdornment-root {
 			color: #737d8c;
@@ -118,14 +245,14 @@
 			padding: 0 24px;
 			border: 0;
 			border-radius: 12px;
-			background: #c7352b;
+			background: linear-gradient(135deg, #c74435, #ad3027);
 			color: #fff;
 			font-weight: 600;
 			text-transform: none;
 			white-space: nowrap;
-			box-shadow: none;
+			box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 5px 16px rgba(183, 51, 40, 0.18);
 			&:hover {
-				background: #a82c24;
+				background: linear-gradient(135deg, #c94838, #b4362a);
 				box-shadow: 0 4px 12px rgba(199, 53, 43, 0.2);
 			}
 			&.Mui-focusVisible {
@@ -629,6 +756,56 @@
 	color: #fff;
 	&:hover {
 		background: #a82c24;
+	}
+}
+.quwat-hero-category-menu.MuiPaper-root {
+	border: 1px solid rgba(255, 255, 255, 0.8);
+	border-radius: 16px;
+	background: #f7f8fa;
+	box-shadow: 0 16px 40px rgba(17, 24, 39, 0.2);
+}
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+	#pc-wrap.quwat-shell #top .navbar .navbar-main.quwat-glass-navbar > .container {
+		background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.03)), rgba(17, 23, 33, 0.72);
+		-webkit-backdrop-filter: blur(18px) saturate(140%);
+		backdrop-filter: blur(18px) saturate(140%);
+	}
+	#pc-wrap.quwat-shell #top .navbar .navbar-main.quwat-glass-navbar.transparent > .container {
+		background: rgba(17, 23, 33, 0.9);
+	}
+	#pc-wrap.quwat-shell .header-main .quwat-hero-search {
+		background: linear-gradient(135deg, rgba(255, 255, 255, 0.78), rgba(242, 246, 250, 0.58));
+		-webkit-backdrop-filter: blur(20px) saturate(140%);
+		backdrop-filter: blur(20px) saturate(140%);
+	}
+	.quwat-hero-category-menu.MuiPaper-root {
+		background: rgba(248, 250, 252, 0.94);
+		-webkit-backdrop-filter: blur(16px);
+		backdrop-filter: blur(16px);
+	}
+}
+@media (prefers-reduced-motion: reduce) {
+	#pc-wrap.quwat-shell .quwat-glass-navbar > .container,
+	#pc-wrap.quwat-shell .quwat-glass-navbar .router-box a,
+	#pc-wrap.quwat-shell .quwat-hero-search,
+	#pc-wrap.quwat-shell .quwat-hero-search-field,
+	#pc-wrap.quwat-shell .quwat-hero-search-submit {
+		transform: none !important;
+		transition: none !important;
+	}
+}
+@media (prefers-contrast: more), (prefers-reduced-transparency: reduce) {
+	#pc-wrap.quwat-shell #top .navbar .navbar-main.quwat-glass-navbar > .container,
+	#pc-wrap.quwat-shell #top .navbar .navbar-main.quwat-glass-navbar.transparent > .container {
+		background: #202630;
+		-webkit-backdrop-filter: none;
+		backdrop-filter: none;
+	}
+	#pc-wrap.quwat-shell .header-main .quwat-hero-search,
+	.quwat-hero-category-menu.MuiPaper-root {
+		background: #f4f6f8;
+		-webkit-backdrop-filter: none;
+		backdrop-filter: none;
 	}
 }
 .MuiDialog-root .quwat-form-grid {
