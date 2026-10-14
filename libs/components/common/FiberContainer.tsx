@@ -5,7 +5,7 @@ import { Preload, Image as ImageImpl } from '@react-three/drei';
 import { ScrollControls, Scroll } from './ScrollControls';
 import * as THREE from 'three';
 
-function Image(props: any) {
+function SceneImage(props: any) {
 	const ref = useRef<THREE.Group>();
 	const group = useRef<THREE.Group>();
 
@@ -23,9 +23,9 @@ function Page({ m = 0.4, urls, ...props }: any) {
 
 	return (
 		<group {...props}>
-			<Image position={[-width * w, 0, -1]} scale={[width * w - m * 2, 5, 1]} url={urls[0]} />
-			<Image position={[0, 0, 0]} scale={[width * w - m * 2, 5, 1]} url={urls[1]} />
-			<Image position={[width * w, 0, 1]} scale={[width * w - m * 2, 5, 1]} url={urls[2]} />
+			<SceneImage position={[-width * w, 0, -1]} scale={[width * w - m * 2, 5, 1]} url={urls[0]} />
+			<SceneImage position={[0, 0, 0]} scale={[width * w - m * 2, 5, 1]} url={urls[1]} />
+			<SceneImage position={[width * w, 0, 1]} scale={[width * w - m * 2, 5, 1]} url={urls[2]} />
 		</group>
 	);
 }
@@ -58,6 +58,5 @@ export default function FiberContainer() {
 				</Suspense>
 			</Canvas>
 		</div>
-
 	);
 }

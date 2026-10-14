@@ -1,128 +1,36 @@
-import React, { useState } from 'react';
-import { useRouter } from 'next/router';
-import { Stack, Box } from '@mui/material';
-import useDeviceDetect from '../../hooks/useDeviceDetect';
-import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Autoplay, Navigation, Pagination } from 'swiper';
-import TopAgentCard from './TopAgentCard';
-import { Member } from '../../types/member/member';
-import { AgentsInquiry } from '../../types/member/member.input';
-import { useQuery } from '@apollo/client';
+import { useText } from '../../i18n';
+import React from 'react';
+import { useQuery, useReactiveVar } from '@apollo/client';
+import { Alert, Stack, Typography } from '@mui/material';
 import { GET_AGENTS } from '../../../apollo/user/query';
-import { T } from '../../types/common';
-
-interface TopAgentsProps {
-	initialInput: AgentsInquiry;
-}
-
-const TopAgents = (props: TopAgentsProps) => {
-	const { initialInput } = props;
-	const device = useDeviceDetect();
-	const router = useRouter();
-	const [topAgents, setTopAgents] = useState<Member[]>([]);
-
-	/** APOLLO REQUESTS **/
-	const {
-		loading: getAgentLoading,
-		data: getAgentData,
-		error: getAgentError,
-		refetch: getAgentRefetch,
-	} = useQuery(GET_AGENTS, {
-		fetchPolicy: 'cache-and-network',
-		variables: { input: initialInput },
-		notifyOnNetworkStatusChange: true,
-		onCompleted: (data: T) => {
-			setTopAgents(data?.getAgents?.list);
-		},
+import { sessionVar } from '../../../apollo/store';
+import { Members } from '../../types/member/member';
+import MemberCard from '../common/MemberCard';
+import QueryState from '../common/QueryState';
+export default function TopAgents() {
+	const { t } = useText();
+	const session = useReactiveVar(sessionVar);
+	const { data, loading, error, refetch } = useQuery<{ getAgents: Members }>(GET_AGENTS, {
+		variables: { input: { page: 1, limit: 4, sort: 'memberRank', direction: 'DESC', search: {} } },
+		skip: session.status === 'loading',
 	});
-	/** HANDLERS **/
-
-	if (device === 'mobile') {
-		return (
-			<Stack className={'top-agents'}>
-				<Stack className={'container'}>
-					<Stack className={'info-box'}>
-						<span>Top Agents</span>
-					</Stack>
-					<Stack className={'wrapper'}>
-						<Swiper
-							className={'top-agents-swiper'}
-							slidesPerView={'auto'}
-							centeredSlides={true}
-							spaceBetween={29}
-							modules={[Autoplay]}
-						>
-							{topAgents.map((agent: Member) => {
-								return (
-									<SwiperSlide className={'top-agents-slide'} key={agent?._id}>
-										<TopAgentCard agent={agent} key={agent?.memberNick} />
-									</SwiperSlide>
-								);
-							})}
-						</Swiper>
-					</Stack>
-				</Stack>
+	return (
+		<Stack className="top-agents">
+			<Stack className="container">
+				<div className="info-box">
+					<div className="left">
+						<span>{t('Agentlar')}</span>
+						<p>{t('Quwat jamoasi')}</p>
+					</div>
+				</div>
+				<QueryState loading={loading && !data} error={error} retry={() => refetch()} />
+				<div className="wrapper quwat-agent-grid">
+					{data?.getAgents.list.map((m) => (
+						<MemberCard key={m._id} member={m} />
+					))}
+				</div>
+				{data && !data.getAgents.list.length && <Alert severity="info">{t('Hozircha agentlar yo‘q.')}</Alert>}
 			</Stack>
-		);
-	} else {
-		return (
-			<Stack className={'top-agents'}>
-				<Stack className={'container'}>
-					<Stack className={'info-box'}>
-						<Box component={'div'} className={'left'}>
-							<span>Top Agents</span>
-							<p>Our Top Agents always ready to serve you</p>
-						</Box>
-						<Box component={'div'} className={'right'}>
-							<div className={'more-box'}>
-								<span>See All Agents</span>
-								<img src="/img/icons/rightup.svg" alt="" />
-							</div>
-						</Box>
-					</Stack>
-					<Stack className={'wrapper'}>
-						<Box component={'div'} className={'switch-btn swiper-agents-prev'}>
-							<ArrowBackIosNewIcon />
-						</Box>
-						<Box component={'div'} className={'card-wrapper'}>
-							<Swiper
-								className={'top-agents-swiper'}
-								slidesPerView={'auto'}
-								spaceBetween={29}
-								modules={[Autoplay, Navigation, Pagination]}
-								navigation={{
-									nextEl: '.swiper-agents-next',
-									prevEl: '.swiper-agents-prev',
-								}}
-							>
-								{topAgents.map((agent: Member) => {
-									return (
-										<SwiperSlide className={'top-agents-slide'} key={agent?._id}>
-											<TopAgentCard agent={agent} key={agent?.memberNick} />
-										</SwiperSlide>
-									);
-								})}
-							</Swiper>
-						</Box>
-						<Box component={'div'} className={'switch-btn swiper-agents-next'}>
-							<ArrowBackIosNewIcon />
-						</Box>
-					</Stack>
-				</Stack>
-			</Stack>
-		);
-	}
-};
-
-TopAgents.defaultProps = {
-	initialInput: {
-		page: 1,
-		limit: 10,
-		sort: 'memberRank',
-		direction: 'DESC',
-		search: {},
-	},
-};
-
-export default TopAgents;
+		</Stack>
+	);
+}

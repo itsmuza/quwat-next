@@ -1,184 +1,102 @@
-import type { ComponentType } from 'react';
-import React, { useEffect, useState } from 'react';
+import { useText } from '../../i18n';
+import React, { ComponentType, useState } from 'react';
+import Head from 'next/head';
+import Image from 'next/image';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
-import MenuList from '../admin/AdminMenuList';
-import Toolbar from '@mui/material/Toolbar';
-import Box from '@mui/material/Box';
-import Stack from '@mui/material/Stack';
-import { Menu, MenuItem } from '@mui/material';
-import Drawer from '@mui/material/Drawer';
-import AppBar from '@mui/material/AppBar';
-import Avatar from '@mui/material/Avatar';
-import IconButton from '@mui/material/IconButton';
-import Divider from '@mui/material/Divider';
-import Typography from '@mui/material/Typography';
-import Tooltip from '@mui/material/Tooltip';
-import { getJwtToken, logOut, updateUserInfo } from '../../auth';
 import { useReactiveVar } from '@apollo/client';
+import { AppBar, Avatar, Divider, Drawer, IconButton, Menu, MenuItem, Stack, Toolbar, Typography } from '@mui/material';
 import { userVar } from '../../../apollo/store';
-import { REACT_APP_API_URL } from '../../config';
-import { MemberType } from '../../enums/member.enum';
-const drawerWidth = 280;
-
-const withAdminLayout = (Component: ComponentType) => {
-	return (props: object) => {
-		const router = useRouter();
+import { logOut } from '../../auth';
+import { imageUrl } from '../../feedback';
+import SessionGate from '../common/SessionGate';
+import LanguageMenu from '../common/LanguageMenu';
+export default function withAdminLayout<P extends object>(Component: ComponentType<P>) {
+	return function AdminLayout(props: P) {
+		const { t } = useText();
 		const user = useReactiveVar(userVar);
-		const [settingsState, setSettingsStateState] = useState(false);
-		const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
-		const [openMenu, setOpenMenu] = useState(false);
-		const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
-		const [title, setTitle] = useState('admin');
-		const [loading, setLoading] = useState(true);
-
-		/** LIFECYCLES **/
-		useEffect(() => {
-			const jwt = getJwtToken();
-			if (jwt) updateUserInfo(jwt);
-			setLoading(false);
-		}, []);
-
-		useEffect(() => {
-			if (!loading && user.memberType !== MemberType.ADMIN) {
-				router.push('/').then();
-			}
-		}, [loading, user, router]);
-
-		/** HANDLERS **/
-		const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
-			setAnchorElUser(event.currentTarget);
-		};
-
-		const handleCloseUserMenu = () => {
-			setAnchorElUser(null);
-		};
-
-		const logoutHandler = () => {
-			logOut();
-			router.push('/').then();
-		};
-
-		if (!user || user?.memberType !== MemberType.ADMIN) return null;
-
+		const router = useRouter();
+		const [account, setAccount] = useState<HTMLElement | null>(null);
 		return (
-			<main id="pc-wrap" className="admin">
-				<Box component={'div'} sx={{ display: 'flex' }}>
+			<SessionGate role="ADMIN">
+				<main id="pc-wrap" className="admin quwat-shell">
+					<Head>
+						<title>{t('Quwat — Admin boshqaruvi')}</title>
+					</Head>
 					<AppBar
 						position="fixed"
-						sx={{
-							width: `calc(100% - ${drawerWidth}px)`,
-							ml: `${drawerWidth}px`,
-							boxShadow: 'rgb(100 116 139 / 12%) 0px 1px 4px',
-							background: 'none',
-						}}
+						className="quwat-admin-bar"
+						sx={{ width: { xs: '100%', md: 'calc(100% - 280px)' }, ml: { md: '280px' } }}
 					>
-						<Toolbar>
-							<Tooltip title="Open settings">
-								<IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-									<Avatar
-										src={
-											user?.memberImage ? `${REACT_APP_API_URL}/${user?.memberImage}` : '/img/profile/defaultUser.svg'
-										}
-									/>
-								</IconButton>
-							</Tooltip>
-							<Menu
-								sx={{ mt: '45px' }}
-								id="menu-appbar"
-								className={'pop-menu'}
-								anchorEl={anchorElUser}
-								anchorOrigin={{
-									vertical: 'top',
-									horizontal: 'right',
-								}}
-								keepMounted
-								transformOrigin={{
-									vertical: 'top',
-									horizontal: 'right',
-								}}
-								open={Boolean(anchorElUser)}
-								onClose={handleCloseUserMenu}
-							>
-								<Box
-									component={'div'}
-									onClick={handleCloseUserMenu}
-									sx={{
-										width: '200px',
-									}}
-								>
-									<Stack sx={{ px: '20px', my: '12px' }}>
-										<Typography variant={'h6'} component={'h6'} sx={{ mb: '4px' }}>
-											{user?.memberNick}
-										</Typography>
-										<Typography variant={'subtitle1'} component={'p'} color={'#757575'}>
-											{user?.memberPhone}
-										</Typography>
-									</Stack>
-									<Divider />
-									<Box component={'div'} sx={{ p: 1, py: '6px' }} onClick={logoutHandler}>
-										<MenuItem sx={{ px: '16px', py: '6px' }}>
-											<Typography variant={'subtitle1'} component={'span'}>
-												Logout
-											</Typography>
-										</MenuItem>
-									</Box>
-								</Box>
-							</Menu>
+						<Toolbar sx={{ justifyContent: 'space-between' }}>
+							<LanguageMenu onLightBackground />
+							<IconButton aria-label={t('Hisob menyusi')} onClick={(e) => setAccount(e.currentTarget)}>
+								<Avatar src={imageUrl(user.memberImage)} />
+							</IconButton>
 						</Toolbar>
 					</AppBar>
-
+					<Menu anchorEl={account} open={Boolean(account)} onClose={() => setAccount(null)}>
+						<MenuItem
+							onClick={() => {
+								setAccount(null);
+								void router.push('/mypage');
+							}}
+						>
+							{t('Profil')}
+						</MenuItem>
+						<MenuItem
+							onClick={() => {
+								setAccount(null);
+								void logOut().then(() => router.push('/'));
+							}}
+						>
+							{t('Chiqish')}
+						</MenuItem>
+					</Menu>
 					<Drawer
-						sx={{
-							width: drawerWidth,
-							flexShrink: 0,
-							'& .MuiDrawer-paper': {
-								width: drawerWidth,
-								boxSizing: 'border-box',
-							},
-						}}
 						variant="permanent"
 						anchor="left"
-						className="aside"
+						className="aside quwat-admin-drawer"
+						sx={{ width: 280, flexShrink: 0, '& .MuiDrawer-paper': { width: 280, boxSizing: 'border-box' } }}
 					>
-						<Toolbar sx={{ flexDirection: 'column', alignItems: 'flexStart' }}>
-							<Stack className={'logo-box'}>
-								<img src={'/img/logo/logoText.svg'} alt={'logo'} />
+						<Toolbar sx={{ flexDirection: 'column', alignItems: 'flex-start' }}>
+							<Stack className="logo-box">
+								<Link passHref href="/" aria-label={t('Quwat bosh sahifa')}>
+									<Image src="/img/logo/logoText.svg" width={90} height={90} alt="Quwat" />
+								</Link>
 							</Stack>
-
-							<Stack
-								className="user"
-								direction={'row'}
-								alignItems={'center'}
-								sx={{
-									bgcolor: openMenu ? 'rgba(255, 255, 255, 0.04)' : 'none',
-									borderRadius: '8px',
-									px: '24px',
-									py: '11px',
-								}}
-							>
-								<Avatar
-									src={user?.memberImage ? `${REACT_APP_API_URL}/${user?.memberImage}` : '/img/profile/defaultUser.svg'}
-								/>
-								<Typography variant={'body2'} p={1} ml={1}>
-									{user?.memberNick} <br />
-									{user?.memberPhone}
+							<Stack className="user" direction="row" alignItems="center" sx={{ borderRadius: 2, px: 3, py: 1.5 }}>
+								<Avatar src={imageUrl(user.memberImage)} />
+								<Typography variant="body2" sx={{ pl: 2 }}>
+									{user.memberNick}
+									<br />
+									{user.memberPhone}
 								</Typography>
 							</Stack>
 						</Toolbar>
-
 						<Divider />
-
-						<MenuList />
+						<nav className="menu-list" aria-label={t('Admin menyusi')}>
+							<ul>
+								{[
+									['/_admin/products', t('Mahsulotlar')],
+									['/_admin/users', t('Foydalanuvchilar')],
+									['/_admin/attendance', t('Davomat')],
+									['/_admin/sales', t('Savdolar')],
+								].map(([href, label]) => (
+									<li key={href} className={router.pathname === href ? 'on' : ''}>
+										<Link href={href} aria-current={router.pathname === href ? 'page' : undefined}>
+											{t(label)}
+										</Link>
+									</li>
+								))}
+							</ul>
+						</nav>
 					</Drawer>
-
-					<Box component={'div'} id="bunker" sx={{ flexGrow: 1 }}>
-						{/*@ts-ignore*/}
-						<Component {...props} setSnackbar={setSnackbar} setTitle={setTitle} />
-					</Box>
-				</Box>
-			</main>
+					<div id="bunker">
+						<Component {...props} />
+					</div>
+				</main>
+			</SessionGate>
 		);
 	};
-};
-
-export default withAdminLayout;
+}

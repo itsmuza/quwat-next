@@ -1,7 +1,7 @@
 // @ts-nocheck
 import * as THREE from 'three';
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { context as fiberContext, useFrame, useThree } from '@react-three/fiber';
 import mergeRefs from 'react-merge-refs';
 
@@ -84,7 +84,7 @@ export function ScrollControls({
 			},
 		};
 		return state;
-	}, [eps, damping, horizontal, pages]);
+	}, [eps, damping, horizontal, pages, el, fill, fixed]);
 
 	React.useEffect(() => {
 		el.style.position = 'absolute';
@@ -138,7 +138,7 @@ export function ScrollControls({
 			el.removeEventListener('scroll', onScrollEnd);
 			clearTimeout(scrollEndTimeout);
 		};
-	}, [pages, distance, horizontal, el, fill, fixed, target]);
+	}, [pages, distance, horizontal, el, fill, fixed, target, events, raycaster]);
 
 	React.useEffect(() => {
 		const containerLength = size[horizontal ? 'width' : 'height'];
@@ -182,7 +182,7 @@ export function ScrollControls({
 			el.removeEventListener('scroll', onScroll);
 			if (horizontal) el.removeEventListener('wheel', onWheel);
 		};
-	}, [el, size, infinite, state, invalidate, horizontal]);
+	}, [el, size, infinite, state, invalidate, horizontal, enabled]);
 
 	let last = 0;
 	useFrame((_, delta) => {
@@ -193,7 +193,7 @@ export function ScrollControls({
 	return <context.Provider value={state}>{children}</context.Provider>;
 }
 
-const ScrollCanvas = React.forwardRef(({ children }, ref) => {
+const ScrollCanvas = React.forwardRef(function ScrollCanvas({ children }, ref) {
 	const group = React.useRef<THREE.Group>(null!);
 	const state = useScroll();
 	const { width, height } = useThree((state) => state.viewport);
@@ -204,20 +204,31 @@ const ScrollCanvas = React.forwardRef(({ children }, ref) => {
 	return <group ref={mergeRefs([ref, group])}>{children}</group>;
 });
 
-const ScrollHtml = React.forwardRef(
-	({ children, style, ...props }: { children?: React.ReactNode; style?: React.StyleHTMLAttributes<any> }, ref) => {
-		const state = useScroll();
-		const group = React.useRef<HTMLDivElement>(null!);
-		const { width, height } = useThree((state) => state.size);
-		const fiberState = React.useContext(fiberContext);
-		useFrame(() => {
-			if (state.delta > state.eps) {
-				group.current.style.transform = `translate3d(${
-					state.horizontal ? -width * (state.pages - 1) * state.offset : 0
-				}px,${state.horizontal ? 0 : height * (state.pages - 1) * -state.offset}px,0)`;
-			}
-		});
-		ReactDOM.render(
+const ScrollHtml = React.forwardRef(function ScrollHtml(
+	{ children, style, ...props }: { children?: React.ReactNode; style?: React.StyleHTMLAttributes<any> },
+	ref,
+) {
+	const state = useScroll();
+	const group = React.useRef<HTMLDivElement>(null!);
+	const { width, height } = useThree((state) => state.size);
+	const fiberState = React.useContext(fiberContext);
+	useFrame(() => {
+		if (state.delta > state.eps) {
+			group.current.style.transform = `translate3d(${
+				state.horizontal ? -width * (state.pages - 1) * state.offset : 0
+			}px,${state.horizontal ? 0 : height * (state.pages - 1) * -state.offset}px,0)`;
+		}
+	});
+	const root = React.useRef<ReturnType<typeof createRoot> | null>(null);
+	React.useEffect(() => {
+		root.current = createRoot(state.fixed);
+		return () => {
+			root.current?.unmount();
+			root.current = null;
+		};
+	}, [state.fixed]);
+	React.useEffect(() => {
+		root.current?.render(
 			<div
 				ref={mergeRefs([ref, group])}
 				style={{ ...style, position: 'absolute', top: 0, left: 0, willChange: 'transform' }}
@@ -227,18 +238,17 @@ const ScrollHtml = React.forwardRef(
 					<fiberContext.Provider value={fiberState}>{children}</fiberContext.Provider>
 				</context.Provider>
 			</div>,
-			state.fixed,
 		);
-		return null;
-	},
-);
+	});
+	return null;
+});
 
 type ScrollProps = {
 	html?: boolean;
 	children?: React.ReactNode;
 };
 
-export const Scroll = React.forwardRef(({ html, ...props }: ScrollProps, ref) => {
+export const Scroll = React.forwardRef(function Scroll({ html, ...props }: ScrollProps, ref) {
 	const El = html ? ScrollHtml : ScrollCanvas;
 	return <El ref={ref} {...props} />;
 });

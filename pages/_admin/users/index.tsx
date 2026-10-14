@@ -1,288 +1,275 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import type { NextPage } from 'next';
-import withAdminLayout from '../../../libs/components/layout/LayoutAdmin';
-import { MemberPanelList } from '../../../libs/components/admin/users/MemberList';
-import { Box, InputAdornment, List, ListItem, Stack } from '@mui/material';
-import Typography from '@mui/material/Typography';
-import Divider from '@mui/material/Divider';
-import Select from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
-import { TabContext } from '@mui/lab';
-import OutlinedInput from '@mui/material/OutlinedInput';
-import TablePagination from '@mui/material/TablePagination';
-import CancelRoundedIcon from '@mui/icons-material/CancelRounded';
-import { MembersInquiry } from '../../../libs/types/member/member.input';
-import { Member } from '../../../libs/types/member/member';
-import { MemberStatus, MemberType } from '../../../libs/enums/member.enum';
-import { sweetErrorHandling } from '../../../libs/sweetAlert';
-import { MemberUpdate } from '../../../libs/types/member/member.update';
-import { useMutation, useQuery } from '@apollo/client';
-import { UPDATE_MEMBER_BY_ADMIN } from '../../../apollo/admin/mutation';
+import { useText } from '../../../libs/i18n';
+import React, { useEffect, useState } from 'react';
+import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
+import {
+	Alert,
+	Avatar,
+	Button,
+	Dialog,
+	DialogActions,
+	DialogContent,
+	DialogContentText,
+	DialogTitle,
+	MenuItem,
+	Pagination,
+	Stack,
+	TextField,
+	Typography,
+} from '@mui/material';
+import { serverSideTranslations } from '../../../libs/serverTranslations';
 import { GET_ALL_MEMBERS_BY_ADMIN } from '../../../apollo/admin/query';
-import { T } from '../../../libs/types/common';
-
-const AdminUsers: NextPage = ({ initialInquiry, ...props }: any) => {
-	const [anchorEl, setAnchorEl] = useState<[] | HTMLElement[]>([]);
-	const [membersInquiry, setMembersInquiry] = useState<MembersInquiry>(initialInquiry);
-	const [members, setMembers] = useState<Member[]>([]);
-	const [membersTotal, setMembersTotal] = useState<number>(0);
-	const [value, setValue] = useState(
-		membersInquiry?.search?.memberStatus ? membersInquiry?.search?.memberStatus : 'ALL',
-	);
-	const [searchText, setSearchText] = useState('');
-	const [searchType, setSearchType] = useState('ALL');
-
-	/** APOLLO REQUESTS **/
-	const [updateMemberByAdmin] = useMutation(UPDATE_MEMBER_BY_ADMIN);
-
-	const {
-		loading: getAllMembersByAdminLoading,
-		data: getAllMembersByAdminData,
-		error: getAllMembersByAdminError,
-		refetch: getAllMembersRefetch,
-	} = useQuery(GET_ALL_MEMBERS_BY_ADMIN, {
-		fetchPolicy: 'network-only',
-		variables: { input: membersInquiry },
-		notifyOnNetworkStatusChange: true,
-		onCompleted: (data: T) => {
-			setMembers(data?.getAllMembersByAdmin?.list);
-			setMembersTotal(data?.getAllMembersByAdmin?.metaCounter[0]?.total ?? 0);
-		},
-	});
-
-	/** LIFECYCLES **/
-	useEffect(() => {
-		getAllMembersRefetch({ input: membersInquiry }).then();
-	}, [membersInquiry]);
-
-	/** HANDLERS **/
-	const changePageHandler = async (event: unknown, newPage: number) => {
-		membersInquiry.page = newPage + 1;
-		await getAllMembersRefetch({ input: membersInquiry });
-		setMembersInquiry({ ...membersInquiry });
-	};
-
-	const changeRowsPerPageHandler = async (event: React.ChangeEvent<HTMLInputElement>) => {
-		membersInquiry.limit = parseInt(event.target.value, 10);
-		membersInquiry.page = 1;
-		await getAllMembersRefetch({ input: membersInquiry });
-		setMembersInquiry({ ...membersInquiry });
-	};
-
-	const menuIconClickHandler = (e: any, index: number) => {
-		const tempAnchor = anchorEl.slice();
-		tempAnchor[index] = e.currentTarget;
-		setAnchorEl(tempAnchor);
-	};
-
-	const menuIconCloseHandler = () => {
-		setAnchorEl([]);
-	};
-
-	const tabChangeHandler = async (event: any, newValue: string) => {
-		setValue(newValue);
-		setSearchText('');
-
-		setMembersInquiry({ ...membersInquiry, page: 1, sort: 'createdAt' });
-
-		switch (newValue) {
-			case 'ACTIVE':
-				setMembersInquiry({ ...membersInquiry, search: { memberStatus: MemberStatus.ACTIVE } });
-				break;
-			case 'BLOCK':
-				setMembersInquiry({ ...membersInquiry, search: { memberStatus: MemberStatus.BLOCK } });
-				break;
-			case 'DELETE':
-				setMembersInquiry({ ...membersInquiry, search: { memberStatus: MemberStatus.DELETE } });
-				break;
-			default:
-				delete membersInquiry?.search?.memberStatus;
-				setMembersInquiry({ ...membersInquiry });
-				break;
-		}
-	};
-
-	const updateMemberHandler = async (updateData: MemberUpdate) => {
-		try {
-			await updateMemberByAdmin({
-				variables: {
-					input: updateData,
-				},
-			});
-			menuIconCloseHandler();
-			getAllMembersRefetch({ input: membersInquiry });
-		} catch (err: any) {
-			sweetErrorHandling(err).then();
-		}
-	};
-
-	const textHandler = useCallback((value: string) => {
-		try {
-			setSearchText(value);
-		} catch (err: any) {
-			console.log('textHandler: ', err.message);
-		}
-	}, []);
-
-	const searchTextHandler = () => {
-		try {
-			setMembersInquiry({
-				...membersInquiry,
-				search: {
-					...membersInquiry.search,
-					text: searchText,
-				},
-			});
-		} catch (err: any) {
-			console.log('searchTextHandler: ', err.message);
-		}
-	};
-
-	const searchTypeHandler = async (newValue: string) => {
-		try {
-			setSearchType(newValue);
-
-			if (newValue !== 'ALL') {
-				setMembersInquiry({
-					...membersInquiry,
-					page: 1,
-					sort: 'createdAt',
-					search: {
-						...membersInquiry.search,
-						memberType: newValue as MemberType,
-					},
-				});
-			} else {
-				delete membersInquiry?.search?.memberType;
-				setMembersInquiry({ ...membersInquiry });
-			}
-		} catch (err: any) {
-			console.log('searchTypeHandler: ', err.message);
-		}
-	};
-
-	return (
-		<Box component={'div'} className={'content'}>
-			<Typography variant={'h2'} className={'tit'} sx={{ mb: '24px' }}>
-				Member List
-			</Typography>
-			<Box component={'div'} className={'table-wrap'}>
-				<Box component={'div'} sx={{ width: '100%', typography: 'body1' }}>
-					<TabContext value={value}>
-						<Box component={'div'}>
-							<List className={'tab-menu'}>
-								<ListItem
-									onClick={(e: any) => tabChangeHandler(e, 'ALL')}
-									value="ALL"
-									className={value === 'ALL' ? 'li on' : 'li'}
-								>
-									All
-								</ListItem>
-								<ListItem
-									onClick={(e: any) => tabChangeHandler(e, 'ACTIVE')}
-									value="ACTIVE"
-									className={value === 'ACTIVE' ? 'li on' : 'li'}
-								>
-									Active
-								</ListItem>
-								<ListItem
-									onClick={(e: any) => tabChangeHandler(e, 'BLOCK')}
-									value="BLOCK"
-									className={value === 'BLOCK' ? 'li on' : 'li'}
-								>
-									Blocked
-								</ListItem>
-								<ListItem
-									onClick={(e: any) => tabChangeHandler(e, 'DELETE')}
-									value="DELETE"
-									className={value === 'DELETE' ? 'li on' : 'li'}
-								>
-									Deleted
-								</ListItem>
-							</List>
-							<Divider />
-							<Stack className={'search-area'} sx={{ m: '24px' }}>
-								<OutlinedInput
-									value={searchText}
-									onChange={(e: any) => textHandler(e.target.value)}
-									sx={{ width: '100%' }}
-									className={'search'}
-									placeholder="Search user name"
-									onKeyDown={(event) => {
-										if (event.key == 'Enter') searchTextHandler();
-									}}
-									endAdornment={
-										<>
-											{searchText && (
-												<CancelRoundedIcon
-													style={{ cursor: 'pointer' }}
-													onClick={async () => {
-														setSearchText('');
-														setMembersInquiry({
-															...membersInquiry,
-															search: {
-																...membersInquiry.search,
-																text: '',
-															},
-														});
-														await getAllMembersRefetch({ input: membersInquiry });
-													}}
-												/>
-											)}
-											<InputAdornment position="end" onClick={() => searchTextHandler()}>
-												<img src="/img/icons/search_icon.png" alt={'searchIcon'} />
-											</InputAdornment>
-										</>
-									}
-								/>
-								<Select sx={{ width: '160px', ml: '20px' }} value={searchType}>
-									<MenuItem value={'ALL'} onClick={() => searchTypeHandler('ALL')}>
-										All
-									</MenuItem>
-									<MenuItem value={'USER'} onClick={() => searchTypeHandler('USER')}>
-										User
-									</MenuItem>
-									<MenuItem value={'AGENT'} onClick={() => searchTypeHandler('AGENT')}>
-										Agent
-									</MenuItem>
-									<MenuItem value={'ADMIN'} onClick={() => searchTypeHandler('ADMIN')}>
-										Admin
-									</MenuItem>
-								</Select>
-							</Stack>
-							<Divider />
-						</Box>
-						<MemberPanelList
-							members={members}
-							anchorEl={anchorEl}
-							menuIconClickHandler={menuIconClickHandler}
-							menuIconCloseHandler={menuIconCloseHandler}
-							updateMemberHandler={updateMemberHandler}
-						/>
-
-						<TablePagination
-							rowsPerPageOptions={[10, 20, 40, 60]}
-							component="div"
-							count={membersTotal}
-							rowsPerPage={membersInquiry?.limit}
-							page={membersInquiry?.page - 1}
-							onPageChange={changePageHandler}
-							onRowsPerPageChange={changeRowsPerPageHandler}
-						/>
-					</TabContext>
-				</Box>
-			</Box>
-		</Box>
-	);
+import { UPDATE_MEMBER_BY_ADMIN } from '../../../apollo/admin/mutation';
+import { userVar } from '../../../apollo/store';
+import { Member, Members } from '../../../libs/types/member/member';
+import { MemberType, MemberStatus } from '../../../libs/enums/member.enum';
+import { AdminMemberUpdate } from '../../../libs/types/member/member.update';
+import { errorText, imageUrl } from '../../../libs/feedback';
+import { totalOf } from '../../../libs/product';
+import { restoreSession } from '../../../libs/auth';
+import withAdminLayout from '../../../libs/components/layout/LayoutAdmin';
+import QueryState from '../../../libs/components/common/QueryState';
+const roleLabels = { CLIENT: 'Mijoz', ADMIN: 'Administrator', AGENT: 'Agent' };
+const statusLabels = { ACTIVE: 'Faol', BLOCK: 'Bloklangan', DELETE: 'O‘chirilgan' };
+const roleColors = {
+	CLIENT: { color: '#1646a0', backgroundColor: '#edf3ff', borderColor: '#b9ccef' },
+	AGENT: { color: '#6941a5', backgroundColor: '#f4effb', borderColor: '#d3c2eb' },
+	ADMIN: { color: '#8a4b08', backgroundColor: '#fff4df', borderColor: '#ebcc8d' },
 };
-
-AdminUsers.defaultProps = {
-	initialInquiry: {
-		page: 1,
-		limit: 10,
-		sort: 'createdAt',
-		search: {},
+const statusColors = {
+	ACTIVE: { color: '#1e6539', backgroundColor: '#eaf6ee', borderColor: '#a8d5b8' },
+	BLOCK: { color: '#9a4b09', backgroundColor: '#fff0e4', borderColor: '#efc39e' },
+	DELETE: { color: '#9f2924', backgroundColor: '#fceceb', borderColor: '#e8b4b0' },
+};
+const selectColors = (colors: { color: string; backgroundColor: string; borderColor: string }) => ({
+	'& .MuiOutlinedInput-root': {
+		color: colors.color,
+		backgroundColor: colors.backgroundColor,
+		fontWeight: 600,
+		'& fieldset': { borderColor: colors.borderColor },
+		'&:hover fieldset, &.Mui-focused fieldset': { borderColor: colors.color },
 	},
-};
-
+	'& .MuiSelect-icon': { color: colors.color },
+});
+type MemberChange =
+	| { member: Member; field: 'memberType'; value: MemberType }
+	| { member: Member; field: 'memberStatus'; value: MemberStatus };
+export const getStaticProps = async ({ locale }: { locale: string }) => ({
+	props: { ...(await serverSideTranslations(locale, ['common'])) },
+});
+function AdminUsers() {
+	const { t, locale, errorMessage: translateError } = useText();
+	const user = useReactiveVar(userVar);
+	const [page, setPage] = useState(1);
+	const [text, setText] = useState('');
+	const [submitted, setSubmitted] = useState('');
+	const [role, setRole] = useState('');
+	const [status, setStatus] = useState('');
+	const [edit, setEdit] = useState<MemberChange | null>(null);
+	const [busy, setBusy] = useState(false);
+	const [message, setMessage] = useState('');
+	const input = {
+		page,
+		limit: 20,
+		search: { text: submitted || undefined, memberType: role || undefined, memberStatus: status || undefined },
+	};
+	const { data, loading, error, refetch } = useQuery<{ getAllMembersByAdmin: Members }>(GET_ALL_MEMBERS_BY_ADMIN, {
+		variables: { input },
+		fetchPolicy: 'network-only',
+	});
+	const [update] = useMutation<{ updateMemberByAdmin: Member }, { input: AdminMemberUpdate }>(UPDATE_MEMBER_BY_ADMIN);
+	const pageCount = Math.max(1, Math.ceil(totalOf(data?.getAllMembersByAdmin) / 20));
+	useEffect(() => {
+		if (data && !loading && !error && page > pageCount) setPage(pageCount);
+	}, [data, loading, error, page, pageCount]);
+	function requestChange(change: MemberChange) {
+		if (busy || change.value === change.member[change.field]) return;
+		setMessage('');
+		setEdit(change);
+	}
+	async function save() {
+		if (!edit || busy) return;
+		setBusy(true);
+		setMessage('');
+		try {
+			const changes: AdminMemberUpdate = {
+				_id: edit.member._id,
+				...(edit.field === 'memberType' ? { memberType: edit.value } : { memberStatus: edit.value }),
+			};
+			await update({ variables: { input: changes } });
+			const own = edit.member._id === user._id;
+			setEdit(null);
+			if (own) await restoreSession();
+			else await refetch();
+		} catch (error) {
+			setMessage(errorText(error));
+		} finally {
+			setBusy(false);
+		}
+	}
+	return (
+		<Stack className="quwat-page" spacing={3}>
+			<Typography variant="h4">{t('Foydalanuvchilar')}</Typography>
+			<Stack
+				component="form"
+				direction={{ xs: 'column', sm: 'row' }}
+				gap={2}
+				onSubmit={(e: React.FormEvent) => {
+					e.preventDefault();
+					setSubmitted(text);
+					setPage(1);
+				}}
+			>
+				<TextField label={t('Ism bo‘yicha qidirish')} value={text} onChange={(e) => setText(e.target.value)} />
+				<TextField
+					select
+					label={t('Rol')}
+					value={role}
+					onChange={(e) => {
+						setRole(e.target.value);
+						setPage(1);
+					}}
+					sx={{ minWidth: 170 }}
+				>
+					<MenuItem value="">{t('Barchasi')}</MenuItem>
+					{Object.values(MemberType).map((v) => (
+						<MenuItem key={v} value={v}>
+							{t(roleLabels[v])}
+						</MenuItem>
+					))}
+				</TextField>
+				<TextField
+					select
+					label={t('Status')}
+					value={status}
+					onChange={(e) => {
+						setStatus(e.target.value);
+						setPage(1);
+					}}
+					sx={{ minWidth: 170 }}
+				>
+					<MenuItem value="">{t('Barchasi')}</MenuItem>
+					{Object.values(MemberStatus).map((v) => (
+						<MenuItem key={v} value={v}>
+							{t(statusLabels[v])}
+						</MenuItem>
+					))}
+				</TextField>
+				<Button variant="contained" type="submit">
+					{t('Qidirish')}
+				</Button>
+			</Stack>
+			{message && <Alert severity="error">{translateError(message)}</Alert>}
+			<QueryState loading={loading && !data} error={error} retry={() => refetch()} />
+			<div className="quwat-records">
+				{data?.getAllMembersByAdmin.list.map((m) => (
+					<article className="quwat-record quwat-admin-user" key={m._id}>
+						<Avatar
+							className="quwat-admin-user-avatar"
+							variant="rounded"
+							src={imageUrl(m.memberImage)}
+							alt={m.memberFullName || m.memberNick}
+						>
+							{(m.memberFullName || m.memberNick).charAt(0).toUpperCase()}
+						</Avatar>
+						<Typography className="quwat-admin-user-heading" variant="h6" component="h2">
+							{m.memberFullName || m.memberNick}
+						</Typography>
+						<dl className="quwat-admin-user-details">
+							{[
+								[t('Foydalanuvchi nomi'), m.memberNick],
+								[t('Telefon'), m.memberPhone || t('Ko‘rsatilmagan')],
+								[t('Manzil'), m.memberAddress || t('Ko‘rsatilmagan')],
+								[
+									t('Ro‘yxatdan o‘tgan'),
+									new Date(m.createdAt).toLocaleDateString(locale, { timeZone: 'Asia/Tashkent' }),
+								],
+							].map(([label, value]) => (
+								<div key={t(label)}>
+									<dt>{t(label)}</dt>
+									<dd>{value}</dd>
+								</div>
+							))}
+						</dl>
+						<div className="quwat-admin-user-controls">
+							<TextField
+								select
+								label={t('Rol')}
+								InputLabelProps={{ shrink: true }}
+								value={m.memberType}
+								disabled={busy}
+								onChange={(e) => requestChange({ member: m, field: 'memberType', value: e.target.value as MemberType })}
+								sx={selectColors(roleColors[m.memberType])}
+							>
+								{Object.values(MemberType).map((v) => (
+									<MenuItem key={v} value={v} sx={{ color: roleColors[v].color, fontWeight: 600 }}>
+										{t(roleLabels[v])}
+									</MenuItem>
+								))}
+							</TextField>
+							<TextField
+								select
+								label={t('Status')}
+								InputLabelProps={{ shrink: true }}
+								value={m.memberStatus}
+								disabled={busy}
+								onChange={(e) =>
+									requestChange({ member: m, field: 'memberStatus', value: e.target.value as MemberStatus })
+								}
+								sx={selectColors(statusColors[m.memberStatus])}
+							>
+								{Object.values(MemberStatus).map((v) => (
+									<MenuItem key={v} value={v} sx={{ color: statusColors[v].color, fontWeight: 600 }}>
+										{t(statusLabels[v])}
+									</MenuItem>
+								))}
+							</TextField>
+						</div>
+					</article>
+				))}
+			</div>
+			{data && !data.getAllMembersByAdmin.list.length && (
+				<Alert severity="info">{t('Foydalanuvchilar topilmadi.')}</Alert>
+			)}
+			<Pagination page={page} count={pageCount} onChange={(_, v) => setPage(v)} />
+			<Dialog
+				open={Boolean(edit)}
+				onClose={busy ? undefined : () => setEdit(null)}
+				fullWidth
+				maxWidth="sm"
+				aria-labelledby="member-change-title"
+				aria-describedby="member-change-description"
+			>
+				<DialogTitle id="member-change-title">
+					{edit?.field === 'memberType' ? t('Rolni o‘zgartirish') : t('Statusni o‘zgartirish')}
+				</DialogTitle>
+				<DialogContent>
+					<DialogContentText id="member-change-description">
+						{edit &&
+							t('{{name}}: {{before}} → {{after}}. O‘zgarish saqlansinmi?', {
+								name: edit.member.memberFullName || edit.member.memberNick,
+								before:
+									edit.field === 'memberType'
+										? t(roleLabels[edit.member.memberType])
+										: t(statusLabels[edit.member.memberStatus]),
+								after: edit.field === 'memberType' ? t(roleLabels[edit.value]) : t(statusLabels[edit.value]),
+							})}
+					</DialogContentText>
+					{message && (
+						<Alert severity="error" sx={{ mt: 2 }}>
+							{translateError(message)}
+						</Alert>
+					)}
+				</DialogContent>
+				<DialogActions>
+					<Button disabled={busy} onClick={() => setEdit(null)}>
+						{t('Bekor qilish')}
+					</Button>
+					<Button variant="contained" disabled={busy} onClick={() => void save()}>
+						{t('Saqlash')}
+					</Button>
+				</DialogActions>
+			</Dialog>
+		</Stack>
+	);
+}
 export default withAdminLayout(AdminUsers);
