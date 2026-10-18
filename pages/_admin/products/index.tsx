@@ -1,5 +1,5 @@
 import { useText } from '../../../libs/i18n';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useMutation, useQuery, useApolloClient } from '@apollo/client';
 import { Alert, Button, Chip, MenuItem, Pagination, Stack, TextField, Typography } from '@mui/material';
@@ -14,6 +14,7 @@ import ProductFilter from '../../../libs/components/product/ProductFilter';
 import ProductForm from '../../../libs/components/admin/ProductForm';
 import QueryState from '../../../libs/components/common/QueryState';
 import { invalidateProductCatalog } from '../../../libs/adminProduct';
+import PermanentDeleteButton from '../../../libs/components/admin/PermanentDeleteButton';
 import ProductImage from '../../../libs/components/product/ProductImage';
 const statusColors = {
 	[ProductStatus.ACTIVE]: { color: '#1e6539', backgroundColor: '#eaf6ee', borderColor: '#a8d5b8' },
@@ -37,6 +38,11 @@ function AdminProducts() {
 	>(GET_ALL_PRODUCTS_BY_ADMIN, { variables: { input: inquiry }, fetchPolicy: 'network-only' });
 	const [update] = useMutation<{ updateProduct: Product }, { input: ProductUpdate }>(UPDATE_PRODUCT);
 	const [archive] = useMutation<{ removeProductByAdmin: Product }, { productId: string }>(REMOVE_PRODUCT_BY_ADMIN);
+	const pageCount = Math.max(1, Math.ceil(totalOf(data?.getAllProductsByAdmin) / inquiry.limit));
+	useEffect(() => {
+		if (data && !loading && !error && inquiry.page > pageCount)
+			setInquiry((current) => ({ ...current, page: pageCount }));
+	}, [data, loading, error, inquiry.page, pageCount]);
 	async function refresh() {
 		invalidateProductCatalog(client);
 		await refetch();
@@ -61,8 +67,14 @@ function AdminProducts() {
 		}
 	}
 	return (
-		<Stack className="quwat-page" spacing={3}>
-			<Stack direction="row" justifyContent="space-between" flexWrap="wrap" gap={2}>
+		<Stack className="quwat-page quwat-admin-catalog" spacing={2}>
+			<Stack
+				className="quwat-admin-catalog-heading"
+				direction="row"
+				justifyContent="space-between"
+				flexWrap="wrap"
+				gap={2}
+			>
 				<Typography variant="h4">{t('Mahsulot boshqaruvi')}</Typography>
 				<Button variant="contained" onClick={() => setForm({})}>
 					{t('Mahsulot qo‘shish')}
@@ -76,6 +88,8 @@ function AdminProducts() {
 			/>
 			<TextField
 				select
+				className="quwat-admin-catalog-status"
+				size="small"
 				label={t('Status')}
 				value={inquiry.search.productStatus || ''}
 				onChange={(e) =>
@@ -164,6 +178,18 @@ function AdminProducts() {
 							))}
 						</dl>
 						<Stack className="quwat-admin-product-actions" direction="row" gap={1} flexWrap="wrap">
+							<PermanentDeleteButton
+								kind="product"
+								id={p._id}
+								name={p.productName}
+								disabled={busy}
+								onBusy={setBusy}
+								onDeleted={async () => {
+									client.cache.evict({ id: client.cache.identify({ __typename: 'Product', _id: p._id }) });
+									invalidateProductCatalog(client, p._id);
+									await refresh();
+								}}
+							/>
 							<Button
 								variant="contained"
 								sx={{ color: '#fff', backgroundColor: '#181a20', '&:hover': { backgroundColor: '#30333a' } }}
@@ -201,11 +227,7 @@ function AdminProducts() {
 				))}
 			</div>
 			{data && !data.getAllProductsByAdmin.list.length && <Alert severity="info">{t('Mahsulotlar yo‘q.')}</Alert>}
-			<Pagination
-				page={inquiry.page}
-				count={Math.max(1, Math.ceil(totalOf(data?.getAllProductsByAdmin) / inquiry.limit))}
-				onChange={(_, page) => setInquiry({ ...inquiry, page })}
-			/>
+			<Pagination page={inquiry.page} count={pageCount} onChange={(_, page) => setInquiry({ ...inquiry, page })} />
 			{form && <ProductForm product={form.product} close={() => setForm(null)} saved={refresh} />}
 		</Stack>
 	);

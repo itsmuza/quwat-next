@@ -1,11 +1,9 @@
 import { useText } from '../../i18n';
 import React from 'react';
 import { useQuery, useReactiveVar } from '@apollo/client';
-import { Alert, IconButton, Stack } from '@mui/material';
+import { Alert, Stack } from '@mui/material';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Autoplay, Navigation, Pagination } from 'swiper';
-import WestIcon from '@mui/icons-material/West';
-import EastIcon from '@mui/icons-material/East';
+import { A11y, Mousewheel, Pagination } from 'swiper';
 import { GET_PRODUCTS } from '../../../apollo/user/product';
 import { Products, ProductSort } from '../../types/product/product';
 import { sessionVar } from '../../../apollo/store';
@@ -20,7 +18,7 @@ export default function ProductShelf({ title, sort }: { title: string; sort: Pro
 		fetchPolicy: 'cache-and-network',
 	});
 	return (
-		<Stack className={`trend-properties ${sort === 'productLikes' ? 'quwat-popular-shelf' : ''}`}>
+		<Stack className={`trend-properties quwat-product-shelf ${sort === 'productLikes' ? 'quwat-popular-shelf' : ''}`}>
 			<Stack className="container">
 				<div className="info-box">
 					<div className="left">
@@ -33,9 +31,16 @@ export default function ProductShelf({ title, sort }: { title: string; sort: Pro
 					<Swiper
 						className="trend-property-swiper"
 						slidesPerView="auto"
-						spaceBetween={25}
-						modules={[Autoplay, Navigation, Pagination]}
-						navigation={{ prevEl: `.quwat-prev-${sort}`, nextEl: `.quwat-next-${sort}` }}
+						spaceBetween={16}
+						breakpoints={{ 768: { spaceBetween: 24 }, 1200: { spaceBetween: 24, slidesPerView: 4 } }}
+						speed={400}
+						grabCursor
+						threshold={8}
+						modules={[A11y, Mousewheel, Pagination]}
+						mousewheel={{ forceToAxis: true, releaseOnEdges: true }}
+						a11y={{
+							paginationBulletMessage: t('{{index}}-mahsulotlar guruhiga o‘tish'),
+						}}
 						pagination={{ el: `.quwat-pagination-${sort}`, clickable: true }}
 					>
 						{data?.getProducts.list.map((p) => (
@@ -46,13 +51,7 @@ export default function ProductShelf({ title, sort }: { title: string; sort: Pro
 					</Swiper>
 				</Stack>
 				<div className="quwat-carousel-pagination">
-					<IconButton className={`quwat-prev-${sort}`} aria-label={t('Oldingi mahsulotlar')}>
-						<WestIcon />
-					</IconButton>
 					<div className={`quwat-pagination-${sort}`} />
-					<IconButton className={`quwat-next-${sort}`} aria-label={t('Keyingi mahsulotlar')}>
-						<EastIcon />
-					</IconButton>
 				</div>
 				{data && !data.getProducts.list.length && <Alert severity="info">{t('Hozircha mahsulotlar yo‘q.')}</Alert>}
 			</Stack>

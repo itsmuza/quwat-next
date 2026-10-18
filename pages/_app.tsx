@@ -5,7 +5,7 @@ import { CssBaseline } from '@mui/material';
 import React, { useEffect, useMemo } from 'react';
 import Router, { useRouter } from 'next/router';
 import { useText } from '../libs/i18n';
-import { restoreSession } from '../libs/auth';
+import { watchSession } from '../libs/auth/browser';
 import { light } from '../scss/MaterialTheme';
 import { ApolloProvider } from '@apollo/client';
 import { useApollo } from '../apollo/client';
@@ -55,28 +55,7 @@ const App = ({ Component, pageProps }: AppProps) => {
 		Router.events.on('routeChangeComplete', syncLanguage);
 		return () => Router.events.off('routeChangeComplete', syncLanguage);
 	}, [router.locale]);
-	useEffect(() => {
-		void restoreSession();
-		const sync = (event: StorageEvent) => {
-			if (event.key === 'accessToken') void client.clearStore().then(() => restoreSession());
-		};
-		const refresh = () => {
-			void restoreSession();
-		};
-		window.addEventListener('storage', sync);
-		window.addEventListener('quwat:session-check', refresh);
-		window.addEventListener('focus', refresh);
-		const clear = () => {
-			void client.clearStore();
-		};
-		window.addEventListener('quwat:logout', clear);
-		return () => {
-			window.removeEventListener('storage', sync);
-			window.removeEventListener('quwat:session-check', refresh);
-			window.removeEventListener('focus', refresh);
-			window.removeEventListener('quwat:logout', clear);
-		};
-	}, [client]);
+	useEffect(() => watchSession(client), [client]);
 
 	return (
 		<ApolloProvider client={client}>

@@ -1,4 +1,27 @@
 import { gql } from '@apollo/client';
+export const GET_ATTENDANCE_NOTIFICATIONS = gql`
+	query GetAttendanceNotifications($input: AdminAttendancesInquiry!) {
+		getAttendanceNotifications: getAllAttendancesByAdmin(input: $input) {
+			list {
+				_id
+				memberId
+				attendanceDate
+				attendanceStatus
+				reviewedAt
+				createdAt
+				updatedAt
+				memberData {
+					_id
+					memberNick
+					memberFullName
+				}
+			}
+			metaCounter {
+				total
+			}
+		}
+	}
+`;
 export const GET_ALL_ATTENDANCES_BY_ADMIN = gql`
 	query GetAllAttendancesByAdmin($input: AdminAttendancesInquiry!) {
 		getAllAttendancesByAdmin(input: $input) {

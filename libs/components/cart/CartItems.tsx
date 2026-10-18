@@ -59,9 +59,15 @@ export default function CartItems() {
 								height={64}
 							/>
 						</div>
-						<Stack spacing={1} sx={{ minWidth: 0 }}>
-							<Stack direction="row" justifyContent="space-between" alignItems="flex-start" gap={1}>
-								<Typography fontWeight={600} sx={{ overflowWrap: 'anywhere' }}>
+						<div className="quwat-cart-item-details">
+							<Stack
+								className="quwat-cart-item-heading"
+								direction="row"
+								justifyContent="space-between"
+								alignItems="flex-start"
+								gap={1}
+							>
+								<Typography className="quwat-cart-item-name" fontWeight={600} sx={{ overflowWrap: 'anywhere' }}>
 									{p ? name : cart.syncing ? t('Mahsulot yuklanmoqda…') : name}
 								</Typography>
 								<IconButton
@@ -74,63 +80,63 @@ export default function CartItems() {
 								</IconButton>
 							</Stack>
 							{p && (
-								<>
-									<Typography variant="body2" color="text.secondary">
-										{money(p.productPrice, locale)} / {t(unitLabels[p.productUnit])}
-									</Typography>
-									<Stack direction="row" gap={1} alignItems="flex-start">
-										<IconButton
-											size="small"
-											aria-label={t('{{name}} miqdorini kamaytirish', { name })}
-											disabled={
-												locked || cart.syncing || Boolean(validation) || Boolean(quantityError(p, adjusted(-1)))
-											}
-											onClick={() => setCartQuantity(line.productId, adjusted(-1))}
-										>
-											<RemoveIcon fontSize="small" />
-										</IconButton>
-										<TextField
-											size="small"
-											type="number"
-											label={t('Miqdor')}
-											InputLabelProps={{ shrink: true }}
-											value={line.quantity}
-											onChange={(e) => setCartQuantity(line.productId, e.target.value)}
-											disabled={locked || cart.syncing}
-											inputProps={{
-												min: p.productMinOrderQuantity,
-												max: stockAvailable(p),
-												step,
-												'aria-label': t('{{name}} miqdori', { name }),
-											}}
-											sx={{ width: 130 }}
-										/>
-										<IconButton
-											size="small"
-											aria-label={t('{{name}} miqdorini oshirish', { name })}
-											disabled={locked || cart.syncing || Boolean(validation) || Boolean(quantityError(p, adjusted(1)))}
-											onClick={() => setCartQuantity(line.productId, adjusted(1))}
-										>
-											<AddIcon fontSize="small" />
-										</IconButton>
-									</Stack>
-									<Typography variant="body2" sx={{ overflowWrap: 'anywhere' }}>
-										{line.quantity || '—'} {t(unitLabels[p.productUnit])} × {money(p.productPrice, locale)} ={' '}
-										<strong>{amount === null ? '—' : money(amount, locale)}</strong>
-									</Typography>
-								</>
+								<Typography className="quwat-cart-unit-price" variant="body2" color="text.secondary">
+									{money(p.productPrice, locale)} / {t(unitLabels[p.productUnit])}
+								</Typography>
 							)}
-							{(line.error || validation || (p && amount === null)) && (
-								<Alert severity="warning" sx={{ py: 0 }}>
-									{translateError(line.error || validation || 'Hisob qiymati juda katta. Miqdorni kamaytiring.')}
-								</Alert>
-							)}
-							{line.error && (
-								<Button size="small" disabled={cart.syncing} onClick={() => void refreshCart(client)}>
-									{t('Qayta tekshirish')}
-								</Button>
-							)}
-						</Stack>
+						</div>
+						{p && (
+							<div className="quwat-cart-item-purchase">
+								<Stack className="quwat-cart-quantity" direction="row" gap={0.5} alignItems="center">
+									<IconButton
+										size="small"
+										aria-label={t('{{name}} miqdorini kamaytirish', { name })}
+										disabled={locked || cart.syncing || Boolean(validation) || Boolean(quantityError(p, adjusted(-1)))}
+										onClick={() => setCartQuantity(line.productId, adjusted(-1))}
+									>
+										<RemoveIcon fontSize="small" />
+									</IconButton>
+									<TextField
+										size="small"
+										type="number"
+										label={t('Miqdor')}
+										InputLabelProps={{ shrink: true }}
+										value={line.quantity}
+										onChange={(e) => setCartQuantity(line.productId, e.target.value)}
+										disabled={locked || cart.syncing}
+										inputProps={{
+											min: p.productMinOrderQuantity,
+											max: stockAvailable(p),
+											step,
+											'aria-label': t('{{name}} miqdori', { name }),
+										}}
+										sx={{ width: 64, minWidth: 0 }}
+									/>
+									<IconButton
+										size="small"
+										aria-label={t('{{name}} miqdorini oshirish', { name })}
+										disabled={locked || cart.syncing || Boolean(validation) || Boolean(quantityError(p, adjusted(1)))}
+										onClick={() => setCartQuantity(line.productId, adjusted(1))}
+									>
+										<AddIcon fontSize="small" />
+									</IconButton>
+								</Stack>
+								<Typography className="quwat-cart-line-total" variant="body2" sx={{ overflowWrap: 'anywhere' }}>
+									{line.quantity || '—'} {t(unitLabels[p.productUnit])} × {money(p.productPrice, locale)} ={' '}
+									<strong>{amount === null ? '—' : money(amount, locale)}</strong>
+								</Typography>
+							</div>
+						)}
+						{(line.error || validation || (p && amount === null)) && (
+							<Alert severity="warning" sx={{ py: 0 }}>
+								{translateError(line.error || validation || 'Hisob qiymati juda katta. Miqdorni kamaytiring.')}
+							</Alert>
+						)}
+						{line.error && (
+							<Button size="small" disabled={cart.syncing} onClick={() => void refreshCart(client)}>
+								{t('Qayta tekshirish')}
+							</Button>
+						)}
 					</div>
 				);
 			})}

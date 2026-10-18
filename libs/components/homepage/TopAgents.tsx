@@ -26,7 +26,7 @@ export default function TopAgents() {
 				<QueryState loading={loading && !data} error={error} retry={() => refetch()} />
 				<div className="wrapper quwat-agent-grid">
 					{data?.getAgents.list.map((m) => (
-						<MemberCard key={m._id} member={m} />
+						<MemberCard key={m._id} member={m} showNickname={false} />
 					))}
 				</div>
 				{data && !data.getAgents.list.length && <Alert severity="info">{t('Hozircha agentlar yo‘q.')}</Alert>}

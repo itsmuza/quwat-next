@@ -2,6 +2,10 @@ import { useText } from '../../libs/i18n';
 import Image from 'next/image';
 import React, { FormEvent, useState } from 'react';
 import { Alert, Button, Stack } from '@mui/material';
+import PersonOutlineRoundedIcon from '@mui/icons-material/PersonOutlineRounded';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import PhoneOutlinedIcon from '@mui/icons-material/PhoneOutlined';
+import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded';
 import { useRouter } from 'next/router';
 import { serverSideTranslations } from '../../libs/serverTranslations';
 import withLayoutBasic from '../../libs/components/layout/LayoutBasic';
@@ -11,7 +15,7 @@ export const getStaticProps = async ({ locale }: { locale: string }) => ({
 	props: { ...(await serverSideTranslations(locale, ['common'])) },
 });
 function Join() {
-	const { t, locale, errorMessage: translateError } = useText();
+	const { t, errorMessage: translateError } = useText();
 	const router = useRouter();
 	const [signup, setSignup] = useState(false);
 	const [busy, setBusy] = useState(false);
@@ -32,7 +36,7 @@ function Join() {
 		}
 	}
 	return (
-		<Stack className="join-page">
+		<Stack className="join-page quwat-auth-page">
 			<Stack className="container">
 				<Stack className="main">
 					<Stack className="left">
@@ -41,7 +45,7 @@ function Join() {
 							<span>Quwat</span>
 						</div>
 						<div className="info">
-							<span>{signup ? t('Ro‘yxatdan o‘tish') : t('Tizimga kirish')}</span>
+							<h1>{signup ? t('Ro‘yxatdan o‘tish') : t('Tizimga kirish')}</h1>
 							<p>{t('Quwat hisobingiz orqali davom eting.')}</p>
 						</div>
 						<form onSubmit={submit}>
@@ -49,45 +53,54 @@ function Join() {
 							<div className="input-wrap">
 								<div className="input-box">
 									<label htmlFor="nickname">{t('Foydalanuvchi nomi')}</label>
-									<input
-										id="nickname"
-										autoComplete="username"
-										required
-										minLength={3}
-										maxLength={12}
-										value={input.nick}
-										onChange={(e) => setInput({ ...input, nick: e.target.value })}
-									/>
+									<div className="auth-field">
+										<PersonOutlineRoundedIcon aria-hidden="true" />
+										<input
+											id="nickname"
+											autoComplete="username"
+											required
+											minLength={3}
+											maxLength={12}
+											value={input.nick}
+											onChange={(e) => setInput({ ...input, nick: e.target.value })}
+										/>
+									</div>
 								</div>
 								<div className="input-box">
 									<label htmlFor="password">{t('Parol')}</label>
-									<input
-										id="password"
-										type="password"
-										autoComplete={signup ? 'new-password' : 'current-password'}
-										required
-										minLength={5}
-										maxLength={12}
-										value={input.password}
-										onChange={(e) => setInput({ ...input, password: e.target.value })}
-									/>
+									<div className="auth-field">
+										<LockOutlinedIcon aria-hidden="true" />
+										<input
+											id="password"
+											type="password"
+											autoComplete={signup ? 'new-password' : 'current-password'}
+											required
+											minLength={5}
+											maxLength={12}
+											value={input.password}
+											onChange={(e) => setInput({ ...input, password: e.target.value })}
+										/>
+									</div>
 								</div>
 								{signup && (
 									<div className="input-box">
 										<label htmlFor="phone">{t('Telefon')}</label>
-										<input
-											id="phone"
-											type="tel"
-											required
-											autoComplete="tel"
-											value={input.phone}
-											onChange={(e) => setInput({ ...input, phone: e.target.value })}
-										/>
+										<div className="auth-field">
+											<PhoneOutlinedIcon aria-hidden="true" />
+											<input
+												id="phone"
+												type="tel"
+												required
+												autoComplete="tel"
+												value={input.phone}
+												onChange={(e) => setInput({ ...input, phone: e.target.value })}
+											/>
+										</div>
 									</div>
 								)}
 							</div>
 							<div className="register">
-								<Button variant="contained" type="submit" disabled={busy}>
+								<Button variant="contained" type="submit" disabled={busy} endIcon={<ArrowForwardRoundedIcon />}>
 									{busy ? t('Kutilmoqda…') : signup ? t('Ro‘yxatdan o‘tish') : t('Kirish')}
 								</Button>
 							</div>
@@ -106,7 +119,12 @@ function Join() {
 							</p>
 						</div>
 					</Stack>
-					<Stack className="right" />
+					<Stack className="right">
+						<div className="auth-photo-copy">
+							<span className="auth-photo-brand">Quwat</span>
+							<p>{t('Qurilish materiallari do‘koni')}</p>
+						</div>
+					</Stack>
 				</Stack>
 			</Stack>
 		</Stack>

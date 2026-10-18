@@ -36,6 +36,7 @@ export interface Product {
 	archivedAt?: string | null;
 	createdAt: string;
 	updatedAt: string;
+	guestLiked?: boolean;
 	meLiked?: MeLiked[] | null;
 	meSaved: boolean;
 }

@@ -31,12 +31,13 @@ export default function Frame({ children, home }: { children: ReactNode; home?: 
 		'/500': t('Server xatosi'),
 	};
 	const basic = !home && !router.pathname.startsWith('/_admin') && router.pathname !== '/product/detail';
+	const memberPage = ['/agent', '/agent/detail', '/member'].includes(router.pathname);
 	const background =
 		router.pathname === '/product'
-			? '/img/banner/properties.png'
-			: router.pathname === '/agent'
-			? '/img/banner/agents.webp'
-			: '/img/banner/header2.svg';
+			? '/img/banner/quwat-catalog.webp'
+			: memberPage
+			? '/img/banner/quwat-team.webp'
+			: '/img/banner/quwat-warehouse.webp';
 	return (
 		<Stack id="pc-wrap" className="quwat-shell">
 			<Head>
@@ -66,9 +67,9 @@ export default function Frame({ children, home }: { children: ReactNode; home?: 
 				<Stack
 					className={`header-basic ${router.pathname === '/account/join' ? 'auth' : ''}`}
 					style={{
-						backgroundImage: `url(${background})`,
+						backgroundImage: `linear-gradient(90deg, rgba(17, 20, 27, 0.78), rgba(17, 20, 27, 0.45)), url(${background})`,
 						backgroundSize: 'cover',
-						boxShadow: 'inset 10px 40px 150px 40px rgb(24 22 36)',
+						backgroundPosition: memberPage ? 'center top' : 'center',
 					}}
 				>
 					<Stack className="container">

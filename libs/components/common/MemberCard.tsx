@@ -1,25 +1,43 @@
 import React from 'react';
 import Link from 'next/link';
 import { useReactiveVar } from '@apollo/client';
-import { Avatar, Stack } from '@mui/material';
+import { Avatar } from '@mui/material';
 import { sessionVar, userVar } from '../../../apollo/store';
 import { Member } from '../../types/member/member';
 import { imageUrl } from '../../feedback';
+import { useText } from '../../i18n';
+import { Card, CardHeader, CardTitle, CardDescription, CardFooter } from '../ui/card';
 import MemberLike from './MemberLike';
-export default function MemberCard({ member }: { member: Member }) {
+
+export default function MemberCard({ member, showNickname = true }: { member: Member; showNickname?: boolean }) {
+	const { t } = useText();
 	const user = useReactiveVar(userVar);
 	const session = useReactiveVar(sessionVar);
 	const self = session.status === 'authenticated' && user.memberType === 'AGENT' && member._id === user._id;
 	return (
-		<Stack className="top-agent-card" alignItems="center">
-			<Link passHref href={self ? '/mypage' : { pathname: '/agent/detail', query: { agentId: member._id } }}>
-				<Stack alignItems="center">
-					<Avatar src={imageUrl(member.memberImage)} sx={{ width: 209, height: 209 }} />
-					<strong>{member.memberFullName || member.memberNick}</strong>
-					<span>@{member.memberNick}</span>
-				</Stack>
+		<Card className="quwat-member-card">
+			<Link
+				passHref
+				href={self ? '/mypage' : { pathname: '/agent/detail', query: { agentId: member._id } }}
+				className="quwat-member-profile"
+			>
+				<div className="quwat-member-cover">
+					<span>{t('Agent')}</span>
+				</div>
+				<CardHeader>
+					<Avatar src={imageUrl(member.memberImage)} className="quwat-member-avatar" />
+					<CardTitle
+						title={member.memberFullName || member.memberNick}
+						className={showNickname ? '' : 'quwat-member-name-centered'}
+					>
+						{member.memberFullName || member.memberNick}
+					</CardTitle>
+					{showNickname && <CardDescription>@{member.memberNick}</CardDescription>}
+				</CardHeader>
 			</Link>
-			<MemberLike member={member} />
-		</Stack>
+			<CardFooter>
+				<MemberLike member={member} />
+			</CardFooter>
+		</Card>
 	);
 }

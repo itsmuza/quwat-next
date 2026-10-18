@@ -10,12 +10,14 @@ export default function SaleCards({
 	sales,
 	action,
 	actionLabel,
+	onReject,
 	busy = false,
 	columns = 1,
 }: {
 	sales: Sale[];
 	action?: (sale: Sale) => void;
 	actionLabel?: string;
+	onReject?: (sale: Sale) => void;
 	busy?: boolean;
 	columns?: 1 | 2;
 }) {
@@ -43,7 +45,7 @@ export default function SaleCards({
 						</Typography>
 						<Chip
 							size="small"
-							label={t(saleStatusLabels[sale.saleStatus])}
+							label={t(sale.rejectedAt ? 'Agent rad etdi' : saleStatusLabels[sale.saleStatus])}
 							sx={{
 								backgroundColor:
 									sale.saleStatus === 'COMPLETED' ? '#eaf6ee' : sale.saleStatus === 'PENDING' ? '#fff4df' : '#fceceb',
@@ -86,6 +88,22 @@ export default function SaleCards({
 						<Typography variant="body2" color="text.secondary">
 							{t('Bekor qilingan:')} {time(sale.cancelledAt, locale)}
 						</Typography>
+					)}
+					{sale.rejectedAt && (
+						<Typography variant="body2" color="text.secondary">
+							{t('Agent rad etdi')}: {sale.rejectedByName}
+						</Typography>
+					)}
+					{onReject && sale.saleStatus === 'PENDING' && (
+						<Button
+							variant="outlined"
+							color="error"
+							disabled={busy}
+							sx={{ alignSelf: 'flex-start' }}
+							onClick={() => onReject(sale)}
+						>
+							{t('Rad etish')}
+						</Button>
 					)}
 					{action && sale.saleStatus === 'PENDING' && (
 						<Button

@@ -1,5 +1,7 @@
 # Quwat homepage photo assets
 
+Current header photos were replaced on2026-10-15 with eight hardware-use scenes under `public/img/header/`, with automatic horizontal advance every3 seconds. See [HEADER_HARDWARE_IMAGES.md](HEADER_HARDWARE_IMAGES.md) for current assets and exact prompts. The original photos below remain for the separate advertising section and historical documentation.
+
 Created 2026-10-14 using the built-in `image_gen.imagegen` tool. These are conceptual construction/store scenes, not photographs of an actual Quwat location. No external stock-photo service or new dependency was used.
 
 ## Delivered assets

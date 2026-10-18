@@ -21,6 +21,7 @@ export const MEMBER_FIELDS = gql`
 		deletedAt
 		createdAt
 		updatedAt
+		guestLiked
 		meLiked {
 			memberId
 			likeRefId
@@ -51,6 +52,7 @@ export const PRODUCT_FIELDS = gql`
 		createdAt
 		updatedAt
 		meSaved
+		guestLiked
 		meLiked {
 			memberId
 			likeRefId

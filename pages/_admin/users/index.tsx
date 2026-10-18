@@ -1,6 +1,6 @@
 import { useText } from '../../../libs/i18n';
 import React, { useEffect, useState } from 'react';
-import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
+import { useApolloClient, useMutation, useQuery, useReactiveVar } from '@apollo/client';
 import {
 	Alert,
 	Avatar,
@@ -27,28 +27,29 @@ import { errorText, imageUrl } from '../../../libs/feedback';
 import { totalOf } from '../../../libs/product';
 import { restoreSession } from '../../../libs/auth';
 import withAdminLayout from '../../../libs/components/layout/LayoutAdmin';
+import PermanentDeleteButton from '../../../libs/components/admin/PermanentDeleteButton';
 import QueryState from '../../../libs/components/common/QueryState';
 const roleLabels = { CLIENT: 'Mijoz', ADMIN: 'Administrator', AGENT: 'Agent' };
 const statusLabels = { ACTIVE: 'Faol', BLOCK: 'Bloklangan', DELETE: 'O‘chirilgan' };
 const roleColors = {
-	CLIENT: { color: '#1646a0', backgroundColor: '#edf3ff', borderColor: '#b9ccef' },
-	AGENT: { color: '#6941a5', backgroundColor: '#f4effb', borderColor: '#d3c2eb' },
-	ADMIN: { color: '#8a4b08', backgroundColor: '#fff4df', borderColor: '#ebcc8d' },
+	CLIENT: { color: '#1646a0' },
+	AGENT: { color: '#6941a5' },
+	ADMIN: { color: '#8a4b08' },
 };
 const statusColors = {
-	ACTIVE: { color: '#1e6539', backgroundColor: '#eaf6ee', borderColor: '#a8d5b8' },
-	BLOCK: { color: '#9a4b09', backgroundColor: '#fff0e4', borderColor: '#efc39e' },
-	DELETE: { color: '#9f2924', backgroundColor: '#fceceb', borderColor: '#e8b4b0' },
+	ACTIVE: { color: '#1e6539' },
+	BLOCK: { color: '#9a4b09' },
+	DELETE: { color: '#9f2924' },
 };
-const selectColors = (colors: { color: string; backgroundColor: string; borderColor: string }) => ({
+const selectColors = (colors: { color: string }) => ({
 	'& .MuiOutlinedInput-root': {
 		color: colors.color,
-		backgroundColor: colors.backgroundColor,
+		backgroundColor: 'transparent',
 		fontWeight: 600,
-		'& fieldset': { borderColor: colors.borderColor },
-		'&:hover fieldset, &.Mui-focused fieldset': { borderColor: colors.color },
+		'& fieldset': { borderColor: '#d4d4d8' },
+		'&:hover fieldset, &.Mui-focused fieldset': { borderColor: '#71717a' },
 	},
-	'& .MuiSelect-icon': { color: colors.color },
+	'& .MuiSelect-icon': { color: '#71717a' },
 });
 type MemberChange =
 	| { member: Member; field: 'memberType'; value: MemberType }
@@ -59,6 +60,7 @@ export const getStaticProps = async ({ locale }: { locale: string }) => ({
 function AdminUsers() {
 	const { t, locale, errorMessage: translateError } = useText();
 	const user = useReactiveVar(userVar);
+	const client = useApolloClient();
 	const [page, setPage] = useState(1);
 	const [text, setText] = useState('');
 	const [submitted, setSubmitted] = useState('');
@@ -160,7 +162,7 @@ function AdminUsers() {
 			</Stack>
 			{message && <Alert severity="error">{translateError(message)}</Alert>}
 			<QueryState loading={loading && !data} error={error} retry={() => refetch()} />
-			<div className="quwat-records">
+			<div className="quwat-records quwat-admin-user-records">
 				{data?.getAllMembersByAdmin.list.map((m) => (
 					<article className="quwat-record quwat-admin-user" key={m._id}>
 						<Avatar
@@ -176,7 +178,7 @@ function AdminUsers() {
 						</Typography>
 						<dl className="quwat-admin-user-details">
 							{[
-								[t('Foydalanuvchi nomi'), m.memberNick],
+								[t('Rol'), t(roleLabels[m.memberType])],
 								[t('Telefon'), m.memberPhone || t('Ko‘rsatilmagan')],
 								[t('Manzil'), m.memberAddress || t('Ko‘rsatilmagan')],
 								[
@@ -191,38 +193,92 @@ function AdminUsers() {
 							))}
 						</dl>
 						<div className="quwat-admin-user-controls">
-							<TextField
-								select
-								label={t('Rol')}
-								InputLabelProps={{ shrink: true }}
-								value={m.memberType}
-								disabled={busy}
-								onChange={(e) => requestChange({ member: m, field: 'memberType', value: e.target.value as MemberType })}
-								sx={selectColors(roleColors[m.memberType])}
-							>
-								{Object.values(MemberType).map((v) => (
-									<MenuItem key={v} value={v} sx={{ color: roleColors[v].color, fontWeight: 600 }}>
-										{t(roleLabels[v])}
-									</MenuItem>
-								))}
-							</TextField>
-							<TextField
-								select
-								label={t('Status')}
-								InputLabelProps={{ shrink: true }}
-								value={m.memberStatus}
-								disabled={busy}
-								onChange={(e) =>
-									requestChange({ member: m, field: 'memberStatus', value: e.target.value as MemberStatus })
-								}
-								sx={selectColors(statusColors[m.memberStatus])}
-							>
-								{Object.values(MemberStatus).map((v) => (
-									<MenuItem key={v} value={v} sx={{ color: statusColors[v].color, fontWeight: 600 }}>
-										{t(statusLabels[v])}
-									</MenuItem>
-								))}
-							</TextField>
+							<div className="quwat-admin-user-fields">
+								<TextField
+									select
+									label={t('Rol')}
+									SelectProps={{
+										renderValue: (selected) => (
+											<span className="quwat-admin-select-value">
+												<span className="quwat-admin-select-label" aria-hidden="true">
+													{t('Rol')}
+												</span>
+												<span>{t(roleLabels[selected as MemberType])}</span>
+											</span>
+										),
+									}}
+									InputLabelProps={{ shrink: true }}
+									value={m.memberType}
+									disabled={busy}
+									onChange={(e) =>
+										requestChange({ member: m, field: 'memberType', value: e.target.value as MemberType })
+									}
+									sx={selectColors(roleColors[m.memberType])}
+								>
+									{Object.values(MemberType).map((v) => (
+										<MenuItem key={v} value={v} sx={{ color: roleColors[v].color, fontWeight: 600 }}>
+											{t(roleLabels[v])}
+										</MenuItem>
+									))}
+								</TextField>
+								<TextField
+									select
+									label={t('Status')}
+									SelectProps={{
+										renderValue: (selected) => (
+											<span className="quwat-admin-select-value">
+												<span className="quwat-admin-select-label" aria-hidden="true">
+													{t('Status')}
+												</span>
+												<span>{t(statusLabels[selected as MemberStatus])}</span>
+											</span>
+										),
+									}}
+									InputLabelProps={{ shrink: true }}
+									value={m.memberStatus}
+									disabled={busy}
+									onChange={(e) =>
+										requestChange({ member: m, field: 'memberStatus', value: e.target.value as MemberStatus })
+									}
+									sx={selectColors(statusColors[m.memberStatus])}
+								>
+									{Object.values(MemberStatus).map((v) => (
+										<MenuItem key={v} value={v} sx={{ color: statusColors[v].color, fontWeight: 600 }}>
+											{t(statusLabels[v])}
+										</MenuItem>
+									))}
+								</TextField>
+							</div>
+							<div className="quwat-admin-user-danger">
+								{m._id !== user._id && m.memberType !== MemberType.ADMIN && (
+									<PermanentDeleteButton
+										kind="member"
+										id={m._id}
+										name={m.memberFullName || m.memberNick}
+										disabled={busy}
+										onBusy={setBusy}
+										onDeleted={async () => {
+											client.cache.evict({ id: client.cache.identify({ __typename: 'Member', _id: m._id }) });
+											for (const fieldName of [
+												'getAgents',
+												'getMember',
+												'getProducts',
+												'getProduct',
+												'getFavorites',
+												'getVisited',
+												'getSavedProducts',
+												'getComments',
+												'getAttendanceNotifications',
+												'getAllAttendancesByAdmin',
+												'getAgentAttendancesByAdmin',
+												'getDailyAttendancesByAdmin',
+											])
+												client.cache.evict({ id: 'ROOT_QUERY', fieldName });
+											await refetch();
+										}}
+									/>
+								)}
+							</div>
 						</div>
 					</article>
 				))}

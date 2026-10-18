@@ -1,7 +1,7 @@
 import { useText } from '../../libs/i18n';
-import React, { FormEvent, useState } from 'react';
+import React, { FormEvent, useEffect, useState } from 'react';
 import { useQuery, useReactiveVar } from '@apollo/client';
-import { Alert, Button, Pagination, Stack, TextField, Typography } from '@mui/material';
+import { Alert, Button, Stack, TextField, Typography } from '@mui/material';
 import { serverSideTranslations } from '../../libs/serverTranslations';
 import { GET_AGENTS } from '../../apollo/user/query';
 import { sessionVar } from '../../apollo/store';
@@ -14,15 +14,19 @@ export const getStaticProps = async ({ locale }: { locale: string }) => ({
 	props: { ...(await serverSideTranslations(locale, ['common'])) },
 });
 function Agents() {
-	const { t, locale } = useText();
+	const { t } = useText();
 	const session = useReactiveVar(sessionVar);
-	const [page, setPage] = useState(1);
+	const [limit, setLimit] = useState(20);
 	const [text, setText] = useState('');
 	const [search, setSearch] = useState('');
 	const { data, loading, error, refetch } = useQuery<{ getAgents: Members }>(GET_AGENTS, {
-		variables: { input: { page, limit: 20, search: { text: search || undefined } } },
+		variables: { input: { page: 1, limit, search: { text: search || undefined } } },
 		skip: session.status === 'loading',
 	});
+	useEffect(() => {
+		const total = totalOf(data?.getAgents);
+		if (total > limit) setLimit(total);
+	}, [data, limit]);
 	return (
 		<Stack className="quwat-page" spacing={3}>
 			<Stack direction="row" alignItems="center" justifyContent="space-between" flexWrap="wrap" gap={2}>
@@ -36,7 +40,7 @@ function Agents() {
 					onSubmit={(e: FormEvent) => {
 						e.preventDefault();
 						setSearch(text);
-						setPage(1);
+						setLimit(20);
 					}}
 				>
 					<TextField
@@ -57,11 +61,6 @@ function Agents() {
 				))}
 			</div>
 			{data && !data.getAgents.list.length && <Alert severity="info">{t('Agent topilmadi.')}</Alert>}
-			<Pagination
-				page={page}
-				count={Math.max(1, Math.ceil(totalOf(data?.getAgents) / 20))}
-				onChange={(_, v) => setPage(v)}
-			/>
 		</Stack>
 	);
 }

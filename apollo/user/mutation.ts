@@ -18,6 +18,15 @@ export const LOGIN = gql`
 		}
 	}
 `;
+export const REFRESH_SESSION = gql`
+	${MEMBER_FIELDS}
+	mutation RefreshSession {
+		refreshSession {
+			...MemberFields
+			accessToken
+		}
+	}
+`;
 export const UPDATE_MEMBER = gql`
 	${MEMBER_FIELDS}
 	mutation UpdateMember($input: MemberUpdate!) {

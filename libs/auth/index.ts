@@ -1,7 +1,7 @@
 import decodeJWT from 'jwt-decode';
 import { initializeApollo } from '../../apollo/client';
 import { emptyUser, sessionVar, userVar } from '../../apollo/store';
-import { LOGIN, SIGN_UP } from '../../apollo/user/mutation';
+import { LOGIN, SIGN_UP, REFRESH_SESSION } from '../../apollo/user/mutation';
 import { CHECK_AUTH, GET_MEMBER } from '../../apollo/user/query';
 import { Member } from '../types/member/member';
 import { expireSession, isAuthError } from './session';
@@ -49,11 +49,16 @@ export async function signUp(nick: string, password: string, phone: string): Pro
 	setJwtToken(data.signup.accessToken);
 	applyMember(data.signup);
 }
-let restoring: Promise<void> | undefined;
-export function restoreSession(): Promise<void> {
-	if (restoring) return restoring;
-	restoring = (async () => {
-		const token = getJwtToken();
+let restoring: { token: string; renew: boolean; promise: Promise<void> } | undefined;
+export function restoreSession({ renew = true }: { renew?: boolean } = {}): Promise<void> {
+	const token = getJwtToken();
+	if (restoring?.token === token) {
+		if (renew && !restoring.renew)
+			return restoring.promise.then(() => (getJwtToken() === token ? restoreSession() : undefined));
+		return restoring.promise;
+	}
+	const current = { token, renew, promise: Promise.resolve() };
+	current.promise = (async () => {
 		if (!token) {
 			expireSession();
 			return;
@@ -72,28 +77,60 @@ export function restoreSession(): Promise<void> {
 		}
 		try {
 			const client = initializeApollo();
-			await client.query({ query: CHECK_AUTH, fetchPolicy: 'network-only' });
-			const { data } = await client.query<{ getMember: Member }>({
-				query: GET_MEMBER,
-				variables: { input: claims._id },
-				fetchPolicy: 'network-only',
-			});
+			// A token rotation in another tab must not clear this account's cart/query cache.
+			// A different identity must not reuse the previous account's cached data.
+			if (userVar()._id && userVar()._id !== claims._id) {
+				userVar({ ...emptyUser });
+				sessionVar({ status: 'loading', error: '' });
+				await client.clearStore();
+				if (getJwtToken() !== token) return;
+			}
+			let member: Member | undefined;
+			if (renew) {
+				const { data } = await client.mutate<{ refreshSession: Member }>({
+					mutation: REFRESH_SESSION,
+					fetchPolicy: 'no-cache',
+				});
+				member = data?.refreshSession;
+			} else {
+				await client.query({ query: CHECK_AUTH, fetchPolicy: 'network-only' });
+				if (getJwtToken() !== token) return;
+				const { data } = await client.query<{ getMember: Member }>({
+					query: GET_MEMBER,
+					variables: { input: claims._id },
+					fetchPolicy: 'network-only',
+				});
+				member = data?.getMember;
+			}
 			if (getJwtToken() !== token) return;
-			if (data.getMember._id !== claims._id || data.getMember.memberStatus !== 'ACTIVE') {
+			if (!member || member._id !== claims._id || member.memberStatus !== 'ACTIVE') {
 				expireSession();
 				await client.clearStore();
 				return;
 			}
-			applyMember(data.getMember);
+			if (renew) {
+				const renewed = member.accessToken;
+				const renewedClaims = renewed ? decodeJWT<{ _id: string; exp?: number }>(renewed) : undefined;
+				if (
+					!renewed ||
+					renewedClaims?._id !== claims._id ||
+					!renewedClaims.exp ||
+					renewedClaims.exp * 1000 <= Date.now()
+				)
+					throw new Error('Invalid renewed session');
+				setJwtToken(renewed);
+			}
+			applyMember(member);
 		} catch (error) {
 			if (getJwtToken() !== token) return;
 			if (isAuthError(error)) expireSession();
 			else sessionVar({ status: 'error', error: 'Serverga ulanib bo‘lmadi. Qayta urinib ko‘ring.' });
 		}
 	})().finally(() => {
-		restoring = undefined;
+		if (restoring === current) restoring = undefined;
 	});
-	return restoring;
+	restoring = current;
+	return current.promise;
 }
 export async function logOut() {
 	expireSession();

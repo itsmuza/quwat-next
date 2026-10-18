@@ -40,14 +40,16 @@ const fakeClient = {
 	async query(options) {
 		const name = options.query.definitions.find((d) => d.kind === 'OperationDefinition').name.value;
 		calls.push({ name, options });
-		if (responses[name] instanceof Error) throw responses[name];
-		return { data: responses[name] };
+		const response = typeof responses[name] === 'function' ? await responses[name](options) : responses[name];
+		if (response instanceof Error) throw response;
+		return { data: response };
 	},
 	async mutate(options) {
 		const name = options.mutation.definitions.find((d) => d.kind === 'OperationDefinition').name.value;
 		calls.push({ name, options });
-		if (responses[name] instanceof Error) throw responses[name];
-		return { data: responses[name] };
+		const response = typeof responses[name] === 'function' ? await responses[name](options) : responses[name];
+		if (response instanceof Error) throw response;
+		return { data: response };
 	},
 	async clearStore() {
 		calls.push({ name: 'clearStore' });
@@ -293,12 +295,12 @@ test('public signup never sends a role or ownership field', async () => {
 	});
 	assert.equal(userVar().memberType, 'CLIENT');
 });
-test('refresh validates auth before looking up the member and uses the latest role', async () => {
+test('cross-tab restore validates auth before looking up the member and uses the latest role', async () => {
 	reset();
 	storage.set('accessToken', jwt());
 	responses.CheckAuth = { checkAuth: 'hi tester' };
 	responses.GetMember = { getMember: member(MemberType.AGENT) };
-	await auth.restoreSession();
+	await auth.restoreSession({ renew: false });
 	assert.deepEqual(
 		calls.map((c) => c.name),
 		['CheckAuth', 'GetMember'],
@@ -310,7 +312,7 @@ test('expired and malformed identity tokens trigger no profile request', async (
 	for (const token of [jwt({ _id: id, exp: 1 }), jwt({ _id: 'bad', exp: 9999999999 }), 'broken']) {
 		reset();
 		storage.set('accessToken', token);
-		await auth.restoreSession();
+		await auth.restoreSession({ renew: false });
 		assert.equal(calls.length, 0);
 		assert.equal(sessionVar().status, 'anonymous');
 		assert.equal(storage.size, 0);
@@ -320,21 +322,177 @@ test('network restoration errors allow retry while blocked or mismatched profile
 	reset();
 	storage.set('accessToken', jwt());
 	responses.CheckAuth = new Error('network');
-	await auth.restoreSession();
+	await auth.restoreSession({ renew: false });
 	assert.equal(sessionVar().status, 'error');
 	assert.ok(storage.get('accessToken'));
 	responses.CheckAuth = { checkAuth: 'ok' };
 	responses.GetMember = { getMember: { ...member(MemberType.ADMIN), memberStatus: 'BLOCK' } };
-	await auth.restoreSession();
+	await auth.restoreSession({ renew: false });
 	assert.equal(sessionVar().status, 'anonymous');
 	assert.equal(storage.size, 0);
 	reset();
 	storage.set('accessToken', jwt());
 	responses.CheckAuth = { checkAuth: 'ok' };
 	responses.GetMember = { getMember: { ...member(MemberType.ADMIN), _id: '507f1f77bcf86cd799439012' } };
-	await auth.restoreSession();
+	await auth.restoreSession({ renew: false });
 	assert.equal(sessionVar().status, 'anonymous');
 });
+const thirtyDays = 30 * 24 * 60 * 60;
+const nowSeconds = () => Math.floor(Date.now() / 1000);
+const renewedMember = (role = 'CLIENT', identity = id) => ({
+	...member(role),
+	_id: identity,
+	accessToken: jwt({ _id: identity, iat: nowSeconds(), exp: nowSeconds() + thirtyDays }),
+});
+const deferred = () => {
+	let resolve;
+	const promise = new Promise((done) => {
+		resolve = done;
+	});
+	return { promise, resolve };
+};
+
+test('a return visit replaces valid tokens with renewed tokens and current profiles for every role', async () => {
+	for (const role of Object.values(MemberType)) {
+		reset();
+		const old = jwt({ _id: id, exp: nowSeconds() + 60 });
+		storage.set('accessToken', old);
+		const current = renewedMember(role);
+		responses.RefreshSession = { refreshSession: current };
+		await auth.restoreSession();
+		assert.equal(storage.get('accessToken'), current.accessToken);
+		assert.notEqual(storage.get('accessToken'), old);
+		assert.equal(userVar().memberType, role);
+		assert.equal(userVar().accessToken, undefined);
+		assert.equal(sessionVar().status, 'authenticated');
+		assert.deepEqual(
+			calls.map((c) => c.name),
+			['RefreshSession'],
+		);
+		assert.equal(calls[0].options.fetchPolicy, 'no-cache');
+		assert.equal(calls[0].options.variables, undefined);
+	}
+});
+test('another tab token rotation validates without renewal or clearing same-account cache', async () => {
+	reset();
+	const token = renewedMember().accessToken;
+	storage.set('accessToken', token);
+	auth.applyMember(member('CLIENT'));
+	responses.CheckAuth = { checkAuth: 'ok' };
+	responses.GetMember = { getMember: member('CLIENT') };
+	await auth.restoreSession({ renew: false });
+	assert.equal(storage.get('accessToken'), token);
+	assert.deepEqual(
+		calls.map((c) => c.name),
+		['CheckAuth', 'GetMember'],
+	);
+});
+test('renewal network failure keeps the old token for retry, while auth rejection expires the session', async () => {
+	reset();
+	const old = jwt();
+	storage.set('accessToken', old);
+	responses.RefreshSession = new Error('offline');
+	await auth.restoreSession();
+	assert.equal(sessionVar().status, 'error');
+	assert.equal(storage.get('accessToken'), old);
+	responses.RefreshSession = { refreshSession: renewedMember('AGENT') };
+	await auth.restoreSession();
+	assert.equal(sessionVar().status, 'authenticated');
+	assert.equal(userVar().memberType, 'AGENT');
+	const denied = new Error('Not authenticated');
+	denied.graphQLErrors = [{ message: 'Not authenticated' }];
+	responses.RefreshSession = denied;
+	await auth.restoreSession();
+	assert.equal(storage.has('accessToken'), false);
+	assert.equal(sessionVar().status, 'anonymous');
+});
+test('simultaneous focus/visibility restoration shares a single renewal', async () => {
+	reset();
+	storage.set('accessToken', jwt());
+	const pending = deferred();
+	responses.RefreshSession = () => pending.promise;
+	const first = auth.restoreSession(),
+		second = auth.restoreSession();
+	assert.equal(first, second);
+	assert.equal(calls.length, 1);
+	pending.resolve({ refreshSession: renewedMember() });
+	await Promise.all([first, second]);
+	assert.equal(sessionVar().status, 'authenticated');
+	assert.equal(calls.length, 1);
+});
+test('a visit during cross-tab validation queues one renewal rather than losing the visit', async () => {
+	reset();
+	storage.set('accessToken', jwt());
+	const pending = deferred();
+	responses.CheckAuth = () => pending.promise;
+	responses.GetMember = { getMember: member('CLIENT') };
+	responses.RefreshSession = { refreshSession: renewedMember() };
+	const sync = auth.restoreSession({ renew: false }),
+		focus = auth.restoreSession(),
+		visible = auth.restoreSession();
+	pending.resolve({ checkAuth: 'ok' });
+	await Promise.all([sync, focus, visible]);
+	assert.deepEqual(
+		calls.map((c) => c.name),
+		['CheckAuth', 'GetMember', 'RefreshSession'],
+	);
+});
+test('a late renewal response cannot restore a logged-out session', async () => {
+	reset();
+	storage.set('accessToken', jwt());
+	const pending = deferred();
+	responses.RefreshSession = () => pending.promise;
+	const restore = auth.restoreSession();
+	await auth.logOut();
+	pending.resolve({ refreshSession: renewedMember() });
+	await restore;
+	assert.equal(sessionVar().status, 'anonymous');
+	assert.equal(storage.has('accessToken'), false);
+	assert.equal(userVar()._id, '');
+});
+test('account switching starts its own restoration and ignores previous account success/errors', async () => {
+	for (const rejectOld of [false, true]) {
+		reset();
+		storage.set('accessToken', jwt());
+		auth.applyMember(member('CLIENT'));
+		const pending = deferred();
+		responses.RefreshSession = () => pending.promise;
+		const old = auth.restoreSession();
+		const otherId = '507f1f77bcf86cd799439012',
+			other = renewedMember('AGENT', otherId);
+		storage.set('accessToken', jwt({ _id: otherId, exp: nowSeconds() + 60 }));
+		responses.RefreshSession = { refreshSession: other };
+		await auth.restoreSession();
+		assert.ok(calls.some((c) => c.name === 'clearStore'));
+		assert.equal(userVar()._id, otherId);
+		const denied = new Error('Not authenticated');
+		denied.graphQLErrors = [{ message: 'Not authenticated' }];
+		pending.resolve(rejectOld ? denied : { refreshSession: renewedMember() });
+		await old;
+		assert.equal(userVar()._id, otherId);
+		assert.equal(storage.get('accessToken'), other.accessToken);
+	}
+});
+test('invalid renewed identities/status/tokens are never installed', async () => {
+	for (const change of [
+		{ _id: '507f1f77bcf86cd799439012' },
+		{ memberStatus: 'BLOCK' },
+		{ accessToken: undefined },
+		{ accessToken: 'broken' },
+		{ accessToken: jwt({ _id: id, exp: 1 }) },
+		{ accessToken: jwt({ _id: '507f1f77bcf86cd799439012', exp: nowSeconds() + thirtyDays }) },
+	]) {
+		reset();
+		const old = jwt();
+		storage.set('accessToken', old);
+		responses.RefreshSession = { refreshSession: { ...renewedMember(), ...change } };
+		await auth.restoreSession();
+		assert.notEqual(sessionVar().status, 'authenticated');
+		assert.equal(userVar()._id, '');
+		assert.ok(!storage.has('accessToken') || storage.get('accessToken') === old);
+	}
+});
+
 test('logout resets user and clears the previous account cache', async () => {
 	reset();
 	responses.Login = { login: member(MemberType.CLIENT) };
@@ -429,7 +587,15 @@ test('cart quantity respects stock minus reservations, minimum, step and package
 	assert.ok(cart.quantityError(metric, '0.0001'));
 	clientCart();
 	assert.ok(cart.addToCart(cartProductFixture({ productStatus: 'ARCHIVED' })));
-	assert.ok(cart.addToCart(cartProductFixture({ productQuantity: 0, productReservedQuantity: 0 })));
+	assert.equal(
+		cart.addToCart(cartProductFixture({ productQuantity: 0, productReservedQuantity: 0 })),
+		'Mahsulot omborda mavjud emas!',
+	);
+	assert.equal(
+		cart.addToCart(cartProductFixture({ productQuantity: 10, productReservedQuantity: 10 })),
+		'Mahsulot omborda mavjud emas!',
+	);
+	assert.equal(cart.cartVar().lines.length, 0);
 });
 test('cart arithmetic rounds each metric line exactly and rejects unsafe line or combined totals', () => {
 	const metric = cartProductFixture({
@@ -699,16 +865,72 @@ test('persisted sale intent rejects forged totals, invalid UUIDs or units and ne
 });
 
 test('attendance months include every date, Monday-aligned offsets and leap-day boundaries', () => {
- const { attendanceMonth, validMonth } = require('../libs/attendance.ts');
- assert.equal(attendanceMonth('2026-10').dates.length, 31);
- assert.equal(attendanceMonth('2026-10').leading, 3);
- assert.equal(attendanceMonth('2026-10').toDate, '2026-10-31');
- assert.equal(attendanceMonth('2026-02').dates.length, 28);
- assert.equal(attendanceMonth('2024-02').dates.length, 29);
- assert.equal(attendanceMonth('2026-11').leading, 6);
- assert.equal(attendanceMonth('2026-12').toDate, '2026-12-31');
- for(const value of ['2026-13','2026-00','2026-2','0000-01','invalid','2026-02-15']) {
-  assert.equal(validMonth(value), false);
-  assert.throws(()=>attendanceMonth(value));
- }
+	const { attendanceMonth, validMonth } = require('../libs/attendance.ts');
+	assert.equal(attendanceMonth('2026-10').dates.length, 31);
+	assert.equal(attendanceMonth('2026-10').leading, 3);
+	assert.equal(attendanceMonth('2026-10').toDate, '2026-10-31');
+	assert.equal(attendanceMonth('2026-02').dates.length, 28);
+	assert.equal(attendanceMonth('2024-02').dates.length, 29);
+	assert.equal(attendanceMonth('2026-11').leading, 6);
+	assert.equal(attendanceMonth('2026-12').toDate, '2026-12-31');
+	for (const value of ['2026-13', '2026-00', '2026-2', '0000-01', 'invalid', '2026-02-15']) {
+		assert.equal(validMonth(value), false);
+		assert.throws(() => attendanceMonth(value));
+	}
+});
+
+test('browser entry/focus/visible events renew, storage only validates, and cleanup removes all listeners', async () => {
+	reset();
+	storage.set('accessToken', jwt());
+	responses.RefreshSession = { refreshSession: renewedMember() };
+	responses.CheckAuth = { checkAuth: 'ok' };
+	responses.GetMember = { getMember: member('CLIENT') };
+	const previousWindow = global.window,
+		previousDocument = global.document;
+	const browser = new EventTarget(),
+		doc = new EventTarget();
+	doc.visibilityState = 'visible';
+	global.window = browser;
+	global.document = doc;
+	const { watchSession } = require('../libs/auth/browser.ts');
+	const tick = () => new Promise((resolve) => setImmediate(resolve));
+	const cleanup = watchSession(fakeClient);
+	try {
+		await tick();
+		assert.equal(calls.filter((c) => c.name === 'RefreshSession').length, 1);
+		doc.visibilityState = 'hidden';
+		doc.dispatchEvent(new Event('visibilitychange'));
+		await tick();
+		assert.equal(calls.filter((c) => c.name === 'RefreshSession').length, 1);
+		doc.visibilityState = 'visible';
+		doc.dispatchEvent(new Event('visibilitychange'));
+		await tick();
+		browser.dispatchEvent(new Event('focus'));
+		await tick();
+		assert.equal(calls.filter((c) => c.name === 'RefreshSession').length, 3);
+		const storageEvent = new Event('storage');
+		storageEvent.key = 'accessToken';
+		browser.dispatchEvent(storageEvent);
+		await tick();
+		assert.equal(calls.filter((c) => c.name === 'RefreshSession').length, 3);
+		assert.deepEqual(
+			calls.slice(-2).map((c) => c.name),
+			['CheckAuth', 'GetMember'],
+		);
+		browser.dispatchEvent(new Event('quwat:session-check'));
+		await tick();
+		assert.equal(calls.filter((c) => c.name === 'RefreshSession').length, 4);
+		cleanup();
+		const before = calls.length;
+		browser.dispatchEvent(new Event('focus'));
+		browser.dispatchEvent(storageEvent);
+		doc.dispatchEvent(new Event('visibilitychange'));
+		browser.dispatchEvent(new Event('quwat:logout'));
+		await tick();
+		assert.equal(calls.length, before);
+	} finally {
+		cleanup();
+		global.window = previousWindow;
+		global.document = previousDocument;
+	}
 });

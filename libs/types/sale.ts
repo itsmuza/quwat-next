@@ -33,10 +33,18 @@ export interface Sale {
 	completedAt?: string | null;
 	completedDate?: string | null;
 	cancelledAt?: string | null;
+	rejectedAt?: string | null;
+	rejectedById?: string | null;
+	rejectedByName?: string | null;
 	createdAt: string;
 	updatedAt: string;
 }
 export type Sales = Paginated<Sale>;
+export interface SaleNotifications {
+	list: { sale: Sale; readAt: string | null }[];
+	metaCounter: { total: number }[];
+	unreadCount: number;
+}
 export interface DailySalesReport {
 	date: string;
 	salesCount: number;

@@ -1,6 +1,7 @@
 import { useText } from '../../../libs/i18n';
 import React, { useEffect, useState } from 'react';
-import { useMutation, useQuery } from '@apollo/client';
+import { useApolloClient, useMutation, useQuery } from '@apollo/client';
+import SwapHorizRoundedIcon from '@mui/icons-material/SwapHorizRounded';
 import {
 	Alert,
 	Avatar,
@@ -32,6 +33,7 @@ import {
 	AgentAttendancesInquiry,
 } from '../../../libs/types/attendance/attendance';
 import { Member, Members } from '../../../libs/types/member/member';
+import { activeQueryNames } from '../../../libs/activeQueries';
 import { attendanceMonth } from '../../../libs/attendance';
 import { totalOf } from '../../../libs/product';
 import { errorText, imageUrl } from '../../../libs/feedback';
@@ -41,8 +43,9 @@ import useAttendanceMonth from '../../../libs/components/attendance/useAttendanc
 export const getStaticProps = async ({ locale }: { locale: string }) => ({
 	props: { ...(await serverSideTranslations(locale, ['common'])) },
 });
-function AgentCalendar({ agent, onBack }: { agent: Member; onBack: () => void }) {
+function AgentCalendar({ agent, onBusyChange }: { agent: Member; onBusyChange: (busy: boolean) => void }) {
 	const { t, locale, errorMessage: translateError } = useText();
+	const client = useApolloClient();
 	const { today, month, setMonth } = useAttendanceMonth();
 	const [page, setPage] = useState(1);
 	const [selected, setSelected] = useState<{ id: string; date: string } | null>(null);
@@ -72,12 +75,19 @@ function AgentCalendar({ agent, onBack }: { agent: Member; onBack: () => void })
 	async function decide(attendanceStatus: 'APPROVED' | 'REJECTED') {
 		if (!selected || busy) return;
 		setMessage('');
+		onBusyChange(true);
 		try {
 			await review({ variables: { input: { _id: selected.id, attendanceStatus } } });
 			setSelected(null);
-			await Promise.all([calendar.refetch(), pending.refetch()]).catch(() => undefined);
+			await Promise.all([
+				calendar.refetch(),
+				pending.refetch(),
+				client.refetchQueries({ include: activeQueryNames(client, ['GetAttendanceNotifications']) }),
+			]).catch(() => undefined);
 		} catch (error) {
 			setMessage(errorText(error));
+		} finally {
+			onBusyChange(false);
 		}
 	}
 	function selectDay(day: AttendanceDay) {
@@ -88,12 +98,7 @@ function AgentCalendar({ agent, onBack }: { agent: Member; onBack: () => void })
 	}
 	return (
 		<Stack spacing={3}>
-			<Stack direction="row" alignItems="center" gap={2} flexWrap="wrap">
-				<Button disabled={busy} onClick={onBack}>
-					{t('Agentlar')}
-				</Button>
-				<Typography variant="h4">{agent.memberFullName || agent.memberNick}</Typography>
-			</Stack>
+			<Typography variant="h5">{agent.memberFullName || agent.memberNick}</Typography>
 			<TextField
 				type="month"
 				label={t('Oy')}
@@ -186,40 +191,61 @@ function AgentCalendar({ agent, onBack }: { agent: Member; onBack: () => void })
 function AttendanceAdmin() {
 	const { t, locale, errorMessage: translateError } = useText();
 	const [page, setPage] = useState(1);
-	const [agent, setAgent] = useState<Member | null>(null);
+	const [agentId, setAgentId] = useState<string | null>(null);
+	const [reviewBusy, setReviewBusy] = useState(false);
 	const members = useQuery<{ getAllMembersByAdmin: Members }>(GET_ALL_MEMBERS_BY_ADMIN, {
 		variables: { input: { page, limit: 20, sort: 'createdAt', direction: 'DESC', search: { memberType: 'AGENT' } } },
 		fetchPolicy: 'network-only',
-		skip: Boolean(agent),
 	});
 	const rows = !members.loading && !members.error ? members.data?.getAllMembersByAdmin : undefined;
+	const agent = rows?.list.find((member) => member._id === agentId) || rows?.list[0];
 	return (
-		<Stack className="quwat-page" spacing={3}>
-			{agent ? (
-				<AgentCalendar key={agent._id} agent={agent} onBack={() => setAgent(null)} />
-			) : (
-				<>
-					<Typography variant="h4">{t('Agentlar davomati')}</Typography>
-					<QueryState loading={members.loading} error={members.error} retry={() => members.refetch()} />
-					<Stack spacing={2}>
-						{rows?.list.map((member) => (
-							<Button
-								key={member._id}
-								onClick={() => setAgent(member)}
-								aria-label={t('{{name}} davomati', { name: member.memberFullName || member.memberNick })}
-								sx={{ justifyContent: 'flex-start', gap: 2, p: 2, textAlign: 'left' }}
-							>
-								<Avatar src={imageUrl(member.memberImage)} />
-								<Typography sx={{ overflowWrap: 'anywhere' }}>{member.memberFullName || member.memberNick}</Typography>
-							</Button>
-						))}
-					</Stack>
-					{rows && !rows.list.length && <Alert severity="info">{t('Agentlar topilmadi.')}</Alert>}
-					{totalOf(rows) > 20 && (
-						<Pagination page={page} count={Math.ceil(totalOf(rows) / 20)} onChange={(_, value) => setPage(value)} />
+		<Stack className="quwat-page quwat-attendance-admin" spacing={3}>
+			<Typography variant="h4">{t('Agentlar davomati')}</Typography>
+			<QueryState loading={members.loading} error={members.error} retry={() => members.refetch()} />
+			{rows && rows.list.length > 0 && (
+				<div>
+					<div className="quwat-attendance-agents" aria-label={t('Agentlar')}>
+						{rows.list.map((member) => {
+							const name = member.memberFullName || member.memberNick;
+							return (
+								<Button
+									key={member._id}
+									className="quwat-attendance-agent"
+									disabled={reviewBusy}
+									onClick={() => setAgentId(member._id)}
+									aria-label={t('{{name}} davomati', { name })}
+									aria-pressed={agent?._id === member._id}
+								>
+									<Avatar src={imageUrl(member.memberImage)} alt={name} imgProps={{ loading: 'lazy' }} />
+									<span className="quwat-attendance-agent-name" title={name}>
+										{name}
+									</span>
+								</Button>
+							);
+						})}
+					</div>
+					{rows.list.length > 2 && (
+						<div className="quwat-attendance-agent-scroll-hint">
+							<SwapHorizRoundedIcon aria-hidden="true" />
+							<span>{t('Boshqa agentlarni ko‘rish uchun suring')}</span>
+						</div>
 					)}
-				</>
+				</div>
 			)}
+			{rows && !rows.list.length && <Alert severity="info">{t('Agentlar topilmadi.')}</Alert>}
+			{totalOf(rows) > 20 && (
+				<Pagination
+					page={page}
+					count={Math.ceil(totalOf(rows) / 20)}
+					disabled={reviewBusy}
+					onChange={(_, value) => {
+						setAgentId(null);
+						setPage(value);
+					}}
+				/>
+			)}
+			{agent && <AgentCalendar key={agent._id} agent={agent} onBusyChange={setReviewBusy} />}
 		</Stack>
 	);
 }

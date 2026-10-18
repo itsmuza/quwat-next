@@ -246,6 +246,8 @@ export function addToCart(product: Product): string | null {
 	if (!clientCartOwner() || state.ownerId !== clientCartOwner() || !state.ready)
 		return 'Savatchani ishlatish uchun client hisobiga kiring.';
 	const snapshot = cartProduct(product);
+	if (snapshot.productStatus === 'ACTIVE' && stockAvailable(snapshot) === 0)
+		return 'Mahsulot omborda mavjud emas!';
 	const existing = state.lines.find((line) => line.productId === product._id);
 	if (existing && quantityError(snapshot, existing.quantity)) return 'Avval savatchadagi miqdorni tekshiring.';
 	const quantity = existing
@@ -266,6 +268,9 @@ export function setCartQuantity(productId: string, quantity: string) {
 }
 export function removeFromCart(productId: string) {
 	storeLines(cartVar().lines.filter((line) => line.productId !== productId));
+}
+export function clearCart() {
+	storeLines([]);
 }
 export function refreshCart(client: Pick<ApolloClient<object>, 'query'>): Promise<void> {
 	const state = cartVar();

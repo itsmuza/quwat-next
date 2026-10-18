@@ -37,3 +37,8 @@ export const REMOVE_PRODUCT_BY_ADMIN = gql`
 		}
 	}
 `;
+export const DELETE_PRODUCT_PERMANENTLY_BY_ADMIN = gql`
+	mutation DeleteProductPermanentlyByAdmin($productId: String!) {
+		deleteProductPermanentlyByAdmin(productId: $productId)
+	}
+`;

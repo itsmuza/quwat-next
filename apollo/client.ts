@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { ApolloClient, ApolloLink, InMemoryCache, NormalizedCacheObject } from '@apollo/client';
 import createUploadLink from 'apollo-upload-client/public/createUploadLink.js';
 import { onError } from '@apollo/client/link/error';
+import { getGuestId } from '../libs/guestLikes';
 import { getJwtToken } from '../libs/auth';
 import { expireSession, isAuthError } from '../libs/auth/session';
 let apolloClient: ApolloClient<NormalizedCacheObject> | undefined;
@@ -10,7 +11,7 @@ function createApolloClient() {
 		const token = getJwtToken();
 		operation.setContext(({ headers = {} }: { headers?: Record<string, string> }) => ({
 			authToken: token,
-			headers: { ...headers, ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+			headers: { ...headers, ...(token ? { Authorization: `Bearer ${token}` } : { 'x-quwat-guest-id': getGuestId() }) },
 		}));
 		return forward(operation);
 	});

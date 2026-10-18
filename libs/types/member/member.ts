@@ -21,6 +21,7 @@ export interface Member {
 	deletedAt?: string | null;
 	createdAt: string;
 	updatedAt: string;
+	guestLiked?: boolean;
 	meLiked?: MeLiked[] | null;
 	accessToken?: string | null;
 }

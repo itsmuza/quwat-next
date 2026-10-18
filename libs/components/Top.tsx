@@ -11,6 +11,8 @@ import { sessionVar, userVar } from '../../apollo/store';
 import { logOut } from '../auth';
 import { imageUrl } from '../feedback';
 import CartMenu from './cart/CartMenu';
+import AgentNotifications from './sale/AgentNotifications';
+import AdminAttendanceNotifications from './attendance/AdminAttendanceNotifications';
 import { AnimatePresence, motion, MotionConfig, useAnimationControls, useReducedMotion } from 'framer-motion';
 
 const MotionStack = motion.create(Stack);
@@ -52,11 +54,7 @@ export default function Top() {
 		<MotionConfig reducedMotion="user">
 			<Stack className="navbar">
 				<Stack className={`navbar-main quwat-glass-navbar ${solid ? 'transparent' : ''}`}>
-					<MotionStack
-						className="container"
-						initial={false}
-						animate={entrance}
-					>
+					<MotionStack className="container" initial={false} animate={entrance}>
 						<div className="logo-box">
 							<Link passHref href="/" className="quwat-original-brand">
 								<Image src="/img/logo/logoText.svg" width={40} height={40} alt="" />
@@ -83,6 +81,8 @@ export default function Top() {
 						</div>
 						<div className="user-box">
 							<CartMenu />
+							<AgentNotifications />
+							<AdminAttendanceNotifications />
 							<AnimatePresence initial={false} mode="wait">
 								<motion.div
 									key={session.status === 'authenticated' ? 'account' : 'join'}
