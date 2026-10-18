@@ -477,5 +477,10 @@
   "Permanent deletion requires a MongoDB replica set": "Permanent deletion requires MongoDB transaction support.",
   "Administrator accounts cannot be permanently deleted": "Administrator accounts cannot be permanently deleted.",
   "Administrators cannot delete themselves": "Administrators cannot delete themselves.",
-  "Member changed concurrently; reload and retry": "This account changed. Refresh and try again."
+  "Member changed concurrently; reload and retry": "This account changed. Refresh and try again.",
+  "Barchasini ko‘rish": "View all",
+  "Katalogga yaqinda qo‘shilgan mahsulotlar": "Recently added to the catalog",
+  "Ko‘pchilik yoqtirgan mahsulotlarni ko‘ring": "Explore products people like",
+  "Ko‘p ko‘rilgan va yoqtirilgan mahsulotlar": "Frequently viewed and liked products",
+  "Profilni ko‘rish": "View profile"
 }

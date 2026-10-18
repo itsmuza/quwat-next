@@ -1,3 +1,10 @@
+## Homepage light-storefront redesign — 2026-10-18
+
+- Homepage-only root/style scope; white navbar/hero/footer, search beside the gallery copy, seven category links, three retained real-data shelves, contained advertisement and white agent section. Other public/admin pages and all portal drawers retain their styles. No auth/cache/API/database/config changes.
+- Five new homepage tests cover query construction, localized category routes, three-second Fiber pause/resume/cleanup/manual navigation/Reduced Motion and loading/empty/error/retry states. Existing ProductActions, guest likes, cart, notification and account logic remain unchanged.
+- PASS: per-phase/final typechecks and whitespace checks; lint without autofix (no warnings); i18n audit (483 keys); 4 i18n + 44 migration + 5 homepage + 46 relevant existing component tests = 99 passing tests; 42 live GraphQL documents; isolated production build (64 static pages). No live business mutations were used for QA.
+- Browser: 375/768/1440 px, four locales, real lists, four full desktop product cards and edge hover padding; catalog retains its original dark navbar/footer. Screenshots and limits: docs/HOMEPAGE_REDESIGN.md. Existing Browserslist update notice remains; physical low-end-device profiling was not performed.
+
 # Frontend migration validation — 2026-10-12
 
 ## Production database separation and verified full copy — 2026-10-17

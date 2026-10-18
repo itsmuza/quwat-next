@@ -2753,3 +2753,6 @@
   a { flex-wrap: wrap; gap: 8px; padding: 12px; > span { flex-basis: calc(100% - 30px); } .quwat-personal-nav-arrow { display: none; } }
  }
 }
+
+@import 'home-redesign';
+@import 'product-cards';

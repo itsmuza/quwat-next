@@ -27,7 +27,11 @@ export default function ProductCard({ product, onChanged }: { product: Product; 
 		</div>
 	);
 	return (
-		<Card className="quwat-product-card" data-unavailable={!active || undefined}>
+		<Card
+			className="quwat-product-card"
+			data-unavailable={!active || undefined}
+			data-stock-empty={available <= 0 || undefined}
+		>
 			{active ? (
 				<Link href={route} className="quwat-product-picture">
 					{picture}
@@ -36,13 +40,19 @@ export default function ProductCard({ product, onChanged }: { product: Product; 
 				picture
 			)}
 			<CardHeader>
-				<div className="quwat-product-price">{money(product.productPrice, locale)}</div>
-				<CardTitle title={product.productName}>
+				<CardDescription
+					className="quwat-product-brand"
+					title={product.productBrand || undefined}
+					data-empty={!product.productBrand || undefined}
+				>
+					{product.productBrand || '\u00a0'}
+				</CardDescription>
+				<CardTitle title={product.productName} role="heading" aria-level={3}>
 					{active ? <Link href={route}>{product.productName}</Link> : product.productName}
 				</CardTitle>
-				<CardDescription className="quwat-product-brand">{product.productBrand || '\u00a0'}</CardDescription>
 			</CardHeader>
 			<CardContent>
+				<div className="quwat-product-price">{money(product.productPrice, locale)}</div>
 				<div className="quwat-product-stock">
 					<div className="quwat-product-stock-row">
 						<span>

@@ -477,5 +477,10 @@
   "Permanent deletion requires a MongoDB replica set": "Butunlay o‘chirish uchun MongoDB tranzaksiyalari qo‘llab-quvvatlanishi kerak.",
   "Administrator accounts cannot be permanently deleted": "Administrator hisoblarini butunlay o‘chirib bo‘lmaydi.",
   "Administrators cannot delete themselves": "Administrator o‘z hisobini o‘chira olmaydi.",
-  "Member changed concurrently; reload and retry": "Foydalanuvchi ma’lumotlari o‘zgargan. Yangilab, qayta urinib ko‘ring."
+  "Member changed concurrently; reload and retry": "Foydalanuvchi ma’lumotlari o‘zgargan. Yangilab, qayta urinib ko‘ring.",
+  "Barchasini ko‘rish": "Barchasini ko‘rish",
+  "Katalogga yaqinda qo‘shilgan mahsulotlar": "Katalogga yaqinda qo‘shilgan mahsulotlar",
+  "Ko‘pchilik yoqtirgan mahsulotlarni ko‘ring": "Ko‘pchilik yoqtirgan mahsulotlarni ko‘ring",
+  "Ko‘p ko‘rilgan va yoqtirilgan mahsulotlar": "Ko‘p ko‘rilgan va yoqtirilgan mahsulotlar",
+  "Profilni ko‘rish": "Profilni ko‘rish"
 }

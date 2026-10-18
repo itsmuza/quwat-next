@@ -54,7 +54,7 @@ const { I18nextProvider } = require('react-i18next');
 const { userVar, sessionVar, emptyUser } = require('../apollo/store.ts');
 const cart = require('../libs/cart.ts');
 const { GET_PRODUCTS } = require('../apollo/user/product.ts');
-const ProductActions = require('../libs/components/product/ProductActions.tsx').default;
+const ProductCard = require('../libs/components/product/ProductCard.tsx').default;
 const owner = '507f1f77bcf86cd799439011';
 const input = { page: 1, limit: 18, search: {} };
 const fixture = (saved) => ({
@@ -90,7 +90,7 @@ async function setup(saved = false, {locale = 'uz', productOverrides = {}} = {})
  function Cards() {
   const {data} = useQuery(GET_PRODUCTS, {variables: {input}});
   return React.createElement(React.Fragment, null, ...[1,2].map(key =>
-   React.createElement('div', {key, className: 'test-card'}, React.createElement(ProductActions, {product: data.getProducts.list[0]}))));
+   React.createElement('div', {key, className: 'test-card'}, React.createElement(ProductCard, {product: data.getProducts.list[0]}))));
  }
  const root = createRoot(document.getElementById('test-root'));
  await flush(() => root.render(React.createElement(RouterContext.Provider, {value: {locale, pathname: '/product', query: {}}},
@@ -117,6 +117,42 @@ async function setup(saved = false, {locale = 'uz', productOverrides = {}} = {})
   async cleanup() {await flush(() => root.unmount()); client.stop();},
  };
 }
+
+test('cards preserve full names, large whole-som prices, fractional stock, reservations and product navigation', async () => {
+ const name = 'Professional qurilish va ta’mirlash uchun uzoq nomli mahsulot';
+ const ui = await setup(false, {productOverrides: {
+  productName: name, productBrand: 'Usta professional', productPrice: 3500000000,
+  productQuantity: 123.456, productReservedQuantity: 2.125, productUnit: 'METR',
+ }});
+ try {
+  const card = document.querySelector('.quwat-product-card');
+  const {money} = require('../libs/product.ts');
+  assert.equal(card.querySelector('.quwat-product-price').textContent, money(3500000000, 'uz'));
+  assert.equal(card.querySelector('[role="heading"]').textContent, name);
+  assert.equal(card.querySelector('.quwat-product-brand').textContent, 'Usta professional');
+  const quantities = [...card.querySelectorAll('.quwat-product-stock-row strong')].map(el => el.textContent);
+  const format = new Intl.NumberFormat('uz', {maximumFractionDigits: 3});
+  assert.deepEqual(quantities, [`${format.format(123.456)} metr`, `${format.format(121.331)} metr`]);
+  const links = [...card.querySelectorAll('a')];
+  assert.equal(links.length, 2);
+  assert.ok(links.every(el => el.getAttribute('href') === '/product/detail?id=507f1f77bcf86cd799439012'));
+  assert.match(card.querySelector('.quwat-product-image').textContent, /Rasm mavjud emas/);
+ } finally {await ui.cleanup();}
+});
+
+test('archived saved cards retain unsave but never offer product navigation, likes or cart actions', async () => {
+ const ui = await setup(true, {productOverrides: {productStatus: 'ARCHIVED'}});
+ try {
+  const card = document.querySelector('.quwat-product-card');
+  assert.equal(card.querySelectorAll('a').length, 0);
+  assert.match(card.textContent, /Sotuvda yo‘q/);
+  assert.equal(card.querySelector('.quwat-product-like'), null);
+  assert.equal(card.querySelector('.quwat-cart-add'), null);
+  await flush(() => Simulate.click(ui.bookmarks()[0]));
+  assert.equal(ui.pending[0].operation.operationName, 'UnsaveProduct');
+  await ui.settle();
+ } finally {await ui.cleanup();}
+});
 
 test('liking preserves the saved bookmark icon, color and DOM node without a save animation', async () => {
  const ui = await setup(true);

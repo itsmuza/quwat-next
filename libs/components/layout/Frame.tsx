@@ -39,7 +39,7 @@ export default function Frame({ children, home }: { children: ReactNode; home?: 
 			? '/img/banner/quwat-team.webp'
 			: '/img/banner/quwat-warehouse.webp';
 	return (
-		<Stack id="pc-wrap" className="quwat-shell">
+		<Stack id="pc-wrap" className={`quwat-shell${home ? ' quwat-home' : ''}`}>
 			<Head>
 				<title>{t('Quwat — Qurilish materiallari')}</title>
 				<meta
@@ -57,10 +57,9 @@ export default function Frame({ children, home }: { children: ReactNode; home?: 
 			)}
 			{home && (
 				<Stack className="header-main">
-					<FiberContainer />
-					<Stack className="container">
+					<FiberContainer>
 						<HeaderFilter />
-					</Stack>
+					</FiberContainer>
 				</Stack>
 			)}
 			{basic && (

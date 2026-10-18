@@ -477,5 +477,10 @@
   "Permanent deletion requires a MongoDB replica set": "Для удаления навсегда необходима поддержка транзакций MongoDB.",
   "Administrator accounts cannot be permanently deleted": "Учётные записи администраторов нельзя удалить навсегда.",
   "Administrators cannot delete themselves": "Администратор не может удалить свою учётную запись.",
-  "Member changed concurrently; reload and retry": "Данные пользователя изменились. Обновите страницу и повторите попытку."
+  "Member changed concurrently; reload and retry": "Данные пользователя изменились. Обновите страницу и повторите попытку.",
+  "Barchasini ko‘rish": "Смотреть все",
+  "Katalogga yaqinda qo‘shilgan mahsulotlar": "Недавно добавленные товары",
+  "Ko‘pchilik yoqtirgan mahsulotlarni ko‘ring": "Товары, которые нравятся покупателям",
+  "Ko‘p ko‘rilgan va yoqtirilgan mahsulotlar": "Популярные по просмотрам и отметкам товары",
+  "Profilni ko‘rish": "Открыть профиль"
 }

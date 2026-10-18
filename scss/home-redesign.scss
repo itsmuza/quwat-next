@@ -1,0 +1,751 @@
+// Scoped to the homepage; shared components and portal panels retain their defaults.
+#pc-wrap.quwat-shell.quwat-home {
+	--home-ink: #181a20;
+	--home-muted: #667085;
+	--home-line: #e4e7ec;
+	--home-surface: #f7f8fa;
+	--home-accent: #c7352b;
+	color: var(--home-ink);
+	background: #fff;
+	font-family: 'Poppins', system-ui, sans-serif;
+	.container,
+	.home-page .container,
+	#footer .footer-container {
+		width: 1300px;
+		max-width: calc(100% - 48px);
+		min-width: 0;
+	}
+	a:focus-visible,
+	button:focus-visible {
+		outline: 2px solid var(--home-accent);
+		outline-offset: 4px;
+	}
+	#top .navbar .navbar-main.quwat-glass-navbar {
+		> .container,
+		&.transparent > .container {
+			background: #fff;
+			border-color: var(--home-line);
+			border-radius: 18px;
+			box-shadow: 0 4px 20px rgba(24, 26, 32, 0.05);
+		}
+		.quwat-original-brand,
+		.router-box a,
+		.join-box span,
+		.join-box svg,
+		.btn-lang,
+		.login-user,
+		.quwat-navbar-cart,
+		.quwat-navbar-notifications {
+			color: var(--home-ink);
+		}
+		.router-box a {
+			border-radius: 9px;
+			&:hover {
+				background: var(--home-surface);
+				border-color: var(--home-line);
+			}
+			&[aria-current='page'] {
+				background: #fff1ee;
+				color: #a82c24;
+				border-color: #f5d8d2;
+			}
+		}
+		.join-box,
+		.btn-lang {
+			border-color: var(--home-line);
+			border-radius: 10px;
+			background: #fff;
+			box-shadow: none;
+			&:hover {
+				border-color: #b6bdc9;
+				background: var(--home-surface);
+			}
+		}
+		.login-user,
+		.quwat-navbar-cart,
+		.quwat-navbar-notifications {
+			background: transparent;
+			&:hover {
+				background: var(--home-surface);
+			}
+		}
+	}
+	#footer {
+		--home-ink: #fff;
+		--home-muted: #bebdbd;
+		--home-line: #30343d;
+		--home-accent: #fff;
+		padding: 48px 0 20px;
+		border-top: 1px solid var(--home-line);
+		background: #181a20;
+		.footer-container {
+			.main {
+				display: grid;
+				grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+				gap: 64px;
+				.left,
+				.right {
+					width: auto;
+					min-width: 0;
+					height: auto;
+					gap: 20px;
+				}
+				.left {
+					justify-content: flex-start;
+				}
+				.footer-box {
+					gap: 6px;
+				}
+				.quwat-original-brand {
+					color: var(--home-ink);
+				}
+				.footer-box span,
+				.footer-box p,
+				.right .top p {
+					color: var(--home-muted);
+					font-size: 13px;
+					font-weight: 400;
+					line-height: 1.7;
+					text-transform: none;
+				}
+				.right .top strong {
+					color: var(--home-ink);
+					text-transform: none;
+				}
+				.bottom {
+					width: 100%;
+					margin-top: 4px;
+					display: grid;
+					grid-template-columns: repeat(3, minmax(0, 1fr));
+					gap: 24px;
+					> div {
+						min-width: 0;
+					}
+					strong {
+						color: var(--home-ink);
+						font-size: 13px;
+						text-transform: none;
+					}
+					a {
+						margin-top: 8px;
+						font-size: 13px;
+						line-height: 1.6;
+					}
+				}
+				.media-box {
+					color: var(--home-muted);
+					margin-top: 4px;
+					svg {
+						font-size: 22px;
+						margin-right: 16px;
+						cursor: default;
+					}
+				}
+			}
+			.second {
+				margin-top: 32px;
+				padding-top: 16px;
+				height: auto;
+				border-color: var(--home-line);
+				gap: 12px;
+				span {
+					color: var(--home-muted);
+					font-size: 12px;
+					line-height: 1.6;
+				}
+			}
+		}
+		a {
+			color: var(--home-muted);
+			&:hover {
+				color: var(--home-accent);
+			}
+		}
+	}
+	@media (max-width: 900px) {
+		#footer .footer-container .main {
+			grid-template-columns: 1fr;
+			gap: 32px;
+		}
+	}
+	@media (max-width: 600px) {
+		.container,
+		.home-page .container,
+		#footer .footer-container {
+			max-width: calc(100% - 32px);
+		}
+		#top .navbar .navbar-main.quwat-glass-navbar {
+			padding: 12px 16px !important;
+		}
+		#footer {
+			padding-top: 32px;
+			.footer-container .main .bottom {
+				grid-template-columns: repeat(2, minmax(0, 1fr));
+				gap: 24px 16px;
+			}
+			.second {
+				flex-wrap: wrap;
+			}
+		}
+	}
+}
+
+#pc-wrap.quwat-shell.quwat-home {
+	#top .navbar .navbar-main.quwat-glass-navbar > .container {
+		backdrop-filter: none;
+		-webkit-backdrop-filter: none;
+	}
+	.header-main {
+		padding: 144px 0 48px;
+		background-image: linear-gradient(
+				180deg,
+				rgba(17, 20, 27, 0.82) 0%,
+				rgba(17, 20, 27, 0.38) 45%,
+				rgba(17, 20, 27, 0.58) 100%
+			),
+			url('/img/banner/quwat-warehouse.webp');
+		background-size: cover;
+		background-position: center;
+		background-repeat: no-repeat;
+		border-bottom: 1px solid var(--home-line);
+	}
+	.quwat-build-hero {
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1.22fr);
+		gap: 48px;
+		color: #fff;
+		h1 {
+			font-size: clamp(36px, 3.5vw, 52px);
+			line-height: 1.14;
+			letter-spacing: -1.5px;
+			margin: 16px 0;
+		}
+		p {
+			max-width: 440px;
+			color: #e2e5e9;
+			margin-bottom: 14px;
+			font-size: 16px;
+		}
+		.quwat-build-eyebrow {
+			color: #e2e5e9;
+			font-size: 12px;
+		}
+		.quwat-build-link {
+			padding: 8px 0;
+			border: 0;
+			background: none;
+			color: #fff;
+			border-radius: 4px;
+			font-size: 14px;
+			&:hover {
+				background: none;
+				color: #fff;
+				text-decoration: underline;
+			}
+		}
+		.quwat-build-gallery {
+			padding: 10px 10px 0;
+			border-color: var(--home-line);
+			border-radius: 20px;
+			background: var(--home-surface);
+			box-shadow: none;
+		}
+		.threeJSContainer {
+			height: 392px;
+			border-radius: 12px;
+		}
+		.quwat-build-gallery-footer {
+			padding: 12px 2px;
+			> span {
+				color: var(--home-muted);
+				font-size: 12px;
+			}
+		}
+		.quwat-build-controls {
+			gap: 6px;
+			button {
+				width: 40px;
+				height: 40px;
+				color: var(--home-ink);
+				border-color: var(--home-line);
+				background: #fff;
+				&:hover {
+					background: #fff1ee;
+					border-color: #f5d8d2;
+					color: #a82c24;
+				}
+			}
+		}
+		.threeJSContainer:focus-visible,
+		.quwat-build-link:focus-visible,
+		.quwat-build-controls button:focus-visible {
+			outline-color: var(--home-accent);
+		}
+	}
+	.header-main .quwat-hero-search {
+		width: 100%;
+		margin-top: 20px;
+		padding: 0;
+		gap: 12px;
+		grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+		border: 0;
+		border-radius: 0;
+		background: none;
+		box-shadow: none;
+		backdrop-filter: none;
+		-webkit-backdrop-filter: none;
+		.MuiOutlinedInput-root {
+			height: 52px;
+			background: #fff;
+			border-radius: 10px;
+			font-size: 14px;
+		}
+		.quwat-hero-search-submit {
+			grid-column: 1 / -1;
+			height: 48px;
+			border-radius: 10px;
+			background: var(--home-accent);
+			box-shadow: none;
+			&:hover {
+				background: #a82c24;
+				box-shadow: none;
+			}
+		}
+	}
+	.quwat-home-categories {
+		padding: 32px 0 0;
+		.container {
+			display: block;
+		}
+		h2 {
+			margin: 0 0 16px;
+			font-size: 16px;
+			font-weight: 600;
+			line-height: 1.5;
+		}
+	}
+	.quwat-category-links {
+		display: grid;
+		grid-template-columns: repeat(7, minmax(0, 1fr));
+		gap: 10px;
+		a {
+			display: flex;
+			align-items: center;
+			flex-direction: column;
+			justify-content: center;
+			gap: 10px;
+			min-width: 0;
+			padding: 18px 8px;
+			border: 1px solid var(--home-line);
+			border-radius: 12px;
+			color: var(--home-ink);
+			background: #fff;
+			text-align: center;
+			white-space: normal;
+			font-size: 12px;
+			font-weight: 500;
+			line-height: 1.5;
+			transition: background-color 160ms ease, border-color 160ms ease;
+			svg {
+				color: var(--home-accent);
+				font-size: 26px;
+			}
+			span {
+				line-height: 1.5;
+				overflow-wrap: anywhere;
+			}
+			&:hover {
+				background: #fff8f6;
+				border-color: #e9c9c3;
+			}
+		}
+	}
+	@media (max-width: 1100px) {
+		.header-main {
+			padding-top: 192px;
+		}
+	}
+	@media (max-width: 900px) {
+		.quwat-build-hero {
+			grid-template-columns: 1fr;
+			gap: 32px;
+		}
+		.quwat-build-copy {
+			max-width: 600px;
+		}
+		.quwat-build-hero .threeJSContainer {
+			height: 360px;
+		}
+		.quwat-category-links {
+			grid-template-columns: repeat(4, minmax(0, 1fr));
+		}
+	}
+	@media (max-width: 600px) {
+		.header-main {
+			padding: 184px 0 32px;
+		}
+		&:has(#top .join-box) .header-main {
+			padding-top: 244px;
+		}
+		.quwat-build-hero {
+			max-width: calc(100% - 32px);
+			gap: 28px;
+			h1 {
+				font-size: 36px;
+			}
+		}
+		.header-main .quwat-hero-search {
+			grid-template-columns: 1fr;
+		}
+		.quwat-build-hero .threeJSContainer {
+			height: 280px;
+		}
+		.quwat-home-categories {
+			padding-top: 24px;
+		}
+		.quwat-category-links {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+			gap: 8px;
+			a {
+				flex-direction: row;
+				justify-content: flex-start;
+				text-align: left;
+				padding: 12px;
+				min-height: 64px;
+				svg {
+					flex-shrink: 0;
+					font-size: 22px;
+				}
+			}
+			a:last-child {
+				grid-column: 1 / -1;
+			}
+		}
+	}
+}
+
+#pc-wrap.quwat-shell.quwat-home {
+	.home-page {
+		.quwat-product-shelf,
+		.top-agents {
+			padding: 64px 0 0;
+			border: 0;
+			background: #fff;
+			height: auto;
+			box-shadow: none;
+			> .container {
+				flex-direction: column;
+				align-items: stretch;
+			}
+		}
+		.info-box {
+			align-items: center;
+			flex-wrap: wrap;
+			gap: 16px;
+			height: auto;
+			margin: 0;
+			.left {
+				min-width: 0;
+				flex: 1;
+			}
+			h2 {
+				margin: 0;
+				font-size: 28px;
+				font-weight: 600;
+				line-height: 1.3;
+				letter-spacing: -0.7px;
+			}
+			p {
+				margin: 8px 0 0;
+				color: var(--home-muted);
+				font-size: 13px;
+				line-height: 1.6;
+			}
+		}
+		.quwat-home-view-all {
+			display: inline-flex;
+			align-items: center;
+			gap: 8px;
+			flex-shrink: 0;
+			min-height: 44px;
+			color: var(--home-accent);
+			font-size: 13px;
+			font-weight: 600;
+			white-space: normal;
+			svg {
+				font-size: 18px;
+			}
+			&:hover {
+				text-decoration: underline;
+			}
+		}
+		.quwat-product-shelf .container .card-box {
+			margin-top: 24px;
+		}
+		.quwat-carousel-pagination {
+			margin-top: 12px;
+			&[hidden] {
+				display: none;
+			}
+		}
+		.quwat-member-card {
+			--quwat-card-border: #dfe3e8;
+			--quwat-card-muted: #667085;
+			border-radius: 18px;
+			background: var(--home-surface);
+			box-shadow: 0 3px 10px rgba(24, 26, 32, 0.05);
+			.quwat-ui-card-footer {
+				background: #fff;
+			}
+			&:focus-within {
+				border-color: #b7bec8;
+			}
+			@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+				&:hover {
+					transform: translateY(-3px) scale(1.01);
+					border-color: #bdc5cf;
+					box-shadow: 0 12px 24px rgba(24, 26, 32, 0.11);
+				}
+			}
+		}
+
+		.top-agents {
+			margin-top: 40px;
+			padding-bottom: 64px;
+			background-image: url('/img/banner/quwat-team.webp');
+			background-size: cover;
+			background-position: center;
+			background-repeat: no-repeat;
+			box-shadow: inset 0 24px 28px -20px rgba(24, 26, 32, 0.65), inset 0 -24px 28px -20px rgba(24, 26, 32, 0.65);
+			.container {
+				padding-top: 32px;
+				border-top: 0;
+			}
+			.info-box {
+				padding: 0;
+				gap: 12px;
+				border-radius: 0;
+				background: transparent;
+				.left,
+				> .quwat-home-view-all {
+					border: 1px solid rgba(255, 255, 255, 0.22);
+					border-radius: 12px;
+					background: rgba(28, 32, 30, 0.82);
+					-webkit-backdrop-filter: blur(12px);
+					backdrop-filter: blur(12px);
+					box-shadow: 0 6px 20px rgba(20, 24, 22, 0.14);
+				}
+				.left {
+					flex: 0 1 auto;
+					max-width: 100%;
+					padding: 12px 18px;
+					h2 { color: #fff; }
+					p { color: #e2e6e3; }
+				}
+				> .quwat-home-view-all {
+					margin-left: auto;
+					padding: 10px 16px;
+					color: #fff;
+					&:hover { background: rgba(28, 32, 30, 0.94); }
+					&:focus-visible { outline-color: #fff; }
+				}
+			}
+			.wrapper.quwat-agent-grid {
+				margin-top: 24px;
+				gap: 24px;
+				align-items: stretch;
+			}
+		}
+		.quwat-member-card {
+			.quwat-member-profile {
+				position: relative;
+				flex: 1;
+			}
+			.quwat-member-cover {
+				position: absolute;
+				top: 24px;
+				right: 24px;
+				z-index: 1;
+				height: auto;
+				padding: 0;
+				background: none;
+				span {
+					border-color: var(--home-line);
+					color: var(--home-muted);
+					background: #fff;
+				}
+			}
+			.quwat-ui-card-header {
+				gap: 0;
+				padding: 16px 16px 20px;
+			}
+			.quwat-member-avatar {
+				width: 100%;
+				height: 184px;
+				margin: 0 0 16px;
+				border: 1px solid #edf0f3;
+				border-radius: 12px;
+				background: #fff;
+				img {
+					object-fit: contain;
+					object-position: center bottom;
+				}
+			}
+			.quwat-member-name-centered {
+				line-height: 1.4;
+				padding: 0;
+				font-size: 18px;
+			}
+			.quwat-ui-card-footer {
+				justify-content: space-between;
+				flex-wrap: wrap;
+				gap: 8px;
+				padding: 12px 16px;
+			}
+			.quwat-member-like > .MuiStack-root {
+				gap: 2px;
+			}
+			.quwat-member-details {
+				display: inline-flex;
+				align-items: center;
+				justify-content: center;
+				gap: 4px;
+				min-height: 36px;
+				padding: 7px 10px;
+				border: 1px solid var(--home-line);
+				border-radius: 8px;
+				background: var(--home-surface);
+				color: #344054;
+				font-size: 12px;
+				font-weight: 500;
+				white-space: normal;
+				svg {
+					font-size: 18px;
+					flex-shrink: 0;
+				}
+				&:hover {
+					background: #eef1f4;
+					border-color: #bdc5cf;
+				}
+			}
+		}
+		.quwat-advertisement {
+			box-shadow: none;
+			width: 1300px;
+			max-width: calc(100% - 48px);
+			height: 520px;
+			margin: 64px auto 0;
+			border-radius: 18px;
+		}
+	}
+	.quwat-home-skeleton {
+		display: grid;
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+		gap: 24px;
+		margin-top: 24px;
+		.quwat-home-skeleton-card {
+			display: flex;
+			flex-direction: column;
+			gap: 12px;
+			padding: 16px;
+			border: 1px solid var(--home-line);
+			border-radius: 14px;
+		}
+	}
+	@media (max-width: 900px) {
+		.quwat-home-skeleton {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+			&:not(.members) .quwat-home-skeleton-card:nth-child(n + 3) {
+				display: none;
+			}
+		}
+	}
+	@media (max-width: 600px) {
+		.home-page {
+			.quwat-product-shelf,
+			.top-agents {
+				padding-top: 40px;
+			}
+			.info-box {
+				gap: 4px 12px;
+				h2 {
+					font-size: 23px;
+				}
+				p {
+					font-size: 12px;
+				}
+			}
+			.quwat-product-shelf .container .card-box {
+				margin-top: 20px;
+			}
+			.quwat-product-card {
+				width: 290px;
+				max-width: calc(100vw - 56px);
+			}
+			.top-agents {
+				margin-top: 24px;
+				padding-bottom: 40px;
+				.container {
+					padding-top: 24px;
+				}
+				.wrapper.quwat-agent-grid {
+					gap: 16px;
+				}
+			}
+			.quwat-advertisement {
+				max-width: calc(100% - 32px);
+				height: 280px;
+				margin-top: 40px;
+				border-radius: 14px;
+			}
+		}
+		.quwat-home-skeleton {
+			grid-template-columns: 1fr;
+			.quwat-home-skeleton-card:nth-child(n + 2) {
+				display: none;
+			}
+		}
+	}
+}
+
+#pc-wrap.quwat-shell.quwat-home #top .navbar .navbar-main.quwat-glass-navbar {
+	.router-box a:focus-visible,
+	.btn-lang:focus-visible,
+	.login-user:focus-visible {
+		outline: 2px solid var(--home-accent);
+		outline-offset: 3px;
+	}
+	@media (max-width: 600px) {
+		.quwat-original-brand {
+			gap: 8px;
+			strong {
+				font-size: 24px;
+			}
+			img {
+				width: 40px;
+				height: 40px;
+			}
+		}
+		.user-box {
+			gap: 6px;
+		}
+		.quwat-navbar-notifications,
+		.quwat-navbar-cart {
+			margin-right: 0;
+			width: 36px;
+			height: 40px;
+		}
+		.login-user {
+			min-width: 40px;
+			padding: 2px;
+			.MuiAvatar-root {
+				width: 36px;
+				height: 36px;
+			}
+		}
+		.btn-lang {
+			min-width: 58px;
+			height: 40px;
+			padding: 8px 10px;
+		}
+	}
+}

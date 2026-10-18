@@ -1,10 +1,12 @@
-import React, { Suspense, useCallback, useEffect, useRef } from 'react';
+import React, { ReactNode, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { Canvas, useThree } from '@react-three/fiber';
 import { Preload, Image as SceneImage } from '@react-three/drei';
 import { IconButton } from '@mui/material';
 import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded';
 import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded';
+import PauseRoundedIcon from '@mui/icons-material/PauseRounded';
+import PlayArrowRoundedIcon from '@mui/icons-material/PlayArrowRounded';
 import { motion, useReducedMotion } from 'framer-motion';
 import { ScrollControls, Scroll } from './ScrollControls';
 import { useText } from '../../i18n';
@@ -46,21 +48,22 @@ function PhotoPage({ index }: { index: number }) {
 	);
 }
 
-export default function FiberContainer() {
+export default function FiberContainer({ children }: { children?: ReactNode }) {
 	const { t } = useText();
 	const reducedMotion = useReducedMotion();
+	const [paused, setPaused] = useState(false);
 	const gallery = useRef<HTMLDivElement>(null);
 	const move = useCallback((direction: number) => {
 		const scroller = gallery.current?.querySelector<HTMLDivElement>('.quwat-fiber-scroll');
 		if (scroller) scroller.scrollBy({ left: direction * scroller.clientWidth, behavior: 'auto' });
 	}, []);
 	useEffect(() => {
-		if (reducedMotion) return;
+		if (reducedMotion || paused) return;
 		const timer = window.setInterval(() => {
 			if (!document.hidden) move(1);
 		}, 3000);
 		return () => window.clearInterval(timer);
-	}, [move, reducedMotion]);
+	}, [move, reducedMotion, paused]);
 	return (
 		<section className="quwat-build-hero" aria-labelledby="quwat-build-title">
 			<motion.div
@@ -76,6 +79,7 @@ export default function FiberContainer() {
 				<Link href="/product" className="quwat-build-link">
 					{t('Katalogni ko‘rish →')}
 				</Link>
+				{children}
 			</motion.div>
 			<div className="quwat-build-gallery">
 				<div
@@ -110,6 +114,15 @@ export default function FiberContainer() {
 						{t('Qurilish jarayonlari')}
 					</span>
 					<div className="quwat-build-controls">
+						{!reducedMotion && (
+							<IconButton
+								aria-label={t(paused ? 'Rasmlar almashishini davom ettirish' : 'Rasmlar almashishini to‘xtatish')}
+								title={t(paused ? 'Rasmlar almashishini davom ettirish' : 'Rasmlar almashishini to‘xtatish')}
+								onClick={() => setPaused((value) => !value)}
+							>
+								{paused ? <PlayArrowRoundedIcon /> : <PauseRoundedIcon />}
+							</IconButton>
+						)}
 						<IconButton aria-label={t('Oldingi rasmlar')} onClick={() => move(-1)}>
 							<ArrowBackRoundedIcon />
 						</IconButton>
