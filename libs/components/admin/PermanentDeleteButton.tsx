@@ -57,6 +57,7 @@ export default function PermanentDeleteButton({ kind, id, name, disabled, onDele
 	return (
 		<>
 			<Button
+				className="quwat-permanent-delete"
 				variant="outlined"
 				color="error"
 				startIcon={<DeleteForeverOutlinedIcon />}

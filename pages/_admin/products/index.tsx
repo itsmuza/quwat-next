@@ -213,6 +213,7 @@ function AdminProducts() {
 							)}
 							{p.productStatus !== ProductStatus.ARCHIVED && (
 								<Button
+									className="quwat-admin-product-archive"
 									variant="contained"
 									color="error"
 									sx={{ color: '#fff' }}

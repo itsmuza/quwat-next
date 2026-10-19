@@ -61,6 +61,11 @@ export default function SalesPanel({ kind }: { kind: 'client' | 'agent' }) {
 		agent ? GET_PENDING_SALES : GET_MY_SALES,
 		{ variables: { input }, fetchPolicy: 'network-only', skip: agent && Boolean(saleId) },
 	);
+	const allSales = useQuery<{ getMySales: Sales }>(GET_MY_SALES, {
+		variables: { input: { page: 1, limit: 1 } },
+		skip: agent || !status,
+		fetchPolicy: 'network-only',
+	});
 	const [perform] = useMutation<{ approveSale?: Sale; cancelSale?: Sale }>(agent ? APPROVE_SALE : CANCEL_SALE);
 	const [performReject] = useMutation(REJECT_SALE);
 	const focused = useQuery<{ getSaleForAgent: Sale }>(GET_SALE_FOR_AGENT, {
@@ -69,6 +74,12 @@ export default function SalesPanel({ kind }: { kind: 'client' | 'agent' }) {
 		fetchPolicy: 'network-only',
 	});
 	const rows = agent ? data?.getPendingSales : data?.getMySales;
+	const totalSales = status ? allSales.data?.getMySales : data?.getMySales;
+	const purchaseCount = totalSales ? new Intl.NumberFormat(locale).format(totalOf(totalSales)) : '—';
+	const refreshPanel = () =>
+		agent && saleId
+			? focused.refetch()
+			: Promise.all([refetch(), ...(!agent && status ? [allSales.refetch()] : [])]);
 	async function submit() {
 		if (!selected || busy) return;
 		setBusy(true);
@@ -109,7 +120,9 @@ export default function SalesPanel({ kind }: { kind: 'client' | 'agent' }) {
 	}
 	return (
 		<Stack spacing={3}>
-			<Typography variant="h4">{agent ? t('To‘lov so‘rovlari') : t('Xaridlarim')}</Typography>
+			<Typography variant="h4">
+				{agent ? t('To‘lov so‘rovlari') : `${t('Xaridlarim')} (${purchaseCount})`}
+			</Typography>
 			{agent && (
 				<TemporaryInfo>
 					{t('Mijozning naqd yoki karta to‘lovi olinganini tekshirib, so‘rovni tasdiqlang.')}
@@ -136,15 +149,15 @@ export default function SalesPanel({ kind }: { kind: 'client' | 'agent' }) {
 					</TextField>
 				)}
 				<Button
-					disabled={busy || loading || focused.loading}
-					onClick={() => void (agent && saleId ? focused.refetch() : refetch())}
+					disabled={busy || loading || focused.loading || allSales.loading}
+					onClick={() => void refreshPanel()}
 				>
 					{t('Yangilash')}
 				</Button>
 			</Stack>
 			{success && <Alert severity="success">{t(success)}</Alert>}
 			{errorMessage && !selected && <Alert severity="error">{translateError(errorMessage)}</Alert>}
-			<QueryState loading={loading && !data} error={error} retry={() => refetch()} />
+			<QueryState loading={loading && !data} error={error} retry={() => refreshPanel()} />
 			{rows && !rows.list.length && (
 				<TemporaryInfo>{agent ? t('Kutilayotgan to‘lov so‘rovlari yo‘q.') : t('Xarid so‘rovlari yo‘q.')}</TemporaryInfo>
 			)}

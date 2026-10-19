@@ -15,7 +15,7 @@ const fieldVariants: Variants = {
 	}),
 };
 
-export default function HeaderFilter() {
+export default function HeaderFilter({ compact = false }: { compact?: boolean }) {
 	const { t } = useText();
 	const reducedMotion = useReducedMotion();
 	const entrance = useAnimationControls();
@@ -42,18 +42,15 @@ export default function HeaderFilter() {
 		<MotionConfig reducedMotion="user">
 			<motion.form
 				className="quwat-hero-search"
+				id={compact ? 'home-search' : undefined}
 				onSubmit={submit}
 				initial={false}
 				animate={entrance}
 				variants={{ enter: { opacity: [0.9, 1], y: [12, 0], transition: { duration: 0.4, ease: 'easeOut' } } }}
 			>
-				<motion.div
-					className="quwat-hero-search-field"
-					initial={false}
-					variants={fieldVariants}
-					custom={0}
-				>
+				<motion.div className="quwat-hero-search-field" initial={false} variants={fieldVariants} custom={0}>
 					<TextField
+						id={compact ? 'home-product-search' : undefined}
 						placeholder={t('Mahsulot nomi')}
 						variant="outlined"
 						value={text}
@@ -69,12 +66,7 @@ export default function HeaderFilter() {
 						fullWidth
 					/>
 				</motion.div>
-				<motion.div
-					className="quwat-hero-search-field"
-					initial={false}
-					variants={fieldVariants}
-					custom={1}
-				>
+				<motion.div className="quwat-hero-search-field" initial={false} variants={fieldVariants} custom={1}>
 					<TextField
 						select
 						variant="outlined"
@@ -83,8 +75,7 @@ export default function HeaderFilter() {
 						fullWidth
 						SelectProps={{
 							displayEmpty: true,
-							renderValue: (selected) =>
-								selected ? t(productTypeLabels[selected as ProductType]) : t('Kategoriya'),
+							renderValue: (selected) => (selected ? t(productTypeLabels[selected as ProductType]) : t('Kategoriya')),
 							SelectDisplayProps: { 'aria-label': t('Kategoriya') },
 							MenuProps: { PaperProps: { className: 'quwat-hero-category-menu' } },
 						}}
@@ -107,7 +98,7 @@ export default function HeaderFilter() {
 					whileTap={reducedMotion ? undefined : { scale: 0.97 }}
 					transition={{ type: 'spring', stiffness: 400, damping: 28 }}
 				>
-					{t('Mahsulot qidirish')}
+					{t(compact ? 'Qidirish' : 'Mahsulot qidirish')}
 				</MotionButton>
 			</motion.form>
 		</MotionConfig>

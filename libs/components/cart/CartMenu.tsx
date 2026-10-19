@@ -1,6 +1,9 @@
 import { useText } from '../../i18n';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
+import { useRouter } from 'next/router';
+import HomeNavigation from '../homepage/HomeNavigation';
 import { useApolloClient } from '@apollo/client';
 import {
 	Alert,
@@ -30,6 +33,8 @@ export default function CartMenu() {
 	const { t, locale, errorMessage: translateError } = useText();
 	const cart = useClientCart();
 	const client = useApolloClient();
+	const router = useRouter();
+	const searchAfterClose = useRef(false);
 	const [open, setOpen] = useState(false);
 	const reducedMotion = useReducedMotion();
 	const [method, setMethod] = useState<SalePaymentMethod>('CASH');
@@ -37,12 +42,15 @@ export default function CartMenu() {
 	const [last, setLast] = useState<{ owner: string; sale: Sale } | null>(null);
 	useEffect(() => {
 		setOpen(false);
+		searchAfterClose.current = false;
 		setLast(null);
 		setError('');
 		setMethod('CASH');
 	}, [cart.ownerId, cart.isClient]);
 	if (!cart.isClient) return null;
 	const total = cart.intent?.expectedTotal ?? cartTotal(cart.lines);
+	const totalLabel =
+		total === null ? t('Miqdorlarni tekshiring') : money(total, locale).replace(/[\u00a0\u202f]/g, ' ');
 	const canSend =
 		cart.ready &&
 		!cart.submitting &&
@@ -85,6 +93,18 @@ export default function CartMenu() {
 				open={open}
 				onClose={() => setOpen(false)}
 				transitionDuration={reducedMotion ? 0 : { enter: 280, exit: 220 }}
+				SlideProps={{
+					onExited: () => {
+						if (!searchAfterClose.current) return;
+						searchAfterClose.current = false;
+						void router.push('/product').then(() =>
+							window.requestAnimationFrame(() => {
+								document.getElementById('catalog-mobile-search')?.focus();
+								window.scrollTo({ top: 0, behavior: 'auto' });
+							}),
+						);
+					},
+				}}
 				ModalProps={{
 					BackdropProps: {
 						className: 'quwat-cart-backdrop',
@@ -99,12 +119,20 @@ export default function CartMenu() {
 					'aria-labelledby': 'cart-menu-title',
 				}}
 			>
+				<div className="quwat-cart-brandbar">
+					<Link passHref href="/" onClick={() => setOpen(false)}>
+						<Image src="/img/logo/logoText.svg" width={24} height={24} alt="" />
+						<strong>Quwat</strong>
+					</Link>
+					<span>{t('Qurilish materiallari do‘koni')}</span>
+				</div>
 				<header className="quwat-cart-header">
-					<div>
+					<div className="quwat-cart-title">
+						<ShoppingCartOutlinedIcon aria-hidden="true" />
 						<Typography id="cart-menu-title" variant="h6" component="h2">
 							{t('Savatcha')}
 						</Typography>
-						<Typography variant="body2" color="text.secondary">
+						<Typography className="quwat-cart-count" variant="body2" color="text.secondary">
 							{t('{{count}} ta mahsulot', { count: cart.lines.length })}
 						</Typography>
 					</div>
@@ -127,7 +155,7 @@ export default function CartMenu() {
 						</IconButton>
 					</div>
 				</header>
-				<div className="quwat-cart-body">
+				<div id="quwat-cart-body" className="quwat-cart-body">
 					<Stack spacing={2}>
 						{last?.owner === cart.ownerId && (
 							<Alert severity="success">
@@ -144,33 +172,62 @@ export default function CartMenu() {
 						)}
 						<CartItems />
 					</Stack>
+					{cart.lines.length > 0 ? (
+						<>
+							<section className="quwat-cart-payment-section" aria-labelledby="cart-payment-title">
+								<h3 id="cart-payment-title">
+									<PaymentsOutlinedIcon aria-hidden="true" />
+									{t('To‘lov turi')}
+								</h3>
+								{cart.lines.length > 0 && (
+									<ToggleButtonGroup
+										className="quwat-cart-methods"
+										exclusive
+										aria-label={t('To‘lov turi')}
+										value={cart.intent?.paymentMethod || method}
+										disabled={cart.submitting || Boolean(cart.intent)}
+										onChange={(_, value: SalePaymentMethod | null) => {
+											if (value) setMethod(value);
+										}}
+									>
+										{(['CASH', 'CARD'] as const).map((value) => (
+											<ToggleButton key={value} value={value} aria-label={t(paymentLabels[value])}>
+												{value === 'CASH' ? <PaymentsOutlinedIcon /> : <CreditCardOutlinedIcon />}
+												<span>{t(paymentLabels[value])}</span>
+											</ToggleButton>
+										))}
+									</ToggleButtonGroup>
+								)}
+							</section>
+							<section className="quwat-cart-order-summary" aria-labelledby="cart-summary-title">
+								<h3 id="cart-summary-title">{t('Buyurtma hisobi')}</h3>
+								<div>
+									<span>{t('{{count}} ta mahsulot', { count: cart.lines.length })}</span>
+									<strong>{totalLabel}</strong>
+								</div>
+							</section>
+						</>
+					) : (
+						cart.ready && (
+							<Button
+								className="quwat-cart-continue"
+								component={Link}
+								href="/product"
+								onClick={() => setOpen(false)}
+								variant="contained"
+							>
+								{t('Katalogni ko‘rish →')}
+							</Button>
+						)
+					)}
 				</div>
 				<footer className="quwat-cart-footer">
 					<div className="quwat-cart-total">
 						<Typography fontWeight={600}>{t('Jami')}</Typography>
 						<Typography className="quwat-cart-total-amount" fontWeight={700}>
-							{total === null ? t('Miqdorlarni tekshiring') : money(total, locale)}
+							{totalLabel}
 						</Typography>
 					</div>
-					{cart.lines.length > 0 && (
-						<ToggleButtonGroup
-							className="quwat-cart-methods"
-							exclusive
-							aria-label={t('To‘lov turi')}
-							value={cart.intent?.paymentMethod || method}
-							disabled={cart.submitting || Boolean(cart.intent)}
-							onChange={(_, value: SalePaymentMethod | null) => {
-								if (value) setMethod(value);
-							}}
-						>
-							{(['CASH', 'CARD'] as const).map((value) => (
-								<ToggleButton key={value} value={value} aria-label={t(paymentLabels[value])}>
-									{value === 'CASH' ? <PaymentsOutlinedIcon /> : <CreditCardOutlinedIcon />}
-									<span>{t(paymentLabels[value])}</span>
-								</ToggleButton>
-							))}
-						</ToggleButtonGroup>
-					)}
 					<div className="quwat-cart-footer-actions">
 						<Button
 							className="quwat-cart-orders"
@@ -193,6 +250,16 @@ export default function CartMenu() {
 						</Button>
 					</div>
 				</footer>
+				<div className="quwat-cart-mobile-navigation">
+					<HomeNavigation
+						cart
+						onNavigate={() => setOpen(false)}
+						onSearch={() => {
+							searchAfterClose.current = true;
+							setOpen(false);
+						}}
+					/>
+				</div>
 			</Drawer>
 		</>
 	);

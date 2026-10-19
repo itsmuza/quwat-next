@@ -16,7 +16,15 @@ import { setGuestLike } from '../../guestLikes';
 import { LikeGroup } from '../../enums/like.enum';
 import { addToCart } from '../../cart';
 import { useClientCart } from '../cart/CartSession';
-export default function ProductActions({ product, onChanged }: { product: Product; onChanged?: () => unknown }) {
+export default function ProductActions({
+	product,
+	onChanged,
+	showCartLabel = false,
+}: {
+	product: Product;
+	onChanged?: () => unknown;
+	showCartLabel?: boolean;
+}) {
 	const { t, errorMessage: translateError } = useText();
 	const client = useApolloClient();
 	const user = useReactiveVar(userVar);
@@ -42,6 +50,8 @@ export default function ProductActions({ product, onChanged }: { product: Produc
 	const [save] = useMutation<{ saveProduct: boolean }, { productId: string }>(SAVE_PRODUCT);
 	const [unsave] = useMutation<{ unsaveProduct: boolean }, { productId: string }>(UNSAVE_PRODUCT);
 	const active = product.productStatus === 'ACTIVE';
+	const canBookmark = session.status === 'authenticated' && user.memberType === 'CLIENT' && (active || product.meSaved);
+	const canAddToCart = active && cart.isClient;
 	const liked =
 		session.status === 'anonymous'
 			? Boolean(product.guestLiked)
@@ -100,7 +110,7 @@ export default function ProductActions({ product, onChanged }: { product: Produc
 				sx={{ width: '100%' }}
 			>
 				{active && (
-					<Stack direction="row" alignItems="center" sx={{ flexShrink: 0 }}>
+					<Stack direction="row" alignItems="center" className="quwat-product-like-group" sx={{ flexShrink: 0 }}>
 						<IconButton
 							className={`quwat-product-like${pending === 'like' ? ' quwat-like-feedback' : ''}`}
 							size="small"
@@ -117,39 +127,44 @@ export default function ProductActions({ product, onChanged }: { product: Produc
 						</Typography>
 					</Stack>
 				)}
-				{session.status === 'authenticated' && user.memberType === 'CLIENT' && (active || product.meSaved) && (
-					<IconButton
-						className={`quwat-product-bookmark${pending === 'save' ? ' quwat-save-feedback' : ''}`}
-						size="small"
-						disabled={busy}
-						onClick={() => void act(true)}
-						title={product.meSaved ? t('Saqlanganlardan olib tashlash') : t('Mahsulotni saqlash')}
-						sx={{
-							color: product.meSaved ? '#000' : '#52525b',
-							'&.Mui-disabled': { color: product.meSaved ? '#000' : '#52525b' },
-						}}
-						aria-busy={pending === 'save'}
-						aria-label={product.meSaved ? t('Saqlangandan olish') : t('Saqlash')}
-						aria-pressed={product.meSaved}
-					>
-						{product.meSaved ? <BookmarkIcon /> : <BookmarkBorderIcon />}
-					</IconButton>
-				)}
-				{active && cart.isClient && (
-					<IconButton
-						className="quwat-cart-add"
-						size="small"
-						aria-label={t('Savatchaga qo‘shish')}
-						title={t('Savatchaga qo‘shish')}
-						disabled={!cart.ready || cart.submitting || Boolean(cart.intent)}
-						onClick={() => {
-							const error = addToCart(product);
-							if (error) showError(error);
-							else clearError();
-						}}
-					>
-						<AddShoppingCartIcon />
-					</IconButton>
+				{(canBookmark || canAddToCart) && (
+					<div className="quwat-product-purchase-actions">
+						{canBookmark && (
+							<IconButton
+								className={`quwat-product-bookmark${pending === 'save' ? ' quwat-save-feedback' : ''}`}
+								size="small"
+								disabled={busy}
+								onClick={() => void act(true)}
+								title={product.meSaved ? t('Saqlanganlardan olib tashlash') : t('Mahsulotni saqlash')}
+								sx={{
+									color: product.meSaved ? '#000' : '#52525b',
+									'&.Mui-disabled': { color: product.meSaved ? '#000' : '#52525b' },
+								}}
+								aria-busy={pending === 'save'}
+								aria-label={product.meSaved ? t('Saqlangandan olish') : t('Saqlash')}
+								aria-pressed={product.meSaved}
+							>
+								{product.meSaved ? <BookmarkIcon /> : <BookmarkBorderIcon />}
+							</IconButton>
+						)}
+						{canAddToCart && (
+							<IconButton
+								className="quwat-cart-add"
+								size="small"
+								aria-label={t('Savatchaga qo‘shish')}
+								title={t('Savatchaga qo‘shish')}
+								disabled={!cart.ready || cart.submitting || Boolean(cart.intent)}
+								onClick={() => {
+									const error = addToCart(product);
+									if (error) showError(error);
+									else clearError();
+								}}
+							>
+								<AddShoppingCartIcon />
+								{showCartLabel && <span className="quwat-home-cart-label">{t('Savatcha')}</span>}
+							</IconButton>
+						)}
+					</div>
 				)}
 			</Stack>
 			<Portal>

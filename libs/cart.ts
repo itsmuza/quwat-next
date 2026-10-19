@@ -19,7 +19,8 @@ export type CartProduct = Pick<
 	| 'productReservedQuantity'
 	| 'productMinOrderQuantity'
 	| 'productQuantityStep'
->;
+> &
+	Partial<Pick<Product, 'productBrand' | 'productType'>>;
 export interface CartLine {
 	productId: string;
 	product: CartProduct | null;
@@ -174,6 +175,8 @@ export function cartProduct(product: Product): CartProduct {
 	const {
 		_id,
 		productName,
+		productBrand,
+		productType,
 		productImages,
 		productUnit,
 		productPrice,
@@ -186,6 +189,8 @@ export function cartProduct(product: Product): CartProduct {
 	return {
 		_id,
 		productName,
+		productBrand,
+		productType,
 		productImages,
 		productUnit,
 		productPrice,

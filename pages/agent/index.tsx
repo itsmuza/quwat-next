@@ -9,6 +9,7 @@ import { Members } from '../../libs/types/member/member';
 import { totalOf } from '../../libs/product';
 import withLayoutBasic from '../../libs/components/layout/LayoutBasic';
 import QueryState from '../../libs/components/common/QueryState';
+import { HomeServices } from '../../libs/components/homepage/HomeSupport';
 import MemberCard from '../../libs/components/common/MemberCard';
 export const getStaticProps = async ({ locale }: { locale: string }) => ({
 	props: { ...(await serverSideTranslations(locale, ['common'])) },
@@ -28,9 +29,23 @@ function Agents() {
 		if (total > limit) setLimit(total);
 	}, [data, limit]);
 	return (
-		<Stack className="quwat-page" spacing={3}>
-			<Stack direction="row" alignItems="center" justifyContent="space-between" flexWrap="wrap" gap={2}>
-				<Typography variant="h4">{t('Agentlar')}</Typography>
+		<Stack className="quwat-page quwat-agents-page" spacing={3}>
+			<Stack
+				className="quwat-agents-toolbar"
+				direction="row"
+				alignItems="center"
+				justifyContent="space-between"
+				flexWrap="wrap"
+				gap={2}
+			>
+				<div>
+					<Typography variant="h4">{t('Agentlar')}</Typography>
+					{data && (
+						<span className="quwat-desktop-only quwat-agents-count">
+							{t('{{count}} ta agent', { count: totalOf(data.getAgents) })}
+						</span>
+					)}
+				</div>
 				<Stack
 					component="form"
 					direction="row"
@@ -57,10 +72,13 @@ function Agents() {
 			<QueryState loading={loading && !data} error={error} retry={() => refetch()} />
 			<div className="quwat-agent-grid">
 				{data?.getAgents.list.map((m) => (
-					<MemberCard member={m} key={m._id} />
+					<MemberCard member={m} key={m._id} showDescription showProfileLink />
 				))}
 			</div>
 			{data && !data.getAgents.list.length && <Alert severity="info">{t('Agent topilmadi.')}</Alert>}
+			<div className="quwat-desktop-only quwat-route-services">
+				<HomeServices />
+			</div>
 		</Stack>
 	);
 }

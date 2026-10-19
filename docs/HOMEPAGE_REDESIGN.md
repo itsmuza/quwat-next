@@ -1,5 +1,9 @@
 # Homepage redesign — 2026-10-18
 
+## Current: Stitch industrial homepage
+
+The approved Stitch desktop/mobile design is now implemented as the homepage presentation. See [STITCH_HOMEPAGE.md](STITCH_HOMEPAGE.md) for the current layout, complete changed-file list, validation and deliberate adaptations to supported Quwat functionality. The entries below describe earlier appearances.
+
 Current product-card appearance is documented in [PRODUCT_CARD_REDESIGN.md](PRODUCT_CARD_REDESIGN.md). The warm ivory refinement below was reverted at the user's request, then superseded by the shared industrial product-card redesign. The following entries retain the earlier implementation history.
 
 ## Homepage product-card refinement — 2026-10-18

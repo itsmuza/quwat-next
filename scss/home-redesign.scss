@@ -1,436 +1,240 @@
-// Scoped to the homepage; shared components and portal panels retain their defaults.
-#pc-wrap.quwat-shell.quwat-home {
-	--home-ink: #181a20;
-	--home-muted: #667085;
-	--home-line: #e4e7ec;
-	--home-surface: #f7f8fa;
-	--home-accent: #c7352b;
-	color: var(--home-ink);
-	background: #fff;
-	font-family: 'Poppins', system-ui, sans-serif;
-	.container,
-	.home-page .container,
-	#footer .footer-container {
-		width: 1300px;
-		max-width: calc(100% - 48px);
-		min-width: 0;
-	}
-	a:focus-visible,
-	button:focus-visible {
-		outline: 2px solid var(--home-accent);
-		outline-offset: 4px;
-	}
-	#top .navbar .navbar-main.quwat-glass-navbar {
-		> .container,
-		&.transparent > .container {
-			background: #fff;
-			border-color: var(--home-line);
-			border-radius: 18px;
-			box-shadow: 0 4px 20px rgba(24, 26, 32, 0.05);
-		}
-		.quwat-original-brand,
-		.router-box a,
-		.join-box span,
-		.join-box svg,
-		.btn-lang,
-		.login-user,
-		.quwat-navbar-cart,
-		.quwat-navbar-notifications {
-			color: var(--home-ink);
-		}
-		.router-box a {
-			border-radius: 9px;
-			&:hover {
-				background: var(--home-surface);
-				border-color: var(--home-line);
-			}
-			&[aria-current='page'] {
-				background: #fff1ee;
-				color: #a82c24;
-				border-color: #f5d8d2;
-			}
-		}
-		.join-box,
-		.btn-lang {
-			border-color: var(--home-line);
-			border-radius: 10px;
-			background: #fff;
-			box-shadow: none;
-			&:hover {
-				border-color: #b6bdc9;
-				background: var(--home-surface);
-			}
-		}
-		.login-user,
-		.quwat-navbar-cart,
-		.quwat-navbar-notifications {
-			background: transparent;
-			&:hover {
-				background: var(--home-surface);
-			}
-		}
-	}
-	#footer {
-		--home-ink: #fff;
-		--home-muted: #bebdbd;
-		--home-line: #30343d;
-		--home-accent: #fff;
-		padding: 48px 0 20px;
-		border-top: 1px solid var(--home-line);
-		background: #181a20;
-		.footer-container {
-			.main {
-				display: grid;
-				grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
-				gap: 64px;
-				.left,
-				.right {
-					width: auto;
-					min-width: 0;
-					height: auto;
-					gap: 20px;
-				}
-				.left {
-					justify-content: flex-start;
-				}
-				.footer-box {
-					gap: 6px;
-				}
-				.quwat-original-brand {
-					color: var(--home-ink);
-				}
-				.footer-box span,
-				.footer-box p,
-				.right .top p {
-					color: var(--home-muted);
-					font-size: 13px;
-					font-weight: 400;
-					line-height: 1.7;
-					text-transform: none;
-				}
-				.right .top strong {
-					color: var(--home-ink);
-					text-transform: none;
-				}
-				.bottom {
-					width: 100%;
-					margin-top: 4px;
-					display: grid;
-					grid-template-columns: repeat(3, minmax(0, 1fr));
-					gap: 24px;
-					> div {
-						min-width: 0;
-					}
-					strong {
-						color: var(--home-ink);
-						font-size: 13px;
-						text-transform: none;
-					}
-					a {
-						margin-top: 8px;
-						font-size: 13px;
-						line-height: 1.6;
-					}
-				}
-				.media-box {
-					color: var(--home-muted);
-					margin-top: 4px;
-					svg {
-						font-size: 22px;
-						margin-right: 16px;
-						cursor: default;
-					}
-				}
-			}
-			.second {
-				margin-top: 32px;
-				padding-top: 16px;
-				height: auto;
-				border-color: var(--home-line);
-				gap: 12px;
-				span {
-					color: var(--home-muted);
-					font-size: 12px;
-					line-height: 1.6;
-				}
-			}
-		}
-		a {
-			color: var(--home-muted);
-			&:hover {
-				color: var(--home-accent);
-			}
-		}
-	}
-	@media (max-width: 900px) {
-		#footer .footer-container .main {
-			grid-template-columns: 1fr;
-			gap: 32px;
-		}
-	}
-	@media (max-width: 600px) {
-		.container,
-		.home-page .container,
-		#footer .footer-container {
-			max-width: calc(100% - 32px);
-		}
-		#top .navbar .navbar-main.quwat-glass-navbar {
-			padding: 12px 16px !important;
-		}
-		#footer {
-			padding-top: 32px;
-			.footer-container .main .bottom {
-				grid-template-columns: repeat(2, minmax(0, 1fr));
-				gap: 24px 16px;
-			}
-			.second {
-				flex-wrap: wrap;
-			}
-		}
-	}
+@import 'store-chrome';
+
+// Stitch Industrial Pro: homepage-only presentation. Shared routes and portal drawers keep their theme.
+@font-face {
+	font-family: 'Quwat Inter';
+	font-style: normal;
+	font-weight: 400 800;
+	font-display: swap;
+	src: url('/fonts/inter-latin.woff2') format('woff2');
+	unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+		U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+	font-family: 'Quwat Inter';
+	font-style: normal;
+	font-weight: 400 800;
+	font-display: swap;
+	src: url('/fonts/inter-latin-ext.woff2') format('woff2');
+	unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF,
+		U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+	font-family: 'Quwat Inter';
+	font-style: normal;
+	font-weight: 400 800;
+	font-display: swap;
+	src: url('/fonts/inter-cyrillic.woff2') format('woff2');
+	unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+	font-family: 'Quwat Mono';
+	font-style: normal;
+	font-weight: 400 500;
+	font-display: swap;
+	src: url('/fonts/jetbrains-mono-latin.woff2') format('woff2');
 }
 
 #pc-wrap.quwat-shell.quwat-home {
-	#top .navbar .navbar-main.quwat-glass-navbar > .container {
-		backdrop-filter: none;
-		-webkit-backdrop-filter: none;
-	}
+	@include quwat-store-chrome;
 	.header-main {
-		padding: 144px 0 48px;
-		background-image: linear-gradient(
-				180deg,
-				rgba(17, 20, 27, 0.82) 0%,
-				rgba(17, 20, 27, 0.38) 45%,
-				rgba(17, 20, 27, 0.58) 100%
-			),
-			url('/img/banner/quwat-warehouse.webp');
-		background-size: cover;
-		background-position: center;
-		background-repeat: no-repeat;
-		border-bottom: 1px solid var(--home-line);
+		height: auto;
+		min-height: 0;
+		padding: 28px 0 0;
+		background: none;
 	}
 	.quwat-build-hero {
-		grid-template-columns: minmax(0, 1fr) minmax(0, 1.22fr);
-		gap: 48px;
+		display: grid;
+		grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr);
+		align-items: stretch;
+		width: 1320px;
+		max-width: calc(100% - 80px);
+		margin: 0 auto;
+		gap: 16px;
 		color: #fff;
+	}
+	.quwat-build-copy {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		min-width: 0;
+		min-height: 370px;
+		padding: 36px;
+		background: linear-gradient(100deg, rgba(22, 38, 55, 0.96), rgba(22, 38, 55, 0.78)),
+			url('/img/banner/quwat-warehouse.webp') center/cover;
+		border: 1px solid #314253;
+		border-radius: 3px;
 		h1 {
-			font-size: clamp(36px, 3.5vw, 52px);
-			line-height: 1.14;
-			letter-spacing: -1.5px;
 			margin: 16px 0;
+			max-width: 630px;
+			font-size: clamp(32px, 3.3vw, 48px);
+			line-height: 1.08;
+			font-weight: 800;
+			letter-spacing: -0.035em;
+			text-wrap: balance;
 		}
 		p {
-			max-width: 440px;
-			color: #e2e5e9;
-			margin-bottom: 14px;
-			font-size: 16px;
-		}
-		.quwat-build-eyebrow {
-			color: #e2e5e9;
-			font-size: 12px;
-		}
-		.quwat-build-link {
-			padding: 8px 0;
-			border: 0;
-			background: none;
-			color: #fff;
-			border-radius: 4px;
+			margin: 0 0 24px;
+			max-width: 58ch;
+			color: #dae1e9;
 			font-size: 14px;
-			&:hover {
-				background: none;
-				color: #fff;
-				text-decoration: underline;
-			}
-		}
-		.quwat-build-gallery {
-			padding: 10px 10px 0;
-			border-color: var(--home-line);
-			border-radius: 20px;
-			background: var(--home-surface);
-			box-shadow: none;
-		}
-		.threeJSContainer {
-			height: 392px;
-			border-radius: 12px;
-		}
-		.quwat-build-gallery-footer {
-			padding: 12px 2px;
-			> span {
-				color: var(--home-muted);
-				font-size: 12px;
-			}
-		}
-		.quwat-build-controls {
-			gap: 6px;
-			button {
-				width: 40px;
-				height: 40px;
-				color: var(--home-ink);
-				border-color: var(--home-line);
-				background: #fff;
-				&:hover {
-					background: #fff1ee;
-					border-color: #f5d8d2;
-					color: #a82c24;
-				}
-			}
-		}
-		.threeJSContainer:focus-visible,
-		.quwat-build-link:focus-visible,
-		.quwat-build-controls button:focus-visible {
-			outline-color: var(--home-accent);
+			line-height: 1.7;
 		}
 	}
-	.header-main .quwat-hero-search {
-		width: 100%;
-		margin-top: 20px;
-		padding: 0;
-		gap: 12px;
-		grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
-		border: 0;
-		border-radius: 0;
-		background: none;
-		box-shadow: none;
-		backdrop-filter: none;
-		-webkit-backdrop-filter: none;
-		.MuiOutlinedInput-root {
-			height: 52px;
-			background: #fff;
-			border-radius: 10px;
-			font-size: 14px;
+	.quwat-build-eyebrow {
+		&::before {
+			display: none;
 		}
-		.quwat-hero-search-submit {
-			grid-column: 1 / -1;
-			height: 48px;
-			border-radius: 10px;
-			background: var(--home-accent);
-			box-shadow: none;
+		align-self: flex-start;
+		padding: 5px 8px;
+		color: #fff;
+		background: #bd1c27;
+		border-radius: 2px;
+		font-size: 10px;
+		font-weight: 600;
+		letter-spacing: 0.025em;
+	}
+	.quwat-build-link {
+		display: inline-flex;
+		align-items: center;
+		min-height: 44px;
+		padding: 12px 20px;
+		border: 0;
+		border-radius: 2px;
+		color: #fff;
+		background: var(--home-accent);
+		font-size: 12px;
+		font-weight: 600;
+		&:hover {
+			color: #fff;
+			background: #b71923;
+		}
+	}
+	.quwat-home-hero-facts {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		width: 100%;
+		gap: 12px;
+		margin-top: 26px;
+		padding-top: 20px;
+		border-top: 1px solid #4c5c6b;
+		div {
+			display: flex;
+			flex-direction: column;
+			gap: 4px;
+		}
+		strong {
+			font-size: 22px;
+			font-weight: 700;
+			line-height: 1.2;
+		}
+		span {
+			color: #d0d9e2;
+			font-size: 10px;
+			line-height: 1.5;
+		}
+	}
+	.quwat-build-gallery {
+		min-width: 0;
+		padding: 12px;
+		border: 1px solid var(--home-line);
+		border-radius: 3px;
+		background: #fff;
+		box-shadow: none;
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+	}
+	.quwat-build-hero .threeJSContainer {
+		flex: 1;
+		width: 100%;
+		height: 290px;
+		border-radius: 0;
+	}
+	.quwat-build-gallery-footer {
+		padding: 10px 0 0;
+		color: var(--home-muted);
+		gap: 8px;
+		> span {
+			color: var(--home-muted);
+			font-size: 11px;
+		}
+	}
+	.quwat-build-controls {
+		gap: 4px;
+		button {
+			width: 36px;
+			height: 36px;
+			border-radius: 2px;
+			border: 1px solid var(--home-line);
+			color: var(--home-ink);
+			background: #fff;
 			&:hover {
-				background: #a82c24;
-				box-shadow: none;
+				background: #eef1f5;
+			}
+			svg {
+				font-size: 19px;
 			}
 		}
+	}
+	.quwat-home-solutions {
+		display: none;
 	}
 	.quwat-home-categories {
-		padding: 32px 0 0;
+		padding: 36px 0 0;
 		.container {
 			display: block;
 		}
 		h2 {
 			margin: 0 0 16px;
-			font-size: 16px;
-			font-weight: 600;
-			line-height: 1.5;
+			font-size: 18px;
+			font-weight: 700;
 		}
 	}
 	.quwat-category-links {
 		display: grid;
 		grid-template-columns: repeat(7, minmax(0, 1fr));
-		gap: 10px;
+		gap: 12px;
 		a {
 			display: flex;
-			align-items: center;
 			flex-direction: column;
+			align-items: center;
 			justify-content: center;
-			gap: 10px;
 			min-width: 0;
-			padding: 18px 8px;
-			border: 1px solid var(--home-line);
-			border-radius: 12px;
-			color: var(--home-ink);
+			min-height: 96px;
+			gap: 10px;
+			padding: 16px 8px;
 			background: #fff;
-			text-align: center;
-			white-space: normal;
+			border: 1px solid var(--home-line);
+			border-radius: 2px;
+			color: var(--home-ink);
 			font-size: 12px;
-			font-weight: 500;
-			line-height: 1.5;
-			transition: background-color 160ms ease, border-color 160ms ease;
-			svg {
-				color: var(--home-accent);
-				font-size: 26px;
-			}
+			font-weight: 600;
+			white-space: normal;
+			text-align: center;
 			span {
-				line-height: 1.5;
+				line-height: 1.4;
 				overflow-wrap: anywhere;
 			}
+			svg {
+				font-size: 25px;
+				color: #475569;
+			}
 			&:hover {
-				background: #fff8f6;
-				border-color: #e9c9c3;
-			}
-		}
-	}
-	@media (max-width: 1100px) {
-		.header-main {
-			padding-top: 192px;
-		}
-	}
-	@media (max-width: 900px) {
-		.quwat-build-hero {
-			grid-template-columns: 1fr;
-			gap: 32px;
-		}
-		.quwat-build-copy {
-			max-width: 600px;
-		}
-		.quwat-build-hero .threeJSContainer {
-			height: 360px;
-		}
-		.quwat-category-links {
-			grid-template-columns: repeat(4, minmax(0, 1fr));
-		}
-	}
-	@media (max-width: 600px) {
-		.header-main {
-			padding: 184px 0 32px;
-		}
-		&:has(#top .join-box) .header-main {
-			padding-top: 244px;
-		}
-		.quwat-build-hero {
-			max-width: calc(100% - 32px);
-			gap: 28px;
-			h1 {
-				font-size: 36px;
-			}
-		}
-		.header-main .quwat-hero-search {
-			grid-template-columns: 1fr;
-		}
-		.quwat-build-hero .threeJSContainer {
-			height: 280px;
-		}
-		.quwat-home-categories {
-			padding-top: 24px;
-		}
-		.quwat-category-links {
-			grid-template-columns: repeat(2, minmax(0, 1fr));
-			gap: 8px;
-			a {
-				flex-direction: row;
-				justify-content: flex-start;
-				text-align: left;
-				padding: 12px;
-				min-height: 64px;
+				border-color: var(--home-accent);
 				svg {
-					flex-shrink: 0;
-					font-size: 22px;
+					color: var(--home-accent);
 				}
 			}
-			a:last-child {
-				grid-column: 1 / -1;
-			}
 		}
 	}
-}
-
-#pc-wrap.quwat-shell.quwat-home {
 	.home-page {
 		.quwat-product-shelf,
 		.top-agents {
-			padding: 64px 0 0;
-			border: 0;
-			background: #fff;
 			height: auto;
+			padding: 40px 0 0;
+			border: 0;
+			background: transparent;
 			box-shadow: none;
 			> .container {
 				flex-direction: column;
@@ -438,314 +242,1391 @@
 			}
 		}
 		.info-box {
+			display: flex;
 			align-items: center;
+			justify-content: space-between;
 			flex-wrap: wrap;
-			gap: 16px;
 			height: auto;
 			margin: 0;
+			gap: 10px;
 			.left {
 				min-width: 0;
 				flex: 1;
 			}
 			h2 {
 				margin: 0;
-				font-size: 28px;
-				font-weight: 600;
+				font-size: 23px;
 				line-height: 1.3;
-				letter-spacing: -0.7px;
+				font-weight: 750;
+				letter-spacing: -0.025em;
 			}
 			p {
-				margin: 8px 0 0;
+				margin: 6px 0 0;
 				color: var(--home-muted);
-				font-size: 13px;
-				line-height: 1.6;
+				font-size: 12px;
+				line-height: 1.5;
 			}
 		}
 		.quwat-home-view-all {
 			display: inline-flex;
 			align-items: center;
-			gap: 8px;
-			flex-shrink: 0;
+			gap: 6px;
 			min-height: 44px;
-			color: var(--home-accent);
-			font-size: 13px;
+			color: #b81925;
+			font-size: 12px;
 			font-weight: 600;
 			white-space: normal;
 			svg {
-				font-size: 18px;
+				font-size: 16px;
+				flex-shrink: 0;
 			}
 			&:hover {
 				text-decoration: underline;
 			}
 		}
 		.quwat-product-shelf .container .card-box {
-			margin-top: 24px;
+			margin-top: 18px;
+		}
+		.trend-properties .container .card-box .trend-property-swiper {
+			width: calc(100% + 16px);
+			padding: 8px 8px 16px;
+			margin: -8px -8px -16px;
+			--quwat-shelf-gutter: 8px;
 		}
 		.quwat-carousel-pagination {
-			margin-top: 12px;
+			margin-top: 16px;
 			&[hidden] {
 				display: none;
 			}
 		}
-		.quwat-member-card {
-			--quwat-card-border: #dfe3e8;
-			--quwat-card-muted: #667085;
-			border-radius: 18px;
-			background: var(--home-surface);
-			box-shadow: 0 3px 10px rgba(24, 26, 32, 0.05);
+		.quwat-mobile-shelf-controls {
+			display: none;
+		}
+		.quwat-home-product {
+			width: 100%;
+			max-width: none;
+			border: 1px solid var(--home-line);
+			border-radius: 3px;
+			background: #fff;
+			box-shadow: none;
+			overflow: hidden;
+			.quwat-home-product-brand {
+				padding: 12px 62px 12px 14px;
+				min-height: 44px;
+				overflow: hidden;
+				white-space: nowrap;
+				text-overflow: ellipsis;
+				color: #475569;
+				font-size: 10px;
+				font-weight: 600;
+				line-height: 20px;
+				text-transform: uppercase;
+				&::before {
+					display: inline-block;
+					width: 2px;
+					height: 10px;
+					background: var(--home-accent);
+					content: '';
+					margin-right: 6px;
+				}
+			}
+			.quwat-product-image {
+				height: 210px;
+				padding: 18px;
+				background: #fff;
+				border: 0;
+				border-top: 1px solid var(--home-line);
+				border-bottom: 1px solid var(--home-line);
+			}
+			.quwat-ui-card-header {
+				flex: 1;
+				gap: 8px;
+				padding: 12px 14px;
+			}
+			.quwat-product-brand {
+				display: none;
+			}
+			.quwat-home-stock-badge {
+				display: inline-flex;
+				align-self: flex-start;
+				padding: 3px 5px;
+				border: 1px solid #cce7de;
+				border-radius: 2px;
+				background: #eef9f4;
+				color: #17654d;
+				font-size: 10px;
+				font-weight: 500;
+				line-height: 1.4;
+				&.empty {
+					color: #9e2831;
+					background: #fff2f3;
+					border-color: #f2d8db;
+				}
+			}
+			.quwat-ui-card-title {
+				min-height: 40px;
+				font-size: 14px;
+				font-weight: 650;
+				line-height: 20px;
+				letter-spacing: -0.015em;
+			}
+			.quwat-ui-card-content {
+				flex: 0 0 auto;
+				padding: 12px 14px;
+				background: #213245;
+			}
+			&:has(.quwat-cart-add) .quwat-ui-card-content {
+				padding-right: 14px;
+			}
+			.quwat-product-price {
+				font-size: 19px;
+				line-height: 1.35;
+				font-weight: 700;
+				color: #fff;
+				letter-spacing: -0.02em;
+			}
+			.quwat-product-stock {
+				margin-top: 5px;
+				padding: 0;
+				border: 0;
+				border-radius: 0;
+				background: none;
+				gap: 4px;
+			}
+			.quwat-product-stock-row {
+				justify-content: flex-start;
+				gap: 3px 6px;
+				font-family: 'Quwat Mono', monospace;
+				font-size: 10px;
+				line-height: 1.6;
+				span,
+				strong {
+					color: #e0e7ee;
+				}
+				strong {
+					font-weight: 400;
+				}
+				svg {
+					display: none;
+				}
+			}
+			.quwat-product-available {
+				padding-top: 3px;
+				border-color: #526171;
+			}
 			.quwat-ui-card-footer {
+				padding: 0;
+				border: 0;
+				background: #213245;
+				min-height: 0;
+				margin: 0;
+				&:has(.quwat-product-purchase-actions) {
+					padding: 0 12px 12px;
+				}
+			}
+			.view-like-box {
+				min-height: 0;
+				gap: 0;
+				> .quwat-product-like-group {
+					position: absolute;
+					top: 0;
+					right: 8px;
+					height: 44px;
+					gap: 1px;
+					.MuiIconButton-root {
+						width: 30px;
+						height: 44px;
+					}
+					.view-cnt {
+						color: #475569;
+						margin: 0 4px 0 0;
+						font-size: 10px;
+					}
+				}
+			}
+			.quwat-product-like {
+				color: #5b6776;
+				svg {
+					font-size: 19px;
+				}
+			}
+			.quwat-cart-add.MuiIconButton-root {
+				position: static;
+				width: 40px;
+				height: 40px;
+				border-radius: 2px;
+				background: var(--home-accent);
+				color: #fff;
+				&:hover {
+					background: #b71923;
+				}
+				&.Mui-disabled {
+					background: #e2e7ed;
+					color: #626d79;
+				}
+			}
+			.quwat-home-cart-label {
+				display: none;
+			}
+			.quwat-product-bookmark {
+				position: static;
 				background: #fff;
 			}
+			.quwat-product-purchase-actions .quwat-product-bookmark.MuiIconButton-root {
+				background: #fff;
+				border-radius: 2px;
+			}
 			&:focus-within {
-				border-color: #b7bec8;
+				border-color: #657487;
 			}
 			@media (hover: hover) and (prefers-reduced-motion: no-preference) {
 				&:hover {
-					transform: translateY(-3px) scale(1.01);
-					border-color: #bdc5cf;
-					box-shadow: 0 12px 24px rgba(24, 26, 32, 0.11);
+					transform: translateY(-2px);
+					border-color: #a6b2bf;
+					box-shadow: 0 6px 14px rgba(30, 41, 59, 0.09);
 				}
 			}
 		}
-
-		.top-agents {
-			margin-top: 40px;
-			padding-bottom: 64px;
-			background-image: url('/img/banner/quwat-team.webp');
-			background-size: cover;
-			background-position: center;
-			background-repeat: no-repeat;
-			box-shadow: inset 0 24px 28px -20px rgba(24, 26, 32, 0.65), inset 0 -24px 28px -20px rgba(24, 26, 32, 0.65);
-			.container {
-				padding-top: 32px;
-				border-top: 0;
+		.quwat-advertisement {
+			width: 1320px;
+			max-width: calc(100% - 80px);
+			height: 280px;
+			margin: 40px auto 0;
+			border: 1px solid #314253;
+			border-radius: 3px;
+			box-shadow: none;
+			.quwat-advertisement-slider {
+				position: absolute;
+				inset: 0;
+				img {
+					object-position: right center;
+				}
 			}
-			.info-box {
-				padding: 0;
-				gap: 12px;
-				border-radius: 0;
-				background: transparent;
-				.left,
-				> .quwat-home-view-all {
-					border: 1px solid rgba(255, 255, 255, 0.22);
-					border-radius: 12px;
-					background: rgba(28, 32, 30, 0.82);
-					-webkit-backdrop-filter: blur(12px);
-					backdrop-filter: blur(12px);
-					box-shadow: 0 6px 20px rgba(20, 24, 22, 0.14);
+			&::after {
+				content: '';
+				position: absolute;
+				inset: 0;
+				background: linear-gradient(90deg, #213245 15%, rgba(33, 50, 69, 0.95) 48%, rgba(33, 50, 69, 0.08) 100%);
+				pointer-events: none;
+				z-index: 1;
+			}
+		}
+		.quwat-advertisement-copy {
+			position: relative;
+			z-index: 2;
+			width: 65%;
+			padding: 36px;
+			color: #fff;
+			h2 {
+				margin: 0 0 14px;
+				font-size: 28px;
+				line-height: 1.2;
+				font-weight: 750;
+				letter-spacing: -0.025em;
+				text-wrap: balance;
+			}
+			p {
+				margin: 0 0 20px;
+				color: #dde5ee;
+				font-size: 13px;
+				line-height: 1.6;
+			}
+			a {
+				display: inline-flex;
+				align-items: center;
+				gap: 8px;
+				padding: 11px 16px;
+				min-height: 44px;
+				background: var(--home-accent);
+				color: #fff;
+				border-radius: 2px;
+				font-size: 12px;
+				font-weight: 600;
+				svg {
+					width: 17px;
 				}
-				.left {
-					flex: 0 1 auto;
-					max-width: 100%;
-					padding: 12px 18px;
-					h2 { color: #fff; }
-					p { color: #e2e6e3; }
+				&:hover {
+					background: #b71923;
 				}
-				> .quwat-home-view-all {
-					margin-left: auto;
-					padding: 10px 16px;
-					color: #fff;
-					&:hover { background: rgba(28, 32, 30, 0.94); }
-					&:focus-visible { outline-color: #fff; }
-				}
+			}
+		}
+		.quwat-advertisement-controls {
+			z-index: 3;
+		}
+		.top-agents {
+			padding-bottom: 0;
+			margin: 40px auto 0;
+			.container {
+				padding: 28px;
+				border: 1px solid var(--home-line);
+				background: #fff;
 			}
 			.wrapper.quwat-agent-grid {
-				margin-top: 24px;
-				gap: 24px;
-				align-items: stretch;
+				margin-top: 20px;
+				gap: 16px;
 			}
 		}
 		.quwat-member-card {
+			border: 1px solid var(--home-line);
+			border-radius: 2px;
+			background: #fff;
+			box-shadow: none;
 			.quwat-member-profile {
 				position: relative;
-				flex: 1;
 			}
 			.quwat-member-cover {
 				position: absolute;
-				top: 24px;
-				right: 24px;
 				z-index: 1;
+				top: 14px;
+				right: 14px;
 				height: auto;
 				padding: 0;
 				background: none;
 				span {
-					border-color: var(--home-line);
-					color: var(--home-muted);
+					padding: 4px 6px;
+					border: 0;
+					border-radius: 1px;
 					background: #fff;
+					color: #37465a;
+					font-size: 9px;
 				}
 			}
 			.quwat-ui-card-header {
 				gap: 0;
-				padding: 16px 16px 20px;
+				padding: 10px 10px 16px;
 			}
 			.quwat-member-avatar {
 				width: 100%;
-				height: 184px;
-				margin: 0 0 16px;
-				border: 1px solid #edf0f3;
-				border-radius: 12px;
+				height: 180px;
+				margin: 0;
+				border: 0;
+				border-radius: 1px;
 				background: #fff;
 				img {
 					object-fit: contain;
 					object-position: center bottom;
 				}
 			}
+			.quwat-member-image {
+				margin-bottom: 14px;
+				padding-bottom: 0;
+			}
 			.quwat-member-name-centered {
-				line-height: 1.4;
 				padding: 0;
-				font-size: 18px;
+				text-align: left;
+				font-size: 16px;
+				line-height: 1.4;
+			}
+			.quwat-home-member-description {
+				display: -webkit-box;
+				margin-top: 7px;
+				color: #596777;
+				font-size: 12px;
+				line-height: 1.6;
+				overflow: hidden;
+				-webkit-line-clamp: 2;
+				-webkit-box-orient: vertical;
 			}
 			.quwat-ui-card-footer {
 				justify-content: space-between;
-				flex-wrap: wrap;
-				gap: 8px;
-				padding: 12px 16px;
+				gap: 12px;
+				padding: 8px 10px;
+				background: #fff;
 			}
-			.quwat-member-like > .MuiStack-root {
-				gap: 2px;
+			.quwat-member-like {
+				flex-shrink: 0;
+				> .MuiStack-root {
+					gap: 0;
+				}
+				.MuiTypography-root {
+					white-space: nowrap;
+				}
 			}
 			.quwat-member-details {
 				display: inline-flex;
-				align-items: center;
 				justify-content: center;
+				align-items: center;
 				gap: 4px;
-				min-height: 36px;
-				padding: 7px 10px;
+				flex: 1;
+				min-height: 40px;
+				padding: 8px;
 				border: 1px solid var(--home-line);
-				border-radius: 8px;
-				background: var(--home-surface);
-				color: #344054;
-				font-size: 12px;
-				font-weight: 500;
+				border-radius: 2px;
+				color: var(--home-ink);
+				font-size: 11px;
+				font-weight: 600;
 				white-space: normal;
 				svg {
-					font-size: 18px;
+					width: 15px;
 					flex-shrink: 0;
 				}
 				&:hover {
-					background: #eef1f4;
-					border-color: #bdc5cf;
+					background: #eef1f5;
 				}
 			}
 		}
-		.quwat-advertisement {
-			box-shadow: none;
-			width: 1300px;
-			max-width: calc(100% - 48px);
-			height: 520px;
-			margin: 64px auto 0;
-			border-radius: 18px;
+	}
+	.quwat-home-services {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+		gap: 16px;
+		padding: 0;
+		margin: 40px auto;
+		a {
+			display: flex;
+			align-items: center;
+			min-width: 0;
+			gap: 14px;
+			padding: 20px 16px;
+			border: 1px solid var(--home-line);
+			background: #fff;
+			white-space: normal;
+			> svg {
+				width: 40px;
+				height: 40px;
+				padding: 9px;
+				background: #fff0f1;
+				color: #b71923;
+				flex-shrink: 0;
+			}
+			div {
+				min-width: 0;
+			}
+			strong {
+				display: block;
+				margin-bottom: 5px;
+				color: var(--home-ink);
+				font-size: 12px;
+				line-height: 1.4;
+			}
+			span {
+				display: block;
+				color: var(--home-muted);
+				font-size: 11px;
+				line-height: 1.5;
+			}
+			&:hover {
+				border-color: #acb7c5;
+			}
 		}
 	}
 	.quwat-home-skeleton {
 		display: grid;
 		grid-template-columns: repeat(4, minmax(0, 1fr));
-		gap: 24px;
-		margin-top: 24px;
+		gap: 20px;
+		margin-top: 18px;
 		.quwat-home-skeleton-card {
-			display: flex;
-			flex-direction: column;
-			gap: 12px;
-			padding: 16px;
+			padding: 12px;
 			border: 1px solid var(--home-line);
-			border-radius: 14px;
+			border-radius: 3px;
+		}
+	}
+	.quwat-home-bottom-nav {
+		display: none;
+	}
+	@media (max-width: 1100px) {
+		.container,
+		.home-page .container,
+		#footer .footer-container,
+		.quwat-build-hero {
+			max-width: calc(100% - 48px);
+		}
+		#top .navbar .navbar-main.quwat-glass-navbar {
+			> .container,
+			&.transparent > .container,
+			> .container:has(.join-box) {
+				max-width: calc(100% - 48px) !important;
+				gap: 0 16px;
+				grid-template-columns: auto minmax(220px, 1fr) auto;
+			}
+			.user-box {
+				gap: 4px;
+			}
+			.router-box a {
+				padding-inline: 12px;
+			}
+		}
+		.quwat-build-copy {
+			padding: 28px;
+			h1 {
+				font-size: 36px;
+			}
+		}
+		.quwat-build-gallery-footer > span {
+			display: none;
+		}
+		.quwat-home-services {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+		.home-page .quwat-advertisement {
+			max-width: calc(100% - 48px);
 		}
 	}
 	@media (max-width: 900px) {
+		#top .navbar .navbar-main.quwat-glass-navbar {
+			> .container,
+			&.transparent > .container,
+			> .container:has(.join-box) {
+				grid-template-columns: auto 1fr;
+			}
+			.user-box {
+				grid-column: 2;
+				justify-self: end;
+			}
+			.quwat-home-header-search {
+				grid-row: 2;
+				grid-column: 1/-1;
+				padding: 0 0 12px;
+			}
+			.router-box {
+				grid-row: 3;
+			}
+		}
+		.quwat-build-hero {
+			grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+		}
+		.quwat-build-copy {
+			padding: 24px;
+			min-height: 340px;
+			h1 {
+				font-size: 32px;
+			}
+		}
+		.quwat-build-hero .threeJSContainer {
+			height: 260px;
+		}
+		.quwat-category-links {
+			grid-template-columns: repeat(4, minmax(0, 1fr));
+		}
+		.home-page .quwat-advertisement-copy {
+			width: 76%;
+			padding: 28px;
+			h2 {
+				font-size: 25px;
+			}
+		}
 		.quwat-home-skeleton {
 			grid-template-columns: repeat(2, minmax(0, 1fr));
-			&:not(.members) .quwat-home-skeleton-card:nth-child(n + 3) {
-				display: none;
-			}
+		}
+		#footer .footer-container .main {
+			grid-template-columns: 1fr;
+			gap: 32px;
 		}
 	}
 	@media (max-width: 600px) {
+		padding-bottom: calc(68px + env(safe-area-inset-bottom));
+		.container,
+		.home-page .container,
+		#footer .footer-container,
+		.quwat-build-hero {
+			max-width: calc(100% - 32px);
+		}
+		.quwat-home-utility {
+			font-size: 9px;
+			.container {
+				max-width: calc(100% - 24px);
+				gap: 12px;
+				min-height: 24px;
+			}
+			a:first-of-type {
+				display: none;
+			}
+		}
+		#top .navbar .navbar-main.quwat-glass-navbar {
+			> .container,
+			&.transparent > .container,
+			> .container:has(.join-box) {
+				display: grid;
+				max-width: calc(100% - 24px) !important;
+				grid-template-columns: minmax(0, 1fr) auto;
+				gap: 0 6px;
+				padding: 0;
+				border-radius: 0;
+			}
+			.logo-box {
+				grid-column: 1;
+				grid-row: 1;
+				height: 62px;
+				gap: 4px;
+			}
+			.quwat-home-menu {
+				display: inline-flex;
+				width: 32px;
+				height: 44px;
+				padding: 4px;
+				color: var(--home-ink);
+			}
+			.quwat-original-brand {
+				gap: 4px;
+				strong {
+					font-size: 23px;
+					letter-spacing: -1px;
+				}
+				img {
+					display: block;
+					width: 25px !important;
+					height: 25px;
+				}
+			}
+			.user-box {
+				display: flex;
+				grid-column: 2;
+				grid-row: 1;
+				justify-self: end;
+				gap: 2px;
+			}
+			.quwat-navbar-account {
+				display: flex;
+				grid-area: auto;
+			}
+			.lan-box {
+				display: flex;
+				grid-area: auto;
+			}
+			.join-box {
+				height: 36px;
+				min-width: 36px;
+				width: 36px;
+				padding: 6px;
+				span {
+					display: none;
+				}
+				svg {
+					font-size: 22px;
+				}
+			}
+			.login-user,
+			.quwat-navbar-cart,
+			.quwat-navbar-notifications {
+				width: 34px;
+				height: 40px;
+				min-width: 34px;
+				margin: 0;
+				padding: 3px;
+				.MuiAvatar-root {
+					width: 28px;
+					height: 28px;
+				}
+				svg {
+					width: 21px;
+				}
+			}
+			.btn-lang {
+				height: 34px;
+				min-width: 44px;
+				padding: 4px;
+				font-size: 11px;
+			}
+			.router-box {
+				display: none;
+			}
+			.quwat-home-header-search {
+				grid-column: 1/-1;
+				grid-row: 2;
+				padding-bottom: 12px;
+			}
+		}
+		.quwat-home-header-search .quwat-hero-search {
+			grid-template-columns: minmax(80px, 1fr) minmax(88px, 0.62fr) 44px;
+			.quwat-hero-search-submit {
+				min-width: 44px;
+				padding: 8px;
+				font-size: 0;
+				.MuiButton-startIcon {
+					margin: 0;
+				}
+			}
+			.MuiInputBase-input {
+				font-size: 11px;
+				padding-inline: 8px;
+			}
+			.MuiInputAdornment-root {
+				margin-left: 8px;
+			}
+		}
+		.header-main {
+			padding: 20px 0 0;
+			height: auto;
+		}
+		.quwat-build-hero {
+			display: block;
+		}
+		.quwat-build-copy {
+			min-height: 0;
+			padding: 22px 18px;
+			background-position: center;
+			h1 {
+				margin: 14px 0;
+				font-size: clamp(29px, 8vw, 39px);
+				line-height: 1.08;
+			}
+			p {
+				font-size: 13px;
+				line-height: 1.6;
+				margin-bottom: 20px;
+			}
+		}
+		.quwat-build-eyebrow {
+			font-size: 9px;
+		}
+		.quwat-build-link {
+			justify-content: center;
+			align-self: stretch;
+			font-size: 13px;
+		}
+		.quwat-home-hero-facts {
+			margin-top: 20px;
+			padding-top: 16px;
+			gap: 6px;
+			div {
+				padding: 8px 4px;
+				background: rgba(255, 255, 255, 0.06);
+				text-align: center;
+			}
+			strong {
+				font-size: 20px;
+			}
+			span {
+				font-size: 9px;
+			}
+		}
+		.quwat-build-gallery {
+			margin-top: 12px;
+			padding: 8px;
+		}
+		.quwat-build-hero .threeJSContainer {
+			height: 164px;
+		}
+		.quwat-build-gallery-footer {
+			padding-top: 6px;
+			> span {
+				display: block;
+				font-size: 10px;
+			}
+		}
+		.quwat-build-controls button {
+			height: 32px;
+			width: 32px;
+		}
+		.quwat-home-solutions {
+			display: block;
+			padding: 26px 0 0;
+			h2 {
+				margin: 0 0 12px;
+				font-size: 15px;
+				line-height: 1.4;
+			}
+			> div {
+				display: grid;
+				grid-template-columns: repeat(2, minmax(0, 1fr));
+				gap: 10px;
+			}
+			a {
+				display: flex;
+				flex-direction: column;
+				align-items: flex-start;
+				padding: 14px;
+				border: 1px solid var(--home-line);
+				background: #fff;
+				white-space: normal;
+				> svg {
+					color: var(--home-accent);
+					background: #fff0f1;
+					padding: 4px;
+					width: 30px;
+					height: 30px;
+				}
+				h3 {
+					margin: 10px 0;
+					font-size: 14px;
+				}
+				span {
+					display: flex;
+					align-items: center;
+					gap: 4px;
+					color: #b71923;
+					font-size: 10px;
+					line-height: 1.5;
+					svg {
+						width: 14px;
+						flex-shrink: 0;
+					}
+				}
+			}
+		}
+		.quwat-home-categories {
+			padding-top: 26px;
+			h2 {
+				font-size: 18px;
+				margin-bottom: 12px;
+			}
+		}
+		.quwat-category-links {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+			gap: 8px;
+			a {
+				flex-direction: row;
+				justify-content: flex-start;
+				min-height: 64px;
+				padding: 10px;
+				gap: 9px;
+				font-size: 11px;
+				text-align: left;
+				svg {
+					width: 30px;
+					height: 30px;
+					padding: 5px;
+					background: #f4f5f7;
+					color: #b71923;
+					flex-shrink: 0;
+				}
+				&:last-child {
+					grid-column: 1/-1;
+				}
+			}
+		}
 		.home-page {
-			.quwat-product-shelf,
-			.top-agents {
-				padding-top: 40px;
+			.quwat-product-shelf {
+				padding-top: 28px;
 			}
 			.info-box {
-				gap: 4px 12px;
+				gap: 8px;
+				align-items: flex-start;
 				h2 {
-					font-size: 23px;
+					font-size: 20px;
 				}
 				p {
-					font-size: 12px;
+					font-size: 11px;
 				}
+			}
+			.quwat-home-view-all {
+				font-size: 10px;
+				gap: 3px;
+				min-height: 32px;
+				max-width: 100px;
 			}
 			.quwat-product-shelf .container .card-box {
-				margin-top: 20px;
+				margin-top: 14px;
 			}
-			.quwat-product-card {
-				width: 290px;
-				max-width: calc(100vw - 56px);
-			}
-			.top-agents {
-				margin-top: 24px;
-				padding-bottom: 40px;
-				.container {
-					padding-top: 24px;
+			.trend-properties .container .card-box .trend-property-swiper {
+				width: 100%;
+				margin: 0;
+				padding: 0;
+				touch-action: auto;
+				.swiper-wrapper {
+					display: flex;
+					gap: 12px;
+					width: 100%;
+					overflow-x: auto;
+					overflow-y: hidden;
+					touch-action: auto;
+					overscroll-behavior-x: contain;
+					scroll-snap-type: x mandatory;
+					scrollbar-width: none;
+					-webkit-overflow-scrolling: touch;
+					transform: none !important;
+					&::-webkit-scrollbar {
+						display: none;
+					}
 				}
-				.wrapper.quwat-agent-grid {
-					gap: 16px;
+				.trend-property-slide {
+					flex: 0 0 calc((100% - 1.8px) / 1.15);
+					width: calc((100% - 1.8px) / 1.15) !important;
+					min-width: 0;
+					margin: 0 !important;
+					scroll-snap-align: start;
+				}
+			}
+			.quwat-mobile-shelf-controls {
+				display: flex;
+				flex-direction: column;
+				gap: 6px;
+				margin-top: 12px;
+				&[hidden] {
+					display: none;
+				}
+				p {
+					display: flex;
+					align-items: center;
+					gap: 6px;
+					margin: 0;
+					color: var(--home-muted);
+					font-size: 11px;
+					line-height: 1.5;
+					svg {
+						width: 20px;
+						height: 20px;
+						flex-shrink: 0;
+					}
+				}
+				.quwat-mobile-shelf-navigation {
+					display: flex;
+					align-items: center;
+					gap: 8px;
+				}
+				.quwat-shelf-track {
+					flex: 1;
+					min-width: 0;
+					height: 3px;
+					margin-left: 8px;
+					border-radius: 3px;
+					background: #dce1e5;
+					overflow: hidden;
+					.quwat-shelf-scroll-thumb {
+						height: 100%;
+						border-radius: inherit;
+						background: var(--home-accent);
+					}
+				}
+				.MuiIconButton-root {
+					width: 44px;
+					height: 44px;
+					flex-shrink: 0;
+					border: 1px solid var(--home-line);
+					border-radius: 12px;
+					background: #fff;
+					color: var(--home-ink);
+					&:hover {
+						background: #eeede7;
+					}
+					&:disabled {
+						background: #f4f5f7;
+						color: #98a2ad;
+					}
+					svg {
+						width: 20px;
+					}
+				}
+			}
+			.quwat-carousel-pagination {
+				display: none;
+			}
+			.quwat-home-product {
+				.quwat-home-product-brand {
+					padding: 10px 60px 10px 8px;
+					min-height: 44px;
+					font-size: 8px;
+				}
+				.quwat-product-image {
+					height: 150px;
+					padding: 10px;
+				}
+				.quwat-ui-card-header {
+					padding: 10px 8px 8px;
+					gap: 8px;
+				}
+				.quwat-ui-card-title {
+					min-height: 36px;
+					font-size: 12px;
+					line-height: 18px;
+				}
+				.quwat-home-stock-badge {
+					font-size: 9px;
+				}
+				.quwat-ui-card-content,
+				&:has(.quwat-cart-add) .quwat-ui-card-content {
+					padding: 8px;
+					background: #fff;
+				}
+				.quwat-product-price {
+					font-size: 17px;
+					color: var(--home-ink);
+				}
+				.quwat-product-stock-row {
+					font-size: 9px;
+					gap: 2px 4px;
+					span,
+					strong {
+						color: #596777;
+					}
+				}
+				.quwat-product-available {
+					border-color: var(--home-line);
+				}
+				.quwat-ui-card-footer {
+					padding: 0 8px 8px;
+					background: #fff;
+					&:has(.quwat-product-purchase-actions) {
+						padding: 0 8px 8px;
+					}
+				}
+				.quwat-product-purchase-actions {
+					width: 100%;
+				}
+				.view-like-box > .quwat-product-like-group {
+					right: 8px;
+					.MuiIconButton-root {
+						width: 28px;
+					}
+					.view-cnt {
+						font-size: 9px;
+						margin-right: 3px;
+					}
+				}
+				.quwat-cart-add.MuiIconButton-root {
+					position: static;
+					width: auto;
+					flex: 1;
+					min-width: 0;
+					height: auto;
+					min-height: 44px;
+					gap: 5px;
+					border-radius: 2px;
+					padding: 7px 4px;
+					svg {
+						width: 17px;
+					}
+				}
+				.quwat-home-cart-label {
+					display: inline;
+					color: inherit;
+					font-size: 11px;
+					font-weight: 600;
+					line-height: 1.3;
+					min-width: 0;
+					white-space: normal;
+					overflow-wrap: anywhere;
+				}
+				.quwat-product-bookmark {
+					width: 40px;
+					height: 44px;
+				}
+				@media (max-width: 360px) {
+					.quwat-home-cart-label {
+						display: none;
+					}
 				}
 			}
 			.quwat-advertisement {
 				max-width: calc(100% - 32px);
-				height: 280px;
-				margin-top: 40px;
-				border-radius: 14px;
+				height: 300px;
+				margin-top: 28px;
+				&::after {
+					background: linear-gradient(90deg, rgba(33, 50, 69, 0.98), rgba(33, 50, 69, 0.88));
+				}
+			}
+			.quwat-advertisement-copy {
+				width: 100%;
+				padding: 26px 20px;
+				h2 {
+					font-size: 25px;
+				}
+				p {
+					font-size: 12px;
+					margin-bottom: 24px;
+				}
+				a {
+					display: flex;
+					justify-content: center;
+					width: 100%;
+				}
+			}
+			.top-agents {
+				margin-top: 28px;
+				padding-top: 0;
+				.container {
+					max-width: calc(100% - 32px);
+					padding: 18px 14px;
+				}
+				.wrapper.quwat-agent-grid {
+					display: grid;
+					grid-template-columns: none;
+					grid-auto-flow: column;
+					grid-auto-columns: calc((100% - 1.8px) / 1.15);
+					gap: 12px;
+					margin-top: 16px;
+					padding-bottom: 0;
+					overflow-x: auto;
+					overflow-y: hidden;
+					touch-action: auto;
+					overscroll-behavior-x: contain;
+					scroll-snap-type: x mandatory;
+					scrollbar-width: none;
+					-webkit-overflow-scrolling: touch;
+					&::-webkit-scrollbar {
+						display: none;
+					}
+				}
+			}
+			.quwat-member-card {
+				min-width: 0;
+				scroll-snap-align: start;
+				.quwat-member-cover {
+					display: none;
+				}
+				.quwat-ui-card-header {
+					display: grid;
+					grid-template-columns: 64px minmax(0, 1fr);
+					gap: 6px 10px;
+					padding: 12px;
+				}
+				.quwat-member-image {
+					grid-column: 1;
+					grid-row: 1/3;
+					width: 64px;
+					height: 72px;
+					margin: 0;
+				}
+				.quwat-member-avatar {
+					width: 64px;
+					height: 72px;
+					margin: 0;
+				}
+				.quwat-member-name-centered {
+					grid-column: 2;
+					font-size: 14px;
+					align-self: end;
+				}
+				.quwat-home-member-description {
+					grid-column: 2;
+					margin: 0;
+					font-size: 11px;
+				}
+				.quwat-ui-card-footer {
+					padding: 6px 10px;
+				}
+				.quwat-member-details {
+					color: #fff;
+					background: #c21d27;
+					border-color: #c21d27;
+					&:hover {
+						background: #a91420;
+					}
+				}
+			}
+		}
+		.quwat-home-services {
+			gap: 10px;
+			margin: 26px auto;
+			a {
+				align-items: flex-start;
+				padding: 12px 10px;
+				gap: 8px;
+				> svg {
+					width: 28px;
+					height: 28px;
+					padding: 5px;
+				}
+				strong {
+					font-size: 11px;
+				}
+				span {
+					font-size: 10px;
+				}
 			}
 		}
 		.quwat-home-skeleton {
-			grid-template-columns: 1fr;
-			.quwat-home-skeleton-card:nth-child(n + 2) {
-				display: none;
+			grid-template-columns: none;
+			grid-auto-flow: column;
+			grid-auto-columns: calc((100% - 1.8px) / 1.15);
+			gap: 12px;
+			overflow: hidden;
+			.quwat-home-skeleton-card {
+				padding: 8px;
 			}
+		}
+		#footer {
+			padding-top: 30px;
+			.footer-container .main {
+				gap: 26px;
+				.bottom {
+					grid-template-columns: repeat(2, minmax(0, 1fr));
+					gap: 24px 16px;
+				}
+			}
+			.footer-container .second {
+				flex-wrap: wrap;
+				align-items: flex-start;
+			}
+		}
+		.quwat-home-bottom-nav {
+			display: grid;
+			grid-template-columns: repeat(5, minmax(0, 1fr));
+			position: fixed;
+			z-index: 1100;
+			bottom: 0;
+			left: 0;
+			right: 0;
+			min-height: calc(64px + env(safe-area-inset-bottom));
+			padding: 6px 8px calc(6px + env(safe-area-inset-bottom));
+			border-top: 1px solid var(--home-line);
+			background: #fff;
+			box-shadow: 0 -3px 12px rgba(30, 41, 59, 0.06);
+			a,
+			button {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: center;
+				min-width: 0;
+				min-height: 48px;
+				gap: 4px;
+				padding: 2px;
+				border: 0;
+				background: none;
+				color: #596777;
+				font-family: inherit;
+				cursor: pointer;
+				svg {
+					width: 21px;
+					height: 21px;
+				}
+				span {
+					max-width: 100%;
+					color: inherit;
+					font-size: 8px;
+					line-height: 1.4;
+					white-space: normal;
+					overflow-wrap: anywhere;
+					text-align: center;
+				}
+				&[aria-current='page'] {
+					color: #b71923;
+					font-weight: 700;
+				}
+				&:hover {
+					color: #b71923;
+				}
+			}
+		}
+		.chatting .chat-button {
+			bottom: calc(82px + env(safe-area-inset-bottom));
+		}
+		.chatting .chat-frame,
+		.chatting .chat-frame.open {
+			bottom: calc(146px + env(safe-area-inset-bottom));
+			max-height: calc(100dvh - 170px - env(safe-area-inset-bottom));
+		}
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.quwat-home-product,
+		.quwat-member-card {
+			transition: none;
 		}
 	}
 }
 
-#pc-wrap.quwat-shell.quwat-home #top .navbar .navbar-main.quwat-glass-navbar {
-	.router-box a:focus-visible,
-	.btn-lang:focus-visible,
-	.login-user:focus-visible {
-		outline: 2px solid var(--home-accent);
-		outline-offset: 3px;
+#pc-wrap.quwat-shell.quwat-home {
+	.quwat-home-gallery-toggle {
+		display: none;
+	}
+	.home-page .quwat-home-product .quwat-product-stock-row {
+		span,
+		strong {
+			font-family: 'Quwat Mono', monospace;
+		}
 	}
 	@media (max-width: 600px) {
-		.quwat-original-brand {
-			gap: 8px;
-			strong {
-				font-size: 24px;
-			}
-			img {
-				width: 40px;
-				height: 40px;
+		.quwat-home-gallery-toggle {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			width: 100%;
+			min-height: 44px;
+			margin-top: 8px;
+			padding: 8px 0;
+			border: 0;
+			background: transparent;
+			color: #475569;
+			font-size: 11px;
+			cursor: pointer;
+			svg {
+				width: 16px;
 			}
 		}
-		.user-box {
+		.quwat-build-gallery:not(.expanded) {
+			display: none;
+		}
+	}
+}
+
+// The legacy reset assigns Poppins directly to structural elements.
+#pc-wrap.quwat-shell.quwat-home {
+	div,
+	section,
+	nav,
+	aside,
+	form,
+	header,
+	footer,
+	article {
+		font-family: inherit;
+	}
+	.home-page .info-box .left p,
+	#top .navbar .navbar-main.quwat-glass-navbar .router-box a,
+	#footer .footer-container .main .footer-box span,
+	#footer .footer-container .main .footer-box p,
+	#footer .footer-container .main .bottom strong,
+	#footer .footer-container .main .bottom a {
+		font-family: inherit;
+	}
+	.quwat-home-header-search input:focus-visible {
+		outline: none;
+	}
+}
+
+#pc-wrap.quwat-shell.quwat-home .home-page .quwat-home-product .quwat-ui-card-content {
+	min-height: 96px;
+	@media (max-width: 600px) {
+		min-height: 88px;
+	}
+}
+
+// Purchase details fill the compact card without competing with its name or price.
+#pc-wrap.quwat-shell.quwat-home .home-page .quwat-home-product {
+	.quwat-product-category {
+		font-size: 10px;
+	}
+	.quwat-product-specs {
+		margin-top: 4px;
+		padding-top: 10px;
+	}
+	.quwat-product-price-unit {
+		color: #d0d9df;
+		font-size: 10px;
+	}
+	@media (min-width: 601px) {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) auto;
+		grid-template-rows: auto auto minmax(0, 1fr) auto;
+		> :not(.quwat-ui-card-content):not(.quwat-ui-card-footer) {
+			grid-column: 1 / -1;
+		}
+		.quwat-ui-card-content {
+			grid-column: 1;
+			grid-row: 4;
+			min-width: 0;
+		}
+		.quwat-ui-card-footer {
+			grid-column: 2;
+			grid-row: 4;
+			align-items: center;
+			&:has(.quwat-product-purchase-actions) {
+				padding: 12px 12px 12px 0;
+			}
+		}
+	}
+	@media (max-width: 600px) {
+		.quwat-product-category {
+			font-size: 10px;
+		}
+		.quwat-product-description {
+			font-size: 11px;
+			line-height: 1.5;
+		}
+		.quwat-product-specs {
 			gap: 6px;
-		}
-		.quwat-navbar-notifications,
-		.quwat-navbar-cart {
-			margin-right: 0;
-			width: 36px;
-			height: 40px;
-		}
-		.login-user {
-			min-width: 40px;
-			padding: 2px;
-			.MuiAvatar-root {
-				width: 36px;
-				height: 36px;
+			dt {
+				min-height: 28px;
+				font-size: 10px;
+				line-height: 1.4;
+			}
+			dd {
+				font-size: 11px;
 			}
 		}
-		.btn-lang {
-			min-width: 58px;
-			height: 40px;
-			padding: 8px 10px;
+		.quwat-product-price-unit {
+			color: #596777;
 		}
 	}
 }

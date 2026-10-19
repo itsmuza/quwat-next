@@ -88,7 +88,7 @@ async function setup({ count=23, role='AGENT', status='authenticated', memberSta
   } else if(name==='MarkSaleNotificationRead') {
    const seen=read.get(userVar()._id)||new Set();seen.add(input._id);read.set(userVar()._id,seen);send({markSaleNotificationRead:true});
   } else if(['GetMySales','GetPendingSales'].includes(name)) {
-   const list=sales.filter(s=>name==='GetMySales'||s.saleStatus==='PENDING');
+   const list=sales.filter(s=>name==='GetMySales'?(!input.saleStatus||s.saleStatus===input.saleStatus):s.saleStatus==='PENDING');
    send({[name==='GetMySales'?'getMySales':'getPendingSales']:{list:list.slice((input.page-1)*input.limit,input.page*input.limit),metaCounter:[{total:list.length}]}});
   } else if(name==='GetSaleForAgent') {send({getSaleForAgent:sales.find(s=>s._id===input._id)});}
   else observer.error(new Error('Unexpected operation '+name));
@@ -205,9 +205,29 @@ test('deep-linked requests fetch an exact sale even after it leaves the pending 
   assert.deepEqual(ui.operations.find(o=>o.name==='GetSaleForAgent').input,{_id:id(23)});
   assert.equal(document.querySelectorAll('.quwat-record').length,1);assert.match(document.body.textContent,/Mijoz 23/);
   assert.ok(!ui.operations.some(o=>o.name==='GetPendingSales'));
+  assert.ok(!ui.operations.some(o=>o.name==='GetMySales'));
  }finally{await ui.cleanup();}
  const client=await setup({component:'sales',role:'CLIENT'});try{
   assert.equal(client.operations.find(o=>o.name==='GetMySales').input.limit,10);assert.equal(document.querySelectorAll('.quwat-record').length,10);
+  assert.equal(document.querySelector('h4').textContent,'Xaridlarim (23)');
   assert.ok(!client.operations.some(o=>o.name==='GetSaleForAgent'));
  }finally{await client.cleanup();}
+});
+
+test('client purchase heading keeps the all-status total while filtering and refreshing',async()=>{
+ const ui=await setup({component:'sales',role:'CLIENT'});try{
+  ui.sales[0].saleStatus='COMPLETED';
+  await flush(()=>Simulate.mouseDown(document.querySelector('.MuiSelect-select'),{button:0}));
+  await flush(()=>document.querySelector('[role="option"][data-value="COMPLETED"]').click());await flush();
+  assert.equal(document.querySelector('h4').textContent,'Xaridlarim (23)');
+  assert.equal(document.querySelectorAll('.quwat-record').length,1);
+  assert.ok(ui.operations.some(o=>o.name==='GetMySales'&&o.input.limit===1&&!o.input.saleStatus));
+  ui.sales.push(fixture(24));
+  await flush(()=>button(document,'Yangilash').click());await flush();
+  assert.equal(document.querySelector('h4').textContent,'Xaridlarim (24)');
+  assert.equal(document.querySelectorAll('.quwat-record').length,1);
+ }finally{await ui.cleanup();}
+ const empty=await setup({component:'sales',role:'CLIENT',count:0});try{
+  assert.equal(document.querySelector('h4').textContent,'Xaridlarim (0)');
+ }finally{await empty.cleanup();}
 });

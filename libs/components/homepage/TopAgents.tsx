@@ -1,5 +1,5 @@
 import { useText } from '../../i18n';
-import React from 'react';
+import React, { useRef } from 'react';
 import Link from 'next/link';
 import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded';
 import { useQuery, useReactiveVar } from '@apollo/client';
@@ -10,13 +10,16 @@ import { Members } from '../../types/member/member';
 import MemberCard from '../common/MemberCard';
 import QueryState from '../common/QueryState';
 import HomeSkeleton from './HomeSkeleton';
+import MobileShelfControls from './MobileShelfControls';
 export default function TopAgents() {
 	const { t } = useText();
 	const session = useReactiveVar(sessionVar);
+	const agentsRef = useRef<HTMLDivElement>(null);
 	const { data, loading, error, refetch } = useQuery<{ getAgents: Members }>(GET_AGENTS, {
 		variables: { input: { page: 1, limit: 4, sort: 'memberRank', direction: 'DESC', search: {} } },
 		skip: session.status === 'loading',
 	});
+	const showSkeleton = session.status === 'loading' || (loading && !data);
 	return (
 		<Stack component="section" className="top-agents" aria-labelledby="home-agents-title">
 			<Stack className="container">
@@ -31,15 +34,22 @@ export default function TopAgents() {
 					</Link>
 				</div>
 				<QueryState error={error} retry={() => refetch()} />
-				{session.status === 'loading' || (loading && !data) ? (
+				{showSkeleton ? (
 					<HomeSkeleton members />
 				) : (
-					<div className="wrapper quwat-agent-grid">
+					<div className="wrapper quwat-agent-grid" ref={agentsRef} aria-describedby="home-agents-hint">
 						{data?.getAgents.list.map((m) => (
-							<MemberCard key={m._id} member={m} showNickname={false} showProfileLink />
+							<MemberCard key={m._id} member={m} showNickname={false} showProfileLink showDescription />
 						))}
 					</div>
 				)}
+				<MobileShelfControls
+					targetRef={agentsRef}
+					loading={showSkeleton}
+					count={data?.getAgents.list.length || 0}
+					kind="agents"
+					hintId="home-agents-hint"
+				/>
 				{data && !data.getAgents.list.length && <Alert severity="info">{t('Hozircha agentlar yo‘q.')}</Alert>}
 			</Stack>
 		</Stack>

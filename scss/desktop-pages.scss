@@ -1,0 +1,1236 @@
+// Stitch desktop extension. Existing mobile presentation remains in quwat.scss.
+.quwat-stitch-banner-content,
+.quwat-desktop-only {
+	display: none;
+}
+.quwat-about-overview,
+.quwat-about-intro,
+.quwat-help-columns,
+.quwat-help-questions {
+	display: contents;
+}
+@media (max-width: 1023px) {
+	#pc-wrap.quwat-stitch-desktop {
+		.quwat-desktop-only {
+			display: none !important;
+		}
+		.quwat-home-utility,
+		.quwat-home-header-search,
+		.quwat-home-menu,
+		.quwat-home-catalog-link {
+			display: none !important;
+		}
+		.quwat-about-overview,
+		.quwat-about-intro,
+		.quwat-help-columns,
+		.quwat-help-questions {
+			display: flex;
+			flex-direction: column;
+			gap: 24px;
+		}
+		.quwat-help-columns {
+			margin-top: 0;
+		}
+		.quwat-agents-page .quwat-home-member-description,
+		.quwat-agents-page .quwat-member-details {
+			display: none;
+		}
+	}
+}
+@media (min-width: 1024px) {
+	#pc-wrap.quwat-shell.quwat-stitch-desktop {
+		@include quwat-store-chrome;
+		div,
+		section,
+		article,
+		aside,
+		nav,
+		form,
+		label,
+		dl,
+		dt,
+		dd,
+		li,
+		textarea {
+			font-family: 'Quwat Inter', Arial, sans-serif;
+		}
+		&[data-desktop-page='/product'],
+		&[data-desktop-page='/mypage'],
+		&[data-desktop-page='/account/join'] {
+			.header-basic {
+				background: #172232 !important;
+				min-height: 160px;
+				padding: 28px 0;
+			}
+		}
+		.quwat-desktop-only {
+			display: block;
+		}
+		.header-basic {
+			height: auto;
+			min-height: 200px;
+			padding: 34px 0;
+			justify-content: center;
+			> .container {
+				height: auto;
+				align-items: flex-start;
+				margin-top: 0;
+			}
+			.quwat-legacy-banner-title,
+			.quwat-legacy-breadcrumb {
+				display: none;
+			}
+			&.quwat-help-banner {
+				display: none;
+			}
+		}
+		.quwat-stitch-banner-content {
+			display: block;
+			max-width: 800px;
+			color: #fff;
+			nav {
+				display: flex;
+				gap: 9px;
+				font-size: 11px;
+				color: #d4dce6;
+				margin-bottom: 10px;
+				a {
+					color: inherit;
+				}
+				span {
+					font-size: 11px;
+					font-weight: 400;
+					margin: 0;
+					color: inherit;
+				}
+			}
+			h1 {
+				font-size: 34px;
+				line-height: 1.2;
+				font-weight: 800;
+				letter-spacing: -0.03em;
+				margin: 0 0 12px;
+			}
+			p {
+				color: #e0e7ef;
+				font-size: 14px;
+				line-height: 1.6;
+				margin: 0;
+			}
+		}
+		.quwat-page {
+			width: 1320px;
+			max-width: calc(100% - 80px);
+			margin: 32px auto 64px;
+		}
+		.MuiButton-root {
+			text-transform: none;
+			border-radius: 4px;
+			box-shadow: none;
+		}
+		.MuiButton-contained {
+			background: var(--home-accent);
+			color: #fff;
+			&:hover {
+				background: #b71923;
+			}
+			&.Mui-disabled {
+				background: #e5e7eb;
+				color: #64748b;
+			}
+		}
+		.MuiButton-outlined {
+			border-color: #cbd5e1;
+			color: var(--home-ink);
+		}
+		.MuiOutlinedInput-root {
+			border-radius: 4px;
+			background: #fff;
+			font-size: 13px;
+		}
+		.MuiInputLabel-root {
+			font-size: 13px;
+		}
+		.MuiOutlinedInput-notchedOutline {
+			border-color: #dce3ec;
+		}
+		.Mui-focused .MuiOutlinedInput-notchedOutline {
+			border-color: var(--home-accent);
+		}
+		.MuiCheckbox-root {
+			color: #69788b;
+			&.Mui-checked {
+				color: var(--home-accent);
+			}
+		}
+		.MuiPaginationItem-root {
+			border-radius: 4px;
+			font-size: 12px;
+			&.Mui-selected {
+				background: var(--home-accent);
+				color: #fff;
+			}
+		}
+		// Catalog: retain all supported filters, with sorting above the existing results.
+		.quwat-catalog-page {
+			> h4 {
+				display: none;
+			}
+			.quwat-catalog-layout {
+				margin: 0;
+				grid-template-columns: 250px minmax(0, 1fr);
+				gap: 24px;
+				align-items: start;
+			}
+			aside {
+				background: #fff;
+				border: 1px solid var(--home-line);
+				border-radius: 5px;
+			}
+			.quwat-filter-heading {
+				font-size: 16px;
+				font-weight: 700;
+				padding: 20px 18px 16px;
+				border-bottom: 1px solid var(--home-line);
+			}
+			.quwat-filter {
+				padding: 22px 18px 18px;
+				border: 0;
+				box-shadow: none;
+				border-radius: 0;
+			}
+			.quwat-filter-grid {
+				gap: 22px;
+			}
+			.quwat-filter-sort {
+				display: none;
+			}
+			.quwat-filter .MuiOutlinedInput-root {
+				font-size: 12px;
+			}
+			.quwat-filter .MuiInputLabel-root {
+				font-size: 12px;
+			}
+			.quwat-filter > .MuiStack-root {
+				flex-direction: column;
+				align-items: stretch;
+				gap: 8px;
+			}
+			.quwat-filter .MuiFormControlLabel-label {
+				font-size: 11px;
+			}
+			.quwat-filter .MuiFormControlLabel-root {
+				margin-right: 0;
+			}
+			.quwat-catalog-results {
+				min-width: 0;
+				gap: 20px;
+				> * {
+					margin-top: 0;
+				}
+			}
+			.quwat-product-grid {
+				grid-template-columns: repeat(3, minmax(0, 1fr));
+				gap: 18px;
+				margin: 0;
+			}
+			.quwat-catalog-toolbar {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				min-height: 64px;
+				padding: 12px 16px;
+				background: #fff;
+				border: 1px solid var(--home-line);
+				border-radius: 4px;
+				gap: 14px;
+				> p {
+					font-size: 13px;
+					font-weight: 600;
+					color: #334155;
+				}
+			}
+			.quwat-catalog-sort {
+				display: flex;
+				gap: 10px;
+				> :first-child {
+					width: 175px;
+				}
+				> :last-child {
+					width: 125px;
+				}
+			}
+		}
+		.quwat-product-card {
+			border-radius: 5px;
+			box-shadow: none;
+			transition: border-color 150ms;
+			&:hover {
+				transform: none;
+				box-shadow: none;
+				border-color: #aebdcd;
+			}
+			.quwat-product-image {
+				height: 180px;
+				padding: 22px;
+				background: #fff;
+			}
+			.quwat-ui-card-header {
+				padding: 15px;
+				gap: 7px;
+			}
+			.quwat-product-brand {
+				border: 0;
+				padding: 0;
+				color: #c31c27;
+				font-size: 11px;
+				font-weight: 600;
+			}
+			.quwat-ui-card-title {
+				font-size: 14px;
+				line-height: 21px;
+				min-height: 42px;
+			}
+			.quwat-product-category {
+				font-size: 10px;
+			}
+			.quwat-product-description {
+				font-size: 11px;
+			}
+			.quwat-product-specs {
+				gap: 8px;
+				padding-top: 9px;
+				dt {
+					font-size: 10px;
+				}
+				dd {
+					font-size: 11px;
+				}
+			}
+			.quwat-ui-card-content {
+				background: #fff;
+				color: var(--home-ink);
+				padding: 12px 15px;
+				border-top: 1px solid #edf0f4;
+			}
+			.quwat-product-price {
+				color: #192637;
+				font-size: 20px;
+				letter-spacing: -0.02em;
+			}
+			.quwat-product-price-unit {
+				color: #596777;
+				font-size: 10px;
+			}
+			.quwat-product-stock {
+				margin-top: 8px;
+			}
+			.quwat-product-stock-row {
+				font-size: 10px;
+				span {
+					color: #596777;
+				}
+				strong {
+					color: #18704d;
+					font-family: 'Quwat Mono', monospace;
+					font-size: 10px;
+				}
+			}
+			.quwat-product-available {
+				border-color: #e2e8f0;
+			}
+			&[data-stock-empty] .quwat-product-stock-row strong {
+				color: #a32a28;
+			}
+			.quwat-ui-card-footer {
+				padding: 8px 12px;
+				border-top: 1px solid #edf0f4;
+			}
+			.MuiIconButton-root {
+				height: 34px;
+				width: 34px;
+				border-radius: 4px;
+			}
+			.quwat-cart-add.MuiIconButton-root {
+				width: 40px;
+				background: var(--home-accent);
+				color: #fff;
+				&:hover {
+					background: #b71923;
+				}
+				&.Mui-disabled {
+					background: #e5e7eb;
+					color: #64748b;
+				}
+			}
+		}
+		// Agents: real team identities, descriptions and profile/like controls.
+		.quwat-agents-page {
+			.quwat-agents-toolbar {
+				background: #fff;
+				border: 1px solid var(--home-line);
+				border-radius: 5px;
+				padding: 18px 20px;
+				flex-wrap: nowrap;
+			}
+			.quwat-agents-toolbar > div:first-child {
+				display: flex;
+				align-items: center;
+				gap: 12px;
+				h4 {
+					font-size: 16px;
+					font-weight: 700;
+				}
+			}
+			.quwat-agents-count {
+				padding: 5px 9px;
+				border-radius: 4px;
+				color: #596777;
+				background: #f1f5f9;
+				font-size: 11px;
+				white-space: nowrap;
+			}
+			.quwat-agents-toolbar form {
+				width: 460px;
+			}
+			.quwat-agents-toolbar .MuiOutlinedInput-root {
+				height: 42px;
+			}
+			.quwat-agents-toolbar .MuiButton-root {
+				min-height: 42px;
+				padding-inline: 24px;
+			}
+			.quwat-agent-grid {
+				grid-template-columns: repeat(4, minmax(0, 1fr));
+				gap: 20px;
+				margin-top: 26px;
+			}
+			.quwat-member-card {
+				border-radius: 6px;
+				border-color: var(--home-line);
+				box-shadow: none;
+				min-width: 0;
+				&:hover {
+					transform: none;
+					box-shadow: none;
+					border-color: #aebdcd;
+				}
+				.quwat-member-cover {
+					height: 48px;
+					background: #fff;
+					border: 0;
+					> span {
+						top: 16px;
+						right: 16px;
+						padding: 3px 8px;
+						border: 1px solid #f1d5b3;
+						border-radius: 4px;
+						background: #fffbeb;
+						color: #97570e;
+						font-size: 10px;
+					}
+				}
+				.quwat-ui-card-header {
+					align-items: center;
+					text-align: center;
+					padding: 0 18px 22px;
+					gap: 8px;
+				}
+				.quwat-member-avatar {
+					width: 96px;
+					height: 96px;
+					margin: -24px 0 6px;
+					border: 4px solid #fff;
+					box-shadow: 0 0 0 1px #e2e8f0;
+				}
+				.quwat-ui-card-title {
+					font-size: 15px;
+					font-weight: 700;
+					line-height: 1.4;
+				}
+				.quwat-ui-card-description {
+					font-size: 11px;
+					color: #64748b;
+				}
+				.quwat-home-member-description {
+					min-height: 36px;
+					line-height: 18px;
+					display: -webkit-box;
+					-webkit-line-clamp: 2;
+					-webkit-box-orient: vertical;
+					overflow: hidden;
+				}
+				.quwat-ui-card-footer {
+					padding: 12px 14px;
+					border-top: 1px solid #edf0f4;
+					flex-wrap: wrap;
+					gap: 10px;
+					.MuiCheckbox-root {
+						padding: 3px;
+						color: var(--home-accent);
+					}
+					.view-cnt {
+						font-size: 11px;
+					}
+				}
+				.quwat-member-details {
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					gap: 4px;
+					width: 100%;
+					background: var(--home-accent);
+					color: #fff;
+					padding: 9px;
+					border-radius: 4px;
+					font-size: 11px;
+					font-weight: 600;
+					svg {
+						font-size: 16px;
+					}
+					&:hover {
+						background: #b71923;
+					}
+				}
+			}
+		}
+		.quwat-route-services {
+			margin-top: 48px;
+			.quwat-home-services {
+				display: grid;
+				grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+				width: 100%;
+				max-width: none;
+				gap: 14px;
+			}
+			a {
+				display: flex;
+				align-items: center;
+				gap: 12px;
+				padding: 18px 14px;
+				background: #fff;
+				border: 1px solid var(--home-line);
+				border-radius: 4px;
+				> svg {
+					color: var(--home-accent);
+					font-size: 24px;
+					flex-shrink: 0;
+				}
+				strong,
+				span {
+					display: block;
+				}
+				strong {
+					font-size: 12px;
+					margin-bottom: 4px;
+				}
+				span {
+					color: #596777;
+					font-size: 10px;
+					line-height: 1.5;
+				}
+			}
+		}
+		// About: the existing product truth arranged in the Stitch section sequence.
+		.quwat-about-page {
+			max-width: calc(100% - 160px);
+			width: 1160px;
+			gap: 36px;
+			> * {
+				margin-top: 0;
+			}
+			p {
+				font-size: 14px;
+				line-height: 1.8;
+				color: #596777;
+			}
+			h2 {
+				font-size: 23px;
+				font-weight: 700;
+				color: #1e293b;
+				line-height: 1.4;
+			}
+			.quwat-section-icon {
+				color: var(--home-accent);
+				width: 36px;
+				height: 36px;
+				padding: 7px;
+				border-radius: 5px;
+				background: #fff1f2;
+				margin-bottom: 20px;
+			}
+			.quwat-about-overview {
+				display: grid;
+				grid-template-columns: repeat(2, minmax(0, 1fr));
+				gap: 28px;
+			}
+			.quwat-about-intro,
+			.quwat-about-mission {
+				display: block;
+				background: #fff;
+				border: 1px solid var(--home-line);
+				padding: 32px;
+				border-radius: 6px;
+				h2 {
+					margin-bottom: 16px;
+				}
+				p {
+					margin-top: 14px;
+				}
+			}
+			.quwat-about-catalog {
+				background: #fff;
+				padding: 32px;
+				border: 1px solid var(--home-line);
+				border-bottom: 0;
+				border-radius: 6px 6px 0 0;
+			}
+			.quwat-about-categories {
+				margin-top: -36px;
+				padding: 0 32px 32px;
+				background: #fff;
+				border: 1px solid var(--home-line);
+				border-top: 0;
+				border-radius: 0 0 6px 6px;
+				.container {
+					width: 100%;
+					max-width: none;
+				}
+				h2 {
+					display: none;
+				}
+				.quwat-category-links {
+					display: grid;
+					grid-template-columns: repeat(7, minmax(0, 1fr));
+					gap: 10px;
+				}
+				a {
+					display: flex;
+					flex-direction: column;
+					align-items: center;
+					text-align: center;
+					gap: 9px;
+					padding: 14px 5px;
+					background: #f8fafc;
+					border: 1px solid #e5eaf0;
+					border-radius: 4px;
+					color: #475569;
+					font-size: 10px;
+					line-height: 1.5;
+					svg {
+						width: 22px;
+						height: 22px;
+						color: #64748b;
+					}
+					&:hover {
+						border-color: var(--home-accent);
+						color: var(--home-accent);
+					}
+				}
+			}
+			.quwat-about-saved {
+				position: relative;
+				padding: 32px;
+				border-radius: 5px;
+				background: #152132;
+				h2 {
+					color: #fff;
+				}
+				p {
+					color: #d2dce8;
+					max-width: 900px;
+				}
+				.quwat-section-icon {
+					background: #3b2631;
+					color: #ffb3ba;
+				}
+			}
+			.quwat-about-process {
+				padding-top: 12px;
+				h2 {
+					text-align: center;
+					margin-bottom: 18px;
+				}
+				ol {
+					display: grid;
+					grid-template-columns: repeat(4, minmax(0, 1fr));
+					list-style: none;
+					padding: 0;
+					gap: 16px;
+					counter-reset: process;
+				}
+				li {
+					margin: 0;
+					padding: 24px 20px;
+					border: 1px solid var(--home-line);
+					border-radius: 5px;
+					background: #fff;
+					color: #596777;
+					font-size: 12px;
+					line-height: 1.8;
+					counter-increment: process;
+					&::before {
+						content: counter(process);
+						display: grid;
+						place-items: center;
+						width: 30px;
+						height: 30px;
+						background: #fff1f2;
+						color: var(--home-accent);
+						font-weight: 700;
+						border-radius: 50%;
+						margin-bottom: 18px;
+					}
+				}
+				> p {
+					font-size: 12px;
+					padding: 18px 20px;
+					border: 1px solid var(--home-line);
+					border-radius: 4px;
+					background: #fff;
+				}
+			}
+			.quwat-about-help {
+				border-top: 1px solid var(--home-line);
+				padding-top: 30px;
+				p {
+					max-width: 850px;
+				}
+			}
+			.quwat-about-links {
+				margin-top: -14px;
+				.MuiButton-root {
+					min-height: 44px;
+					padding-inline: 22px;
+				}
+			}
+		}
+		// Help: searchable real FAQ, topic shortcuts and existing support destinations.
+		.quwat-help-page {
+			width: 100%;
+			max-width: none;
+			margin: 0 0 64px;
+			gap: 0;
+			> * {
+				margin-top: 0;
+			}
+			.quwat-help-hero {
+				display: block;
+				background: linear-gradient(90deg, rgba(10, 18, 34, 0.96), rgba(10, 18, 34, 0.8)),
+					url('/img/banner/quwat-warehouse.webp') center/cover;
+				color: #fff;
+				padding: 52px 0;
+				text-align: center;
+				.container {
+					display: block;
+					max-width: 800px;
+				}
+				nav {
+					display: flex;
+					justify-content: center;
+					gap: 9px;
+					font-size: 11px;
+					margin-bottom: 12px;
+					color: #d3dce7;
+					a {
+						color: inherit;
+					}
+				}
+				h1 {
+					font-size: 36px;
+					line-height: 1.2;
+					letter-spacing: -0.03em;
+					font-weight: 800;
+				}
+				p {
+					font-size: 13px;
+					color: #d3dce7;
+					margin: 15px 0 24px;
+				}
+				form {
+					display: flex;
+					align-items: center;
+					gap: 12px;
+					width: 600px;
+					max-width: 100%;
+					margin: auto;
+					padding: 6px 6px 6px 16px;
+					border-radius: 5px;
+					background: #fff;
+					color: #bb1e2b;
+					&:focus-within {
+						outline: 2px solid #fda4af;
+						outline-offset: 4px;
+					}
+				}
+				input {
+					min-width: 0;
+					flex: 1;
+					border: 0;
+					background: #fff;
+					color: #1e293b;
+					height: 40px;
+					font-size: 12px;
+					outline: none;
+					&::placeholder {
+						color: #64748b;
+					}
+				}
+				.MuiButton-root {
+					min-height: 40px;
+				}
+			}
+			.quwat-help-topics {
+				display: grid;
+				grid-template-columns: repeat(4, minmax(0, 1fr));
+				gap: 20px;
+				width: 1160px;
+				max-width: calc(100% - 80px);
+				margin: 32px auto;
+				button {
+					display: flex;
+					align-items: center;
+					text-align: left;
+					gap: 14px;
+					padding: 22px;
+					border: 1px solid var(--home-line);
+					border-radius: 5px;
+					background: #fff;
+					color: #243247;
+					cursor: pointer;
+					font-size: 13px;
+					font-weight: 600;
+					svg {
+						width: 36px;
+						height: 36px;
+						padding: 8px;
+						border-radius: 4px;
+						background: #f1f5f9;
+						color: #566a82;
+					}
+					&[aria-pressed='true'],
+					&:hover {
+						border-color: #d3222a;
+						svg {
+							background: #fff1f2;
+							color: #c31c27;
+						}
+					}
+				}
+			}
+			.quwat-help-columns {
+				display: grid;
+				grid-template-columns: minmax(0, 1fr) 320px;
+				gap: 32px;
+				width: 1160px;
+				max-width: calc(100% - 80px);
+				margin: 0 auto;
+				align-items: start;
+			}
+			.quwat-help-questions {
+				display: block;
+				min-width: 0;
+				.quwat-help-legacy-title {
+					display: none;
+				}
+				h2 {
+					font-size: 24px;
+					line-height: 1.4;
+					font-weight: 700;
+					margin: 0 0 24px;
+				}
+			}
+			.MuiAccordion-root {
+				box-shadow: none;
+				border: 1px solid var(--home-line);
+				border-radius: 5px;
+				margin: 0 0 12px;
+				overflow: hidden;
+				&::before {
+					display: none;
+				}
+				&.Mui-expanded {
+					margin: 0 0 12px;
+				}
+			}
+			.MuiAccordionSummary-root {
+				padding: 0 20px;
+				min-height: 58px;
+				.MuiTypography-root {
+					font-size: 13px;
+					font-weight: 600;
+				}
+			}
+			.MuiAccordionSummary-content.Mui-expanded {
+				margin: 18px 0;
+				color: #c31c27;
+			}
+			.MuiAccordionDetails-root {
+				padding: 0 20px 24px;
+				p {
+					color: #596777;
+					font-size: 13px;
+					line-height: 1.9;
+				}
+			}
+			.quwat-help-support {
+				padding: 28px;
+				background: #fff;
+				border: 1px solid var(--home-line);
+				border-radius: 6px;
+				> svg {
+					width: 40px;
+					height: 40px;
+					padding: 9px;
+					border-radius: 5px;
+					color: #c31c27;
+					background: #fff1f2;
+					margin-bottom: 20px;
+				}
+				h2 {
+					font-size: 19px;
+					font-weight: 700;
+					line-height: 1.4;
+				}
+				p {
+					color: #596777;
+					font-size: 12px;
+					line-height: 1.9;
+					margin: 16px 0 22px;
+				}
+				.MuiButton-root {
+					display: flex;
+					margin-top: 12px;
+					min-height: 42px;
+					width: 100%;
+				}
+			}
+		}
+		// Authentication: existing credentials and signup flow, industrial split panel.
+		.quwat-auth-page {
+			padding: 48px 40px 64px;
+			background: #f4f5f7;
+			> .container {
+				width: 1040px;
+				max-width: 100%;
+			}
+			.main {
+				min-height: 590px;
+				border-radius: 7px;
+				border-color: #dce3eb;
+				box-shadow: 0 10px 24px rgba(25, 38, 55, 0.07);
+			}
+			.main .left {
+				width: 52% !important;
+				padding: 42px 48px;
+				.logo {
+					justify-content: flex-start;
+					img {
+						width: 28px;
+						height: 28px;
+					}
+					span {
+						font-size: 20px;
+						font-weight: 700;
+						letter-spacing: -0.02em;
+					}
+				}
+				.info {
+					margin-top: 26px;
+					h1 {
+						font-size: 28px;
+						font-weight: 700;
+						letter-spacing: -0.025em;
+					}
+					p {
+						font-size: 12px;
+						color: #596777;
+					}
+				}
+				.input-wrap {
+					margin-top: 26px;
+					gap: 18px;
+				}
+				.input-box label {
+					font-size: 11px;
+				}
+				.input-box .auth-field {
+					border-radius: 4px;
+					border-color: #dce3eb;
+					background: #f8fafc;
+					gap: 9px;
+					padding: 0 12px;
+					&:focus-within {
+						border-color: var(--home-accent);
+						box-shadow: none;
+					}
+					> svg {
+						width: 16px;
+						height: 16px;
+						color: #718096;
+					}
+					input {
+						height: 44px;
+						font-size: 13px;
+					}
+				}
+				.register {
+					margin-top: 22px;
+					.MuiButton-root {
+						height: 44px;
+						border-radius: 4px;
+						font-size: 13px;
+						background: #152132;
+						&:hover {
+							background: #263a51;
+						}
+					}
+				}
+				.ask-info {
+					margin-top: 24px;
+					padding-top: 20px;
+					p,
+					.MuiButton-root {
+						font-size: 11px;
+					}
+					.MuiButton-root {
+						color: #c31c27;
+					}
+				}
+			}
+			.main .right {
+				width: 48% !important;
+				min-height: 590px;
+				padding: 36px;
+				border-radius: 0;
+				background-image: linear-gradient(180deg, rgba(10, 18, 30, 0.16), rgba(10, 18, 30, 0.94)),
+					url('/img/banner/quwat-account.webp');
+				.auth-photo-brand {
+					font-size: 34px;
+					font-weight: 800;
+				}
+				p {
+					font-size: 18px;
+					line-height: 1.5;
+				}
+			}
+			.quwat-password-toggle.MuiIconButton-root {
+				display: inline-flex;
+				padding: 5px;
+				flex-shrink: 0;
+				color: #64748b;
+				svg {
+					font-size: 18px;
+				}
+			}
+		}
+		// Profile: existing fields, upload and permissions in a compact account workspace.
+		#my-page.quwat-account {
+			padding: 0;
+			border-radius: 0;
+			grid-template-columns: 260px minmax(0, 1fr);
+			gap: 28px;
+			align-items: start;
+			.quwat-side,
+			.quwat-side.quwat-admin-personal-nav {
+				padding: 12px;
+				gap: 4px;
+				border: 1px solid var(--home-line);
+				border-radius: 5px;
+				background: #fff;
+				.quwat-account-menu-title {
+					font-size: 10px;
+					text-transform: uppercase;
+					color: #64748b;
+					letter-spacing: 0.04em;
+					padding: 13px 12px 16px;
+				}
+				a {
+					display: flex;
+					align-items: center;
+					gap: 10px;
+					padding: 12px;
+					min-height: 44px;
+					border: 1px solid transparent;
+					border-radius: 4px;
+					background: #fff;
+					font-size: 12px;
+					color: #53647a;
+					box-shadow: none;
+					> span:not(.quwat-personal-nav-icon) {
+						flex: 1;
+					}
+					&:hover {
+						background: #f8fafc;
+						color: #1e293b;
+					}
+					&[aria-current='page'] {
+						border-color: #ffd2d7;
+						background: #fff1f2;
+						color: #c31c27;
+					}
+					.quwat-personal-nav-icon {
+						display: flex;
+						flex: 0 0 20px;
+						width: 20px;
+						height: 20px;
+						color: inherit;
+						svg {
+							width: 20px;
+							height: 20px;
+						}
+					}
+				}
+			}
+			.quwat-account-support {
+				padding-top: 12px;
+				margin-top: 12px;
+				border-top: 1px solid var(--home-line);
+				> button {
+					width: 100%;
+					justify-content: flex-start;
+					color: #c31c27;
+					font-size: 12px;
+				}
+				> a {
+					display: flex;
+					flex-direction: column;
+					align-items: flex-start;
+					padding: 20px;
+					margin-top: 16px;
+					background: #152132;
+					color: #fff;
+					gap: 10px;
+					svg {
+						color: #ffb7bd;
+					}
+					strong {
+						font-size: 13px;
+					}
+					span {
+						font-size: 11px;
+						color: #d6e0eb;
+					}
+					&:hover {
+						background: #24354a;
+						color: #fff;
+					}
+				}
+			}
+			#my-profile-page {
+				.main-title,
+				.sub-title,
+				.title,
+				input,
+				textarea {
+					font-family: 'Quwat Inter', Arial, sans-serif;
+				}
+				background: #fff;
+				border: 1px solid var(--home-line);
+				border-radius: 5px;
+				padding: 30px;
+				gap: 24px;
+				.main-title-box .main-title {
+					text-transform: none;
+					letter-spacing: -0.02em;
+					font-size: 20px;
+					font-weight: 700;
+					line-height: 1.4;
+				}
+				.main-title-box .sub-title {
+					font-size: 12px;
+					color: #64748b;
+				}
+				.top-box {
+					padding: 0;
+					border: 0;
+					box-shadow: none;
+					border-radius: 0;
+					gap: 24px;
+				}
+				.title {
+					font-size: 11px;
+					font-weight: 600;
+					color: #475569;
+					margin: 0;
+					line-height: 1.5;
+				}
+				.photo-box {
+					padding-bottom: 24px;
+					border-bottom: 1px solid #edf0f4;
+					gap: 12px;
+					.image-big-box {
+						gap: 20px;
+						.image-box {
+							width: 100px;
+							height: 100px;
+							border-radius: 6px;
+							img {
+								object-fit: cover;
+							}
+						}
+						.upload-big-box {
+							gap: 10px;
+							.labeler {
+								min-height: 38px;
+								font-size: 10px;
+								border: 1px solid #dce3eb;
+								border-radius: 4px;
+								padding: 8px 14px;
+								color: #334155;
+								background: #fff;
+							}
+							.upload-text {
+								font-size: 10px;
+								color: #64748b;
+							}
+						}
+					}
+				}
+				.small-input-box {
+					gap: 22px;
+				}
+				input,
+				textarea {
+					font-family: inherit;
+					font-size: 12px;
+					border: 1px solid #dce3eb;
+					border-radius: 4px;
+					color: #334155;
+					background: #fff;
+					&:focus {
+						outline: 2px solid #d3222a;
+						outline-offset: 2px;
+					}
+				}
+				.small-input-box .input-box input,
+				.address-box input {
+					height: 42px;
+					padding: 10px 12px;
+				}
+				.about-me-box .about-textarea {
+					padding: 12px;
+					min-height: 140px;
+				}
+				.quwat-profile-submit-row {
+					display: flex;
+					justify-content: flex-end;
+					gap: 10px;
+					padding-top: 22px;
+					margin-top: 12px;
+					border-top: 1px solid #edf0f4;
+					.MuiButton-root {
+						display: inline-flex;
+						min-height: 40px;
+						margin: 0;
+						padding: 9px 20px;
+						font-size: 11px;
+					}
+					.update-button {
+						background: #152132;
+					}
+				}
+			}
+		}
+	}
+}

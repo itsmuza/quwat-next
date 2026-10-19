@@ -1,5 +1,8 @@
 import { useText } from '../../libs/i18n';
 import Image from 'next/image';
+import { IconButton } from '@mui/material';
+import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
+import VisibilityOffOutlinedIcon from '@mui/icons-material/VisibilityOffOutlined';
 import React, { FormEvent, useState } from 'react';
 import { Alert, Button, Stack } from '@mui/material';
 import PersonOutlineRoundedIcon from '@mui/icons-material/PersonOutlineRounded';
@@ -18,6 +21,7 @@ function Join() {
 	const { t, errorMessage: translateError } = useText();
 	const router = useRouter();
 	const [signup, setSignup] = useState(false);
+	const [showPassword, setShowPassword] = useState(false);
 	const [busy, setBusy] = useState(false);
 	const [error, setError] = useState('');
 	const [input, setInput] = useState({ nick: '', password: '', phone: '' });
@@ -72,7 +76,7 @@ function Join() {
 										<LockOutlinedIcon aria-hidden="true" />
 										<input
 											id="password"
-											type="password"
+											type={showPassword ? 'text' : 'password'}
 											autoComplete={signup ? 'new-password' : 'current-password'}
 											required
 											minLength={5}
@@ -80,6 +84,15 @@ function Join() {
 											value={input.password}
 											onChange={(e) => setInput({ ...input, password: e.target.value })}
 										/>
+										<IconButton
+											className="quwat-desktop-only quwat-password-toggle"
+											type="button"
+											aria-label={t(showPassword ? 'Parolni yashirish' : 'Parolni ko‘rsatish')}
+											aria-pressed={showPassword}
+											onClick={() => setShowPassword(!showPassword)}
+										>
+											{showPassword ? <VisibilityOffOutlinedIcon /> : <VisibilityOutlinedIcon />}
+										</IconButton>
 									</div>
 								</div>
 								{signup && (
@@ -111,6 +124,7 @@ function Join() {
 								<Button
 									onClick={() => {
 										setSignup(!signup);
+										setShowPassword(false);
 										setError('');
 									}}
 								>

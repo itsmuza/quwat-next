@@ -14,10 +14,12 @@ export default function MemberCard({
 	member,
 	showNickname = true,
 	showProfileLink = false,
+	showDescription = false,
 }: {
 	member: Member;
 	showNickname?: boolean;
 	showProfileLink?: boolean;
+	showDescription?: boolean;
 }) {
 	const { t } = useText();
 	const user = useReactiveVar(userVar);
@@ -31,7 +33,9 @@ export default function MemberCard({
 					<span>{t('Agent')}</span>
 				</div>
 				<CardHeader>
-					<Avatar src={imageUrl(member.memberImage)} className="quwat-member-avatar" />
+					<div className="quwat-member-image">
+						<Avatar src={imageUrl(member.memberImage)} className="quwat-member-avatar" />
+					</div>
 					<CardTitle
 						title={member.memberFullName || member.memberNick}
 						className={showNickname ? '' : 'quwat-member-name-centered'}
@@ -39,6 +43,11 @@ export default function MemberCard({
 						{member.memberFullName || member.memberNick}
 					</CardTitle>
 					{showNickname && <CardDescription>@{member.memberNick}</CardDescription>}
+					{showDescription && (
+						<CardDescription className="quwat-home-member-description">
+							{member.memberDesc || t('Quwat jamoasi')}
+						</CardDescription>
+					)}
 				</CardHeader>
 			</Link>
 			<CardFooter>

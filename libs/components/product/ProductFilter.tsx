@@ -140,6 +140,7 @@ export default function ProductFilter({
 				<TextField
 					select
 					size="small"
+					className="quwat-filter-sort"
 					label={t('Saralash')}
 					value={inquiry.sort || 'createdAt'}
 					onChange={(e) => onChange({ ...inquiry, page: 1, sort: e.target.value as ProductsInquiry['sort'] })}
@@ -153,6 +154,7 @@ export default function ProductFilter({
 				<TextField
 					select
 					size="small"
+					className="quwat-filter-sort"
 					label={t('Tartib')}
 					value={inquiry.direction || 'DESC'}
 					onChange={(e) => onChange({ ...inquiry, page: 1, direction: e.target.value as 'ASC' | 'DESC' })}

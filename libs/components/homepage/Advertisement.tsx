@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
+import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded';
 import { IconButton, Stack } from '@mui/material';
 import PauseRoundedIcon from '@mui/icons-material/PauseRounded';
 import PlayArrowRoundedIcon from '@mui/icons-material/PlayArrowRounded';
@@ -23,6 +25,14 @@ const Advertisement = () => {
 	const playbackLabel = t(paused ? 'Rasmlar almashishini davom ettirish' : 'Rasmlar almashishini to‘xtatish');
 	return (
 		<Stack component="section" className="video-frame quwat-advertisement" aria-label={t('Qurilish jarayonlari')}>
+			<div className="quwat-advertisement-copy">
+				<h2>{t('Qurilish rejangizga mos mahsulotlarni toping.')}</h2>
+				<p>{t('Asboblar va qurilish buyumlarini toping.')}</p>
+				<Link passHref href="/product">
+					{t('Katalogni ko‘rish →')}
+					<ArrowForwardRoundedIcon aria-hidden="true" />
+				</Link>
+			</div>
 			<Swiper
 				className="quwat-advertisement-slider"
 				modules={[A11y, Autoplay, Pagination]}

@@ -15,7 +15,7 @@ import {
 	stockAvailable,
 } from '../../cart';
 import { money } from '../../product';
-import { unitLabels } from '../../enums/product.enum';
+import { productTypeLabels, unitLabels } from '../../enums/product.enum';
 import ProductImage from '../product/ProductImage';
 import { useClientCart } from './CartSession';
 
@@ -23,6 +23,7 @@ export default function CartItems() {
 	const { t, locale, errorMessage: translateError } = useText();
 	const cart = useClientCart();
 	const client = useApolloClient();
+	const quantity = new Intl.NumberFormat(locale, { maximumFractionDigits: 3 });
 	const locked = cart.submitting || Boolean(cart.intent);
 	if (!cart.ready) return <Typography color="text.secondary">{t('Savatcha yuklanmoqda…')}</Typography>;
 	if (!cart.lines.length)
@@ -68,6 +69,11 @@ export default function CartItems() {
 								gap={1}
 							>
 								<Typography className="quwat-cart-item-name" fontWeight={600} sx={{ overflowWrap: 'anywhere' }}>
+									{p && (
+										<span className="quwat-cart-item-meta">
+											{p.productBrand || (p.productType ? t(productTypeLabels[p.productType]) : t('Mahsulotlar'))}
+										</span>
+									)}
 									{p ? name : cart.syncing ? t('Mahsulot yuklanmoqda…') : name}
 								</Typography>
 								<IconButton
@@ -80,9 +86,14 @@ export default function CartItems() {
 								</IconButton>
 							</Stack>
 							{p && (
-								<Typography className="quwat-cart-unit-price" variant="body2" color="text.secondary">
-									{money(p.productPrice, locale)} / {t(unitLabels[p.productUnit])}
-								</Typography>
+								<div className="quwat-cart-item-facts">
+									<Typography className="quwat-cart-unit-price" variant="body2" color="text.secondary">
+										{money(p.productPrice, locale)} / {t(unitLabels[p.productUnit])}
+									</Typography>
+									<span className="quwat-cart-stock" data-empty={stockAvailable(p) <= 0 || undefined}>
+										{t('Omborda:')} {quantity.format(stockAvailable(p))} {t(unitLabels[p.productUnit])}
+									</span>
+								</div>
 							)}
 						</div>
 						{p && (
@@ -96,22 +107,25 @@ export default function CartItems() {
 									>
 										<RemoveIcon fontSize="small" />
 									</IconButton>
-									<TextField
-										size="small"
-										type="number"
-										label={t('Miqdor')}
-										InputLabelProps={{ shrink: true }}
-										value={line.quantity}
-										onChange={(e) => setCartQuantity(line.productId, e.target.value)}
-										disabled={locked || cart.syncing}
-										inputProps={{
-											min: p.productMinOrderQuantity,
-											max: stockAvailable(p),
-											step,
-											'aria-label': t('{{name}} miqdori', { name }),
-										}}
-										sx={{ width: 64, minWidth: 0 }}
-									/>
+									<div className="quwat-cart-quantity-value">
+										<TextField
+											size="small"
+											type="number"
+											label={t('Miqdor')}
+											InputLabelProps={{ shrink: true }}
+											value={line.quantity}
+											onChange={(e) => setCartQuantity(line.productId, e.target.value)}
+											disabled={locked || cart.syncing}
+											inputProps={{
+												min: p.productMinOrderQuantity,
+												max: stockAvailable(p),
+												step,
+												'aria-label': t('{{name}} miqdori', { name }),
+											}}
+											sx={{ width: 76, minWidth: 0 }}
+										/>
+										<span className="quwat-cart-quantity-unit">{t(unitLabels[p.productUnit])}</span>
+									</div>
 									<IconButton
 										size="small"
 										aria-label={t('{{name}} miqdorini oshirish', { name })}
@@ -122,7 +136,9 @@ export default function CartItems() {
 									</IconButton>
 								</Stack>
 								<Typography className="quwat-cart-line-total" variant="body2" sx={{ overflowWrap: 'anywhere' }}>
-									{line.quantity || '—'} {t(unitLabels[p.productUnit])} × {money(p.productPrice, locale)} ={' '}
+									<span className="quwat-cart-line-calculation">
+										{line.quantity || '—'} {t(unitLabels[p.productUnit])} × {money(p.productPrice, locale)} ={' '}
+									</span>
 									<strong>{amount === null ? '—' : money(amount, locale)}</strong>
 								</Typography>
 							</div>

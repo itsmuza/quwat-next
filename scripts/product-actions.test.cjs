@@ -67,7 +67,7 @@ const fixture = (saved) => ({
 async function flush(action = () => {}) {
  await act(async () => { action(); await new Promise(resolve => setTimeout(resolve, 15)); });
 }
-async function setup(saved = false, {locale = 'uz', productOverrides = {}} = {}) {
+async function setup(saved = false, {locale = 'uz', productOverrides = {}, compact = false} = {}) {
  userVar({ ...emptyUser, _id: owner, memberType: 'CLIENT', memberStatus: 'ACTIVE' });
  sessionVar({ status: 'authenticated', error: '' });
  cart.activateCart(owner);
@@ -90,7 +90,7 @@ async function setup(saved = false, {locale = 'uz', productOverrides = {}} = {})
  function Cards() {
   const {data} = useQuery(GET_PRODUCTS, {variables: {input}});
   return React.createElement(React.Fragment, null, ...[1,2].map(key =>
-   React.createElement('div', {key, className: 'test-card'}, React.createElement(ProductCard, {product: data.getProducts.list[0]}))));
+   React.createElement('div', {key, className: 'test-card'}, React.createElement(ProductCard, {product: data.getProducts.list[0], compact}))));
  }
  const root = createRoot(document.getElementById('test-root'));
  await flush(() => root.render(React.createElement(RouterContext.Provider, {value: {locale, pathname: '/product', query: {}}},
@@ -256,4 +256,19 @@ test('failed save rolls back the optimistic bookmark across cards, shows feedbac
   await ui.settle();
   assert.equal(ui.bookmarks()[0].getAttribute('aria-pressed'), 'true');
  } finally {await ui.cleanup();}
+});
+
+test('compact homepage cards derive availability from reservations and retain the guarded client cart action', async () => {
+ const ui = await setup(false, {compact: true, productOverrides: {productQuantity: 10, productReservedQuantity: 10}});
+ try {
+  const card = document.querySelector('.quwat-home-product');
+  assert.ok(card.querySelector('.quwat-home-stock-badge.empty'));
+  assert.match(card.querySelector('.quwat-product-stock').textContent, /Sotuvga mavjud:0 dona/);
+  const button = card.querySelector('.quwat-cart-add');
+  assert.match(button.textContent, /Savatcha/);
+  await flush(() => Simulate.click(button));
+  assert.match(document.body.textContent, /Mahsulot omborda mavjud emas/);
+  assert.equal(cart.cartVar().lines.length, 0);
+  assert.equal(ui.pending.length, 0);
+ } finally { await ui.cleanup(); }
 });

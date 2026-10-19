@@ -65,10 +65,29 @@ export default function MyProfile() {
 		}
 	}
 	return (
-		<Stack component="form" id="my-profile-page" onSubmit={submit}>
+		<Stack
+			component="form"
+			id="my-profile-page"
+			onSubmit={submit}
+			onReset={() => {
+				setForm({
+					memberNick: user.memberNick,
+					memberPhone: user.memberPhone,
+					memberFullName: user.memberFullName || '',
+					memberAddress: user.memberAddress || '',
+					memberDesc: user.memberDesc || '',
+					memberImage: user.memberImage || '',
+					memberPassword: '',
+				});
+				setError('');
+				setSuccess(false);
+			}}
+		>
 			<Stack className="main-title-box">
 				<Stack className="right-box">
-					<Typography className="main-title">{t('Mening profilim')}</Typography>
+					<Typography component="h2" className="main-title">
+						{t('Mening profilim')}
+					</Typography>
 					<Typography className="sub-title">{t('Shaxsiy ma’lumotlaringizni yangilang.')}</Typography>
 				</Stack>
 			</Stack>
@@ -179,9 +198,14 @@ export default function MyProfile() {
 						value={form.memberDesc}
 						onChange={(e) => setForm({ ...form, memberDesc: e.target.value })}
 					/>
-					<Button className="update-button" type="submit" variant="contained" disabled={busy}>
-						{busy ? t('Kutilmoqda…') : t('Saqlash')}
-					</Button>
+					<div className="quwat-profile-submit-row">
+						<Button className="quwat-desktop-only" type="reset" variant="outlined" disabled={busy}>
+							{t('Bekor qilish')}
+						</Button>
+						<Button className="update-button" type="submit" variant="contained" disabled={busy}>
+							{busy ? t('Kutilmoqda…') : t('Saqlash')}
+						</Button>
+					</div>
 				</Stack>
 			</Stack>
 		</Stack>

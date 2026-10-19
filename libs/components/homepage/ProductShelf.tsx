@@ -1,5 +1,5 @@
 import { useText } from '../../i18n';
-import React from 'react';
+import React, { useRef } from 'react';
 import Link from 'next/link';
 import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded';
 import { useQuery, useReactiveVar } from '@apollo/client';
@@ -12,9 +12,11 @@ import { sessionVar } from '../../../apollo/store';
 import ProductCard from '../product/ProductCard';
 import QueryState from '../common/QueryState';
 import HomeSkeleton from './HomeSkeleton';
+import MobileShelfControls from './MobileShelfControls';
 export default function ProductShelf({ title, sort }: { title: string; sort: ProductSort }) {
 	const { t } = useText();
 	const session = useReactiveVar(sessionVar);
+	const shelfRef = useRef<HTMLDivElement>(null);
 	const descriptions: Partial<Record<ProductSort, string>> = {
 		createdAt: 'Katalogga yaqinda qo‘shilgan mahsulotlar',
 		productLikes: 'Ko‘pchilik yoqtirgan mahsulotlarni ko‘ring',
@@ -25,6 +27,8 @@ export default function ProductShelf({ title, sort }: { title: string; sort: Pro
 		skip: session.status === 'loading',
 		fetchPolicy: 'cache-and-network',
 	});
+	const showSkeleton = session.status === 'loading' || (loading && !data);
+	const productCount = data?.getProducts.list.length || 0;
 	return (
 		<Stack
 			component="section"
@@ -52,33 +56,49 @@ export default function ProductShelf({ title, sort }: { title: string; sort: Pro
 					</Link>
 				</div>
 				<QueryState error={error} retry={() => refetch()} />
-				{session.status === 'loading' || (loading && !data) ? (
+				{showSkeleton ? (
 					<HomeSkeleton />
 				) : (
-					<Stack className="card-box">
+					<Stack className="card-box" ref={shelfRef}>
 						<Swiper
 							className="trend-property-swiper"
-							slidesPerView="auto"
-							spaceBetween={16}
-							breakpoints={{ 768: { spaceBetween: 24 }, 1200: { spaceBetween: 24, slidesPerView: 4 } }}
+							aria-describedby={`home-shelf-hint-${sort}`}
+							enabled={false}
+							slidesPerView={1.15}
+							spaceBetween={12}
+							breakpoints={{
+								601: { enabled: true, slidesPerView: 2, spaceBetween: 16 },
+								900: { enabled: true, slidesPerView: 3, spaceBetween: 20 },
+								1200: { enabled: true, spaceBetween: 20, slidesPerView: 4 },
+							}}
 							speed={400}
 							grabCursor
 							threshold={8}
 							modules={[A11y, Mousewheel, Pagination]}
 							mousewheel={{ forceToAxis: true, releaseOnEdges: true }}
 							a11y={{
+								prevSlideMessage: t('Oldingi mahsulotlar'),
+								nextSlideMessage: t('Keyingi mahsulotlar'),
 								paginationBulletMessage: t('{{index}}-mahsulotlar guruhiga o‘tish'),
 							}}
 							pagination={{ el: `.quwat-pagination-${sort}`, clickable: true }}
 						>
 							{data?.getProducts.list.map((p) => (
 								<SwiperSlide className="trend-property-slide" key={p._id}>
-									<ProductCard product={p} />
+									<ProductCard product={p} compact />
 								</SwiperSlide>
 							))}
 						</Swiper>
 					</Stack>
 				)}
+				<MobileShelfControls
+					targetRef={shelfRef}
+					selector=".swiper-wrapper"
+					loading={showSkeleton}
+					count={productCount}
+					kind="products"
+					hintId={`home-shelf-hint-${sort}`}
+				/>
 				<div className="quwat-carousel-pagination" hidden={!data?.getProducts.list.length}>
 					<div className={`quwat-pagination-${sort}`} />
 				</div>

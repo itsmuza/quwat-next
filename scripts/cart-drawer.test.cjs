@@ -82,6 +82,7 @@ async function setup(options = {}) {
 	const products = options.products || [fixture()];
 	cart.cartVar({ ...cart.cartVar(), lines: products.map((p) => ({ productId: p._id, product: p, quantity: '1' })) });
 	const requests = [];
+	const routes = [];
 	const client = {
 		query: async ({ variables }) => ({ data: { getProduct: products.find((p) => p._id === variables.productId) } }),
 		getObservableQueries: () => new Map(),
@@ -119,7 +120,10 @@ async function setup(options = {}) {
 		locale,
 		query: {},
 		prefetch: async () => {},
-		push: async () => {},
+		push: async (route) => {
+			routes.push(route);
+			return true;
+		},
 	};
 	await flush(() =>
 		root.render(
@@ -151,7 +155,7 @@ async function setup(options = {}) {
 		await flush(() => root.unmount());
 		client.stop?.();
 	};
-	return { requests, i18n, trigger, open, close, cleanup };
+	return { requests, routes, i18n, trigger, open, close, cleanup };
 }
 
 test('drawer closes with X, backdrop and Escape; restores focus and retains cart contents', async () => {
@@ -312,5 +316,67 @@ test('long lists stay in the body and translated loading/empty states preserve t
 		} finally {
 			await ui.cleanup();
 		}
+	}
+});
+
+test('Stitch basket uses real brand and available stock and closes through reused catalog navigation', async () => {
+	const product = {
+		...fixture(),
+		productBrand: 'Quwat',
+		productType: 'ASBOBLAR',
+		productQuantity: 12,
+		productReservedQuantity: 3,
+	};
+	const snapshot = cart.cartProduct(product);
+	assert.equal(snapshot.productBrand, 'Quwat');
+	assert.equal(snapshot.productType, 'ASBOBLAR');
+	const ui = await setup({ products: [product] });
+	try {
+		await ui.open();
+		assert.equal(document.querySelector('.quwat-cart-item-meta').textContent, 'Quwat');
+		assert.match(document.querySelector('.quwat-cart-stock').textContent, /9 dona/);
+		assert.equal(document.querySelector('.quwat-cart-quantity-unit').textContent, 'dona');
+		assert.ok(document.querySelector('input[aria-label="Mahsulot 1 miqdori"]'));
+		assert.equal(document.querySelectorAll('.quwat-cart-payment-section .MuiToggleButton-root').length, 2);
+		assert.match(document.querySelector('.quwat-cart-order-summary').textContent, /Buyurtma hisobi/);
+		assert.equal(document.querySelector('.quwat-cart-mobile-navigation [aria-current="page"]').textContent, 'Savatcha');
+		await flush(() =>
+			Simulate.click(document.querySelector('.quwat-cart-mobile-navigation a[href="/product"]'), {
+				button: 0,
+				preventDefault() {},
+			}),
+		);
+		await flush();
+		assert.equal(document.querySelector('[role="dialog"]'), null);
+		assert.equal(cart.cartVar().lines.length, 1);
+		assert.deepEqual(ui.requests, []);
+	} finally {
+		await ui.cleanup();
+	}
+});
+
+test('basket search closes the modal before focusing the catalog field', async () => {
+	const ui = await setup();
+	const search = document.createElement('input');
+	search.id = 'catalog-mobile-search';
+	document.body.appendChild(search);
+	const originalScroll = window.scrollTo;
+	window.scrollTo = () => {};
+	try {
+		await ui.open();
+		const button = [...document.querySelectorAll('.quwat-cart-mobile-navigation button')].find(
+			(e) => e.textContent === 'Qidirish',
+		);
+		await flush(() => Simulate.click(button));
+		await flush();
+		await flush();
+		assert.equal(document.querySelector('[role="dialog"]'), null);
+		assert.deepEqual(ui.routes, ['/product']);
+		assert.equal(document.activeElement, search);
+		assert.deepEqual(ui.requests, []);
+	} finally {
+		search.remove();
+		window.scrollTo = originalScroll;
+		await ui.cleanup();
 	}
 });

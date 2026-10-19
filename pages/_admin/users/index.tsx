@@ -113,6 +113,7 @@ function AdminUsers() {
 			<Typography variant="h4">{t('Foydalanuvchilar')}</Typography>
 			<Stack
 				component="form"
+				className="quwat-admin-user-filters"
 				direction={{ xs: 'column', sm: 'row' }}
 				gap={2}
 				onSubmit={(e: React.FormEvent) => {

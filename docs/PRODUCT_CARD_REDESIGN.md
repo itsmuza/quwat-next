@@ -1,5 +1,13 @@
 # Product card redesign — 2026-10-18
 
+## Product information enrichment — 2026-10-19
+
+Shared product cards now show the actual translated category, an optional two-line description, minimum order quantity, quantity step and the unit covered by the displayed price. Minimum/step values use the existing locale-aware three-decimal formatter. Missing descriptions add no placeholder or blank description block. Details use the existing Product GraphQL fields; queries, data, routes, actions and permissions are unchanged.
+
+Added shared styling in `scss/product-cards.scss`, compact desktop/mobile refinements in `scss/home-redesign.scss`, and one price-unit message across all four locale dictionaries. Reduced the homepage price area's fixed minimum height to avoid unnecessary empty space. This applies to homepage, catalog, related products and personal product lists through the existing `ProductCard` component.
+
+Validation: `yarn typecheck`, non-autofix `yarn lint`, 498-key `yarn check:i18n`, 24 existing product-action/guest-like/homepage tests and `git diff --check` passed. Browser reviewed desktop and 375/320px mobile cards, with category, description wrapping, purchase quantities and price units visible. No API, backend runtime, database or dependency change; no live product action submitted. Previews: `/private/tmp/quwat-rich-cards/desktop.png` and `/private/tmp/quwat-rich-cards/mobile.png`.
+
 Implemented the user's request for a fresh product-card composition using the installed frontend-design, shadcn-ui and user-project skills. This supersedes the homepage-only card refinements recorded in HOMEPAGE_REDESIGN.md; the most recent warm ivory version had first been reverted at the user's request.
 
 ## Design

@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40" fill="none">
   <title>Quwat</title>
-  <rect width="40" height="40" rx="10" fill="#EB6753" />
+  <rect width="40" height="40" rx="10" fill="#D3222A" />
   <path fill="#FFFFFF" fill-rule="evenodd" d="M14 8H25C28.314 8 31 10.686 31 14V25C31 28.314 28.314 31 25 31H14C10.686 31 8 28.314 8 25V14C8 10.686 10.686 8 14 8ZM14 14V25H25V14H14Z" clip-rule="evenodd" />
-  <path fill="#EB6753" d="M8 18H14V20H8ZM19 8H21V14H19Z" />
+  <path fill="#D3222A" d="M8 18H14V20H8ZM19 8H21V14H19Z" />
   <path fill="#FFFFFF" d="M23 22L34 33L30 35L20 25L23 22Z" />
 </svg>

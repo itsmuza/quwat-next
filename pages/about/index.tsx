@@ -1,5 +1,9 @@
 import { useText } from '../../libs/i18n';
 import React from 'react';
+import StorefrontOutlinedIcon from '@mui/icons-material/StorefrontOutlined';
+import TrackChangesOutlinedIcon from '@mui/icons-material/TrackChangesOutlined';
+import BookmarkBorderRoundedIcon from '@mui/icons-material/BookmarkBorderRounded';
+import CategoryLinks from '../../libs/components/homepage/CategoryLinks';
 import Link from 'next/link';
 import { Button, Stack, Typography } from '@mui/material';
 import { serverSideTranslations } from '../../libs/serverTranslations';
@@ -8,28 +12,34 @@ export const getStaticProps = async ({ locale }: { locale: string }) => ({
 	props: { ...(await serverSideTranslations(locale, ['common'])) },
 });
 function About() {
-	const { t, locale } = useText();
+	const { t } = useText();
 	return (
-		<Stack className="quwat-page quwat-profile" spacing={3}>
-			<Typography variant="h3" component="h1">
-				{t('Quwat haqida')}
-			</Typography>
-			<Typography>
-				{t(
-					'Quwat — qurilish materiallari va xo‘jalik buyumlari do‘konining onlayn platformasi. Qurilish, ta’mirlash yoki kundalik xo‘jalik ishlari uchun kerakli mahsulotlarni bir joyda ko‘rib, xaridga tayyorlanishingiz mumkin.',
-				)}
-			</Typography>
-			<Stack component="section" spacing={1.5}>
-				<Typography variant="h5" component="h2">
-					{t('Maqsadimiz')}
-				</Typography>
-				<Typography>
-					{t(
-						'Kerakli buyumni topish va tanlashni osonlashtirishni maqsad qilganmiz. Mahsulotning nomi, narxi, tavsifi va mavjud miqdorini oldindan ko‘rish ishlaringiz uchun xarid ro‘yxatini tuzishga yordam beradi. Quwat orqali izlash, tanlash va xarid so‘rovini yuborish jarayonini bir joyda boshqarishingiz mumkin.',
-					)}
-				</Typography>
-			</Stack>
-			<Stack component="section" spacing={1.5}>
+		<Stack className="quwat-page quwat-profile quwat-about-page" spacing={3}>
+			<div className="quwat-about-overview">
+				<article className="quwat-about-intro">
+					<StorefrontOutlinedIcon className="quwat-desktop-only quwat-section-icon" aria-hidden="true" />
+					<Typography variant="h3" component="h2">
+						{t('Quwat haqida')}
+					</Typography>
+					<Typography>
+						{t(
+							'Quwat — qurilish materiallari va xo‘jalik buyumlari do‘konining onlayn platformasi. Qurilish, ta’mirlash yoki kundalik xo‘jalik ishlari uchun kerakli mahsulotlarni bir joyda ko‘rib, xaridga tayyorlanishingiz mumkin.',
+						)}
+					</Typography>
+				</article>
+				<Stack component="section" className="quwat-about-mission" spacing={1.5}>
+					<TrackChangesOutlinedIcon className="quwat-desktop-only quwat-section-icon" aria-hidden="true" />
+					<Typography variant="h5" component="h2">
+						{t('Maqsadimiz')}
+					</Typography>
+					<Typography>
+						{t(
+							'Kerakli buyumni topish va tanlashni osonlashtirishni maqsad qilganmiz. Mahsulotning nomi, narxi, tavsifi va mavjud miqdorini oldindan ko‘rish ishlaringiz uchun xarid ro‘yxatini tuzishga yordam beradi. Quwat orqali izlash, tanlash va xarid so‘rovini yuborish jarayonini bir joyda boshqarishingiz mumkin.',
+						)}
+					</Typography>
+				</Stack>
+			</div>
+			<Stack component="section" className="quwat-about-catalog" spacing={1.5}>
 				<Typography variant="h5" component="h2">
 					{t('Katalogda nimalar bor?')}
 				</Typography>
@@ -44,7 +54,11 @@ function About() {
 					)}
 				</Typography>
 			</Stack>
-			<Stack component="section" spacing={1.5}>
+			<div className="quwat-desktop-only quwat-about-categories">
+				<CategoryLinks />
+			</div>
+			<Stack component="section" className="quwat-about-saved" spacing={1.5}>
+				<BookmarkBorderRoundedIcon className="quwat-desktop-only quwat-section-icon" aria-hidden="true" />
 				<Typography variant="h5" component="h2">
 					{t('Tanlovingizni saqlab boring')}
 				</Typography>
@@ -59,7 +73,7 @@ function About() {
 					)}
 				</Typography>
 			</Stack>
-			<Stack component="section" spacing={1.5}>
+			<Stack component="section" className="quwat-about-process" spacing={1.5}>
 				<Typography variant="h5" component="h2">
 					{t('Xarid jarayoni qanday ishlaydi?')}
 				</Typography>
@@ -83,7 +97,7 @@ function About() {
 					)}
 				</Typography>
 			</Stack>
-			<Stack component="section" spacing={1.5}>
+			<Stack component="section" className="quwat-about-help" spacing={1.5}>
 				<Typography variant="h5" component="h2">
 					{t('Savollaringiz bormi?')}
 				</Typography>
@@ -93,7 +107,7 @@ function About() {
 					)}
 				</Typography>
 			</Stack>
-			<Stack direction="row" gap={2} flexWrap="wrap">
+			<Stack className="quwat-about-links" direction="row" gap={2} flexWrap="wrap">
 				<Button component={Link} href="/product" variant="contained">
 					{t('Katalogni ko‘rish →')}
 				</Button>

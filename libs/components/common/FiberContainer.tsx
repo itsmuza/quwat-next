@@ -10,6 +10,10 @@ import PlayArrowRoundedIcon from '@mui/icons-material/PlayArrowRounded';
 import { motion, useReducedMotion } from 'framer-motion';
 import { ScrollControls, Scroll } from './ScrollControls';
 import { useText } from '../../i18n';
+import { useQuery, useReactiveVar } from '@apollo/client';
+import { GET_PRODUCTS } from '../../../apollo/user/product';
+import { sessionVar } from '../../../apollo/store';
+import { Products } from '../../types/product/product';
 
 const photoGroups = [
 	['tap-installation', 'paint-roller', 'cabinet-fastening'],
@@ -31,7 +35,7 @@ function PhotoPage({ index }: { index: number }) {
 			{photos.map((photo, slot) => {
 				const large = slot === 0;
 				const x = compact ? (large ? 0 : (slot === 1 ? -1 : 1) * width * 0.245) : (large ? -0.17 : 0.32) * width;
-				const y = compact ? (large ? 0.15 : -0.34) * height : large ? 0 : (slot === 1 ? 1 : -1) * height * 0.24;
+				const y = compact ? (large ? -0.16 : 0.34) * height : large ? 0 : (slot === 1 ? 1 : -1) * height * 0.24;
 				const photoWidth = width * (compact ? (large ? 0.96 : 0.47) : large ? 0.62 : 0.32);
 				const photoHeight = height * (compact ? (large ? 0.64 : 0.3) : large ? 0.94 : 0.46);
 				return (
@@ -49,9 +53,21 @@ function PhotoPage({ index }: { index: number }) {
 }
 
 export default function FiberContainer({ children }: { children?: ReactNode }) {
-	const { t } = useText();
+	const { t, locale } = useText();
+	const session = useReactiveVar(sessionVar);
+	// Share the newest shelf's query/cache; use the full catalog count, not its eight visible cards.
+	const { data, loading } = useQuery<{ getProducts: Products }>(GET_PRODUCTS, {
+		variables: { input: { page: 1, limit: 8, sort: 'createdAt', direction: 'DESC', search: {} } },
+		skip: session.status === 'loading',
+		fetchPolicy: 'cache-and-network',
+	});
+	const productCount = data ? data.getProducts.metaCounter?.[0]?.total ?? 0 : undefined;
+	// Some browsers fall back to English for Uzbek; use the same grouping on server and client.
+	const countLocale = locale === 'uz-Latn-UZ' ? 'ru-RU' : locale;
+	const formatCount = (count?: number) => (count === undefined ? '—' : new Intl.NumberFormat(countLocale).format(count));
 	const reducedMotion = useReducedMotion();
 	const [paused, setPaused] = useState(false);
+	const [galleryExpanded, setGalleryExpanded] = useState(false);
 	const gallery = useRef<HTMLDivElement>(null);
 	const move = useCallback((direction: number) => {
 		const scroller = gallery.current?.querySelector<HTMLDivElement>('.quwat-fiber-scroll');
@@ -75,13 +91,41 @@ export default function FiberContainer({ children }: { children?: ReactNode }) {
 			>
 				<span className="quwat-build-eyebrow">{t('Qurilish materiallari do‘koni')}</span>
 				<h1 id="quwat-build-title">{t('Mustahkam ishlar shu yerdan boshlanadi.')}</h1>
-				<p>{t('Asboblar va qurilish buyumlarini toping.')}</p>
+				<p>
+					{t(
+						'Qurilish va ta’mirlash uchun kerakli asboblar va buyumlar. Mahsulotlarni, narxlarni va ombordagi qoldiqni bir joyda ko‘ring.',
+					)}
+				</p>
 				<Link href="/product" className="quwat-build-link">
 					{t('Katalogni ko‘rish →')}
 				</Link>
 				{children}
+				<div className="quwat-home-hero-facts">
+					<div aria-busy={session.status === 'loading' || (loading && !data)}>
+						<strong>{formatCount(productCount)}</strong>
+						<span>{t('Jami mahsulotlar')}</span>
+					</div>
+					<div>
+						<strong>{formatCount(1000)}</strong>
+						<span>{t('Mijozlar soni')}</span>
+					</div>
+					<div>
+						<strong>{t('15 yil')}</strong>
+						<span>{t('Tajriba')}</span>
+					</div>
+				</div>
 			</motion.div>
-			<div className="quwat-build-gallery">
+			<button
+				type="button"
+				className="quwat-home-gallery-toggle"
+				aria-expanded={galleryExpanded}
+				aria-controls="home-build-gallery"
+				onClick={() => setGalleryExpanded((expanded) => !expanded)}
+			>
+				{t('Qurilish jarayonlari')}
+				{galleryExpanded ? <ArrowBackRoundedIcon aria-hidden="true" /> : <ArrowForwardRoundedIcon aria-hidden="true" />}
+			</button>
+			<div id="home-build-gallery" className={`quwat-build-gallery${galleryExpanded ? ' expanded' : ''}`}>
 				<div
 					ref={gallery}
 					className="threeJSContainer"

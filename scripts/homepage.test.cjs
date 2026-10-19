@@ -67,8 +67,25 @@ Module._load = function (request, ...args) {
 	if (request === 'swiper') return {};
 	if (request === 'swiper/react')
 		return {
-			Swiper: ({ children }) => React.createElement('div', null, children),
-			SwiperSlide: ({ children }) => React.createElement('div', null, children),
+			Swiper: ({ children, className }) =>
+				React.createElement(
+					'div',
+					{ className },
+					React.createElement('div', { className: 'swiper-wrapper' }, children),
+				),
+			SwiperSlide: ({ children }) => React.createElement('div', { className: 'swiper-slide' }, children),
+		};
+	if (request === '../product/ProductCard')
+		return {
+			__esModule: true,
+			default: ({ product }) =>
+				React.createElement('a', { href: `/product/detail?id=${product._id}` }, product.productName),
+		};
+	if (request === '../common/MemberCard')
+		return {
+			__esModule: true,
+			default: ({ member }) =>
+				React.createElement('a', { href: `/agent/detail?agentId=${member._id}` }, member.memberNick),
 		};
 	if (request === 'framer-motion') return { ...actualMotion, useReducedMotion: () => reduced };
 	if (request === '@react-three/fiber')
@@ -92,16 +109,20 @@ const Fiber = require('../libs/components/common/FiberContainer.tsx').default;
 const HeaderFilter = require('../libs/components/homepage/HeaderFilter.tsx').default;
 const CategoryLinks = require('../libs/components/homepage/CategoryLinks.tsx').default;
 const ProductShelf = require('../libs/components/homepage/ProductShelf.tsx').default;
+const TopAgents = require('../libs/components/homepage/TopAgents.tsx').default;
+const HomeNavigation = require('../libs/components/homepage/HomeNavigation.tsx').default;
+const { HomeSolutions, HomeServices } = require('../libs/components/homepage/HomeSupport.tsx');
 Module._load = originalLoad;
 const { ProductType } = require('../libs/enums/product.enum.ts');
 const { sessionVar } = require('../apollo/store.ts');
+const { userVar, emptyUser } = require('../apollo/store.ts');
 async function flush(action = () => {}) {
 	await act(async () => {
 		action();
 		await new Promise((resolve) => setTimeout(resolve, 20));
 	});
 }
-async function mount(Component, locale = 'uz') {
+async function mount(Component, locale = 'uz', route = {}) {
 	const pushes = [];
 	const i18n = require('i18next').createInstance();
 	await i18n.init({
@@ -118,6 +139,7 @@ async function mount(Component, locale = 'uz') {
 				{
 					value: {
 						pathname: '/',
+						asPath: '/',
 						locale,
 						query: {},
 						prefetch: async () => {},
@@ -125,6 +147,7 @@ async function mount(Component, locale = 'uz') {
 							pushes.push(value);
 							return Promise.resolve(true);
 						},
+						...route,
 					},
 				},
 				React.createElement(I18nextProvider, { i18n }, React.createElement(Component)),
@@ -238,6 +261,28 @@ test('Reduced Motion disables Fiber autoplay while retaining manual controls', a
 	}
 });
 
+test('hero product total uses the catalog counter and distinguishes unavailable data from an empty catalog', async () => {
+	sessionVar({ status: 'anonymous', error: '' });
+	for (const [response, expected] of [
+		[{ loading: true }, '—'],
+		[{ error: new Error('Offline') }, '—'],
+		[{ data: { getProducts: { list: [], metaCounter: [] } } }, '0'],
+		[{ data: { getProducts: { list: [{}], metaCounter: [{ total: 1234 }] } } }, '1234'],
+	]) {
+		shelfResponse = response;
+		const ui = await mount(Fiber);
+		try {
+			const values = [...document.querySelectorAll('.quwat-home-hero-facts strong')].map((el) =>
+				el.textContent.replace(/\s/g, ''),
+			);
+			assert.deepEqual(values, [expected, '1000', '15yil']);
+		} finally {
+			await ui.cleanup();
+		}
+	}
+	shelfResponse = {};
+});
+
 test('homepage shelves distinguish session loading, query loading, empty results and retryable errors', async () => {
 	const Shelf = () => React.createElement(ProductShelf, { title: 'Yangi mahsulotlar', sort: 'createdAt' });
 	for (const session of ['loading', 'anonymous']) {
@@ -275,5 +320,203 @@ test('homepage shelves distinguish session loading, query loading, empty results
 		assert.equal(retried, 1);
 	} finally {
 		await ui.cleanup();
+	}
+});
+
+test('phone shelf arrows scroll the native container and gesture/resize events update progress and edge controls', async () => {
+	sessionVar({ status: 'anonymous', error: '' });
+	shelfResponse = {
+		data: {
+			getProducts: {
+				list: Array.from({ length: 4 }, (_, index) => ({ _id: `product-${index}`, productName: `Product ${index}` })),
+			},
+		},
+	};
+	const ui = await mount(() => React.createElement(ProductShelf, { title: 'Yangi mahsulotlar', sort: 'createdAt' }));
+	try {
+		const wrapper = document.querySelector('.swiper-wrapper');
+		let width = 300;
+		Object.defineProperty(wrapper, 'clientWidth', { configurable: true, get: () => width });
+		Object.defineProperty(wrapper, 'scrollWidth', { configurable: true, value: 1200 });
+		[...wrapper.children].forEach((slide, index) => Object.defineProperty(slide, 'offsetLeft', { value: index * 312 }));
+		const movements = [];
+		wrapper.scrollBy = (options) => {
+			movements.push(options);
+			wrapper.scrollLeft = Math.max(0, Math.min(1200 - width, wrapper.scrollLeft + options.left));
+			wrapper.dispatchEvent(new window.Event('scroll'));
+		};
+		await flush(() => window.dispatchEvent(new window.Event('resize')));
+		const previous = document.querySelector('[aria-label="Oldingi mahsulotlar"]');
+		const next = document.querySelector('[aria-label="Keyingi mahsulotlar"]');
+		const thumb = document.querySelector('.quwat-shelf-scroll-thumb');
+		assert.equal(previous.disabled, true);
+		assert.equal(next.disabled, false);
+		assert.equal(thumb.style.width, '25%');
+		await flush(() => next.click());
+		assert.equal(movements[0].left, 312);
+		assert.equal(wrapper.scrollLeft, 312);
+		assert.equal(previous.disabled, false);
+		await flush(() => previous.click());
+		assert.equal(wrapper.scrollLeft, 0);
+		assert.equal(previous.disabled, true);
+		await flush(() => {
+			wrapper.scrollLeft = 900;
+			wrapper.dispatchEvent(new window.Event('scroll'));
+		});
+		assert.equal(next.disabled, true);
+		assert.equal(thumb.style.transform, 'translateX(300%)');
+		await flush(() => {
+			width = 600;
+			wrapper.scrollLeft = 600;
+			window.dispatchEvent(new window.Event('resize'));
+		});
+		assert.equal(thumb.style.width, '50%');
+		assert.equal(thumb.style.transform, 'translateX(100%)');
+		assert.equal(next.disabled, true);
+		assert.equal(document.querySelectorAll('.swiper-slide a').length, 4);
+	} finally {
+		await ui.cleanup();
+		shelfResponse = {};
+	}
+});
+
+test('agent shelf reuses native scroll controls and hides them for empty and single-agent results', async () => {
+	sessionVar({ status: 'anonymous', error: '' });
+	for (const count of [0, 1, 4]) {
+		shelfResponse = {
+			data: {
+				getAgents: {
+					list: Array.from({ length: count }, (_, index) => ({ _id: `agent-${index}`, memberNick: `Agent ${index}` })),
+				},
+			},
+		};
+		const ui = await mount(TopAgents);
+		try {
+			const controls = document.querySelector('.quwat-mobile-shelf-controls');
+			assert.equal(controls.hidden, count < 2);
+			assert.equal(document.querySelectorAll('.quwat-agent-grid a').length, count);
+			if (count < 2) continue;
+			const grid = document.querySelector('.quwat-agent-grid');
+			Object.defineProperty(grid, 'clientWidth', { value: 280 });
+			Object.defineProperty(grid, 'scrollWidth', { value: 1100 });
+			[...grid.children].forEach((card, index) => Object.defineProperty(card, 'offsetLeft', { value: index * 292 }));
+			grid.scrollBy = ({ left }) => {
+				grid.scrollLeft += left;
+				grid.dispatchEvent(new window.Event('scroll'));
+			};
+			await flush(() => window.dispatchEvent(new window.Event('resize')));
+			const next = document.querySelector('[aria-label="Keyingi agentlar"]');
+			const previous = document.querySelector('[aria-label="Oldingi agentlar"]');
+			assert.equal(next.disabled, false);
+			assert.equal(previous.disabled, true);
+			await flush(() => next.click());
+			assert.equal(grid.scrollLeft, 292);
+			assert.equal(previous.disabled, false);
+			await flush(() => {
+				grid.scrollLeft = 820;
+				grid.dispatchEvent(new window.Event('scroll'));
+			});
+			assert.equal(next.disabled, true);
+		} finally {
+			await ui.cleanup();
+			shelfResponse = {};
+		}
+	}
+});
+
+test('mobile navigation respects role destinations and focuses the existing compact search without submitting', async () => {
+	const originalScroll = window.scrollTo;
+	window.scrollTo = () => {};
+	const Navigation = () =>
+		React.createElement(
+			React.Fragment,
+			null,
+			React.createElement(HeaderFilter, { compact: true }),
+			React.createElement(HomeNavigation),
+		);
+	try {
+		for (const role of ['anonymous', 'CLIENT', 'AGENT', 'ADMIN']) {
+			sessionVar({ status: role === 'anonymous' ? 'anonymous' : 'authenticated', error: '' });
+			userVar({
+				...emptyUser,
+				_id: role === 'anonymous' ? '' : '507f1f77bcf86cd799439011',
+				memberType: role === 'anonymous' ? 'CLIENT' : role,
+			});
+			const ui = await mount(Navigation);
+			try {
+				const nav = document.querySelector('.quwat-home-bottom-nav');
+				const links = [...nav.querySelectorAll('a')];
+				assert.equal(links[0].getAttribute('aria-current'), 'page');
+				assert.equal(links[1].getAttribute('href'), '/product');
+				assert.equal(
+					links[2].getAttribute('href'),
+					role === 'anonymous' ? '/account/join' : role === 'ADMIN' ? '/agent' : '/mypage?category=myFavorites',
+				);
+				assert.equal(links[3].getAttribute('href'), role === 'anonymous' ? '/account/join' : '/mypage');
+				await flush(() => nav.querySelector('button').click());
+				assert.equal(document.activeElement.id, 'home-product-search');
+				assert.equal(ui.pushes.length, 0);
+			} finally {
+				await ui.cleanup();
+			}
+		}
+	} finally {
+		window.scrollTo = originalScroll;
+	}
+});
+
+test('trade shortcuts use the real category API contract and support links expose saved products only to clients', async () => {
+	let ui = await mount(HomeSolutions);
+	try {
+		const links = [...document.querySelectorAll('a')];
+		assert.deepEqual(
+			links.map((link) => JSON.parse(new URL(link.href).searchParams.get('input')).search.typeList[0]),
+			['ELEKTR_MOLLARI', 'SANTEXNIKA'],
+		);
+	} finally {
+		await ui.cleanup();
+	}
+	for (const role of ['anonymous', 'CLIENT', 'AGENT', 'ADMIN']) {
+		sessionVar({ status: role === 'anonymous' ? 'anonymous' : 'authenticated', error: '' });
+		userVar({ ...emptyUser, memberType: role === 'anonymous' ? 'CLIENT' : role });
+		ui = await mount(HomeServices);
+		try {
+			const saved = [...document.querySelectorAll('a')].find((link) => link.textContent.includes('Saqlanganlar'));
+			if (role === 'ADMIN' || role === 'AGENT') assert.equal(saved, undefined);
+			else assert.equal(saved.getAttribute('href'), role === 'CLIENT' ? '/mypage?category=saved' : '/account/join');
+		} finally {
+			await ui.cleanup();
+		}
+	}
+});
+
+test('mobile navigation marks catalog/profile sections and routes search from other pages', async () => {
+	const originalScroll = window.scrollTo;
+	window.scrollTo = () => {};
+	sessionVar({ status: 'authenticated', error: '' });
+	userVar({ ...emptyUser, _id: '507f1f77bcf86cd799439011', memberType: 'CLIENT' });
+	try {
+		for (const pathname of ['/product', '/about', '/mypage']) {
+			const Navigation = () =>
+				React.createElement(
+					React.Fragment,
+					null,
+					React.createElement('input', { id: 'catalog-mobile-search' }),
+					React.createElement(HomeNavigation),
+				);
+			const ui = await mount(Navigation, 'uz', { pathname, asPath: pathname });
+			try {
+				const nav = document.querySelector('.quwat-home-bottom-nav');
+				const active = nav.querySelector('[aria-current="page"]');
+				assert.equal(active?.getAttribute('href'), pathname === '/about' ? undefined : pathname);
+				await flush(() => nav.querySelector('button').click());
+				assert.equal(document.activeElement.id, 'catalog-mobile-search');
+				assert.deepEqual(ui.pushes, pathname === '/product' ? [] : ['/product']);
+			} finally {
+				await ui.cleanup();
+			}
+		}
+	} finally {
+		window.scrollTo = originalScroll;
 	}
 });
