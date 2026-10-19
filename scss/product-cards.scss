@@ -1,0 +1,246 @@
+// Product-sheet composition: white display tray, identity, graphite price/stock deck.
+// Only shared ProductCard instances; listing geometry and all actions stay owned by their existing components.
+#pc-wrap.quwat-shell .quwat-product-card {
+	--quwat-card-border: #dce1e5;
+	--quwat-card-muted: #65717b;
+	--quwat-card-foreground: #202b33;
+	border-radius: 12px;
+	background: #fff;
+	box-shadow: 0 2px 5px rgba(32, 43, 51, 0.035);
+
+	.quwat-product-image {
+		height: 236px;
+		margin: 0;
+		padding: 28px 30px 20px;
+		border: 0;
+		border-top: 1px solid #e0e5eb;
+		border-bottom: 1px solid #e0e5eb;
+		border-radius: 0;
+		background: #fff;
+		img {
+			object-fit: contain;
+		}
+		> span {
+			display: grid;
+			place-items: center;
+			width: 100%;
+			height: 100%;
+			padding: 16px;
+			border: 1px dashed #c7d0d7;
+			border-radius: 6px;
+			color: #65717b;
+			background: #f5f7f8;
+			text-align: center;
+		}
+	}
+	.quwat-ui-card-header {
+		gap: 6px;
+		padding: 12px 20px 18px;
+	}
+	.quwat-product-brand {
+		min-height: 18px;
+		padding-left: 9px;
+		border-left: 3px solid #c7352b;
+		font-size: 12px;
+		font-weight: 500;
+		line-height: 18px;
+		color: #65717b;
+		&[data-empty] {
+			border-left-color: transparent;
+		}
+	}
+	.quwat-ui-card-title {
+		min-height: 48px;
+		font-size: 17px;
+		font-weight: 600;
+		line-height: 24px;
+		letter-spacing: -0.35px;
+		a {
+			white-space: normal;
+			text-decoration: none;
+			&:hover {
+				text-decoration: underline;
+				text-underline-offset: 3px;
+			}
+		}
+	}
+	.quwat-product-category {
+		color: #596777;
+		font-size: 11px;
+		font-weight: 500;
+		line-height: 1.5;
+		overflow-wrap: anywhere;
+	}
+	.quwat-product-description {
+		display: -webkit-box;
+		margin: 0;
+		overflow: hidden;
+		-webkit-line-clamp: 2;
+		-webkit-box-orient: vertical;
+		color: #596777;
+		font-size: 12px;
+		line-height: 1.6;
+		overflow-wrap: anywhere;
+	}
+	.quwat-product-specs {
+		font-family: inherit;
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 10px;
+		margin: 6px 0 0;
+		padding-top: 12px;
+		border-top: 1px solid #e3e7ec;
+		> div {
+			min-width: 0;
+		}
+		dt {
+			font-family: inherit;
+			margin: 0 0 5px;
+			color: #596777;
+			font-size: 11px;
+			line-height: 1.4;
+		}
+		dd {
+			font-family: inherit;
+			margin: 0;
+			color: #26343e;
+			font-size: 12px;
+			font-weight: 600;
+			line-height: 1.5;
+			overflow-wrap: anywhere;
+			font-variant-numeric: tabular-nums;
+		}
+	}
+	.quwat-product-price-unit {
+		margin-top: 3px;
+		color: #d0d9df;
+		font-size: 11px;
+		line-height: 1.5;
+	}
+	.quwat-ui-card-content {
+		flex: 0 0 auto;
+		margin-top: auto;
+		padding: 16px 20px;
+		background: #26343e;
+		color: #fff;
+	}
+	.quwat-product-price {
+		margin: 0;
+		text-align: left;
+		font-size: 24px;
+		font-weight: 600;
+		line-height: 1.35;
+		letter-spacing: -0.6px;
+		color: #fff;
+		font-variant-numeric: tabular-nums;
+		overflow-wrap: anywhere;
+	}
+	.quwat-product-stock {
+		gap: 5px;
+		margin-top: 10px;
+		padding: 0;
+		border: 0;
+		border-radius: 0;
+		background: transparent;
+	}
+	.quwat-product-stock-row {
+		gap: 4px 8px;
+		font-size: 12px;
+		line-height: 1.5;
+		span {
+			color: #d0d9df;
+		}
+		svg {
+			font-size: 14px;
+		}
+		strong {
+			min-width: 0;
+			color: #e4f0e7;
+			font-weight: 500;
+			overflow-wrap: anywhere;
+		}
+	}
+	.quwat-product-available {
+		padding-top: 5px;
+		border-color: #4b5b66;
+	}
+	&[data-stock-empty] .quwat-product-stock-row strong {
+		color: #ffd2c4;
+	}
+	.quwat-ui-card-footer {
+		gap: 8px;
+		margin-top: 0;
+		padding: 8px 14px;
+		border-top: 0;
+		background: #fff;
+	}
+	.quwat-product-unavailable {
+		width: 100%;
+		padding: 4px 6px 0;
+	}
+	.MuiIconButton-root {
+		width: 40px;
+		height: 40px;
+		border: 0;
+		border-radius: 6px;
+		&:focus-visible {
+			outline: 2px solid #c7352b;
+			outline-offset: 2px;
+		}
+	}
+	.view-cnt {
+		color: #47545f;
+	}
+	.quwat-product-purchase-actions {
+		display: flex;
+		align-items: center;
+		gap: 6px;
+		margin-left: auto;
+		min-width: 0;
+		> .MuiIconButton-root {
+			flex-shrink: 0;
+			margin: 0;
+		}
+	}
+	.quwat-cart-add.MuiIconButton-root {
+		width: 52px;
+		border-radius: 6px;
+		background: #26343e;
+		color: #fff;
+		&:hover {
+			background: #354b5a;
+		}
+		&.Mui-disabled {
+			background: #e4e4e7;
+			color: #71717a;
+		}
+	}
+	&:focus-within {
+		border-color: #86949e;
+	}
+	@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+		&:hover {
+			transform: translateY(-3px);
+			border-color: #9baab4;
+			box-shadow: 0 10px 20px rgba(32, 43, 51, 0.11);
+		}
+	}
+	@media (max-width: 600px) {
+		.quwat-product-image {
+			height: 216px;
+			padding: 24px;
+		}
+		.quwat-ui-card-header {
+			padding: 12px 16px 16px;
+		}
+		.quwat-ui-card-content {
+			padding: 14px 16px;
+		}
+		.quwat-product-price {
+			font-size: 22px;
+		}
+		.quwat-ui-card-footer {
+			padding: 8px 10px;
+		}
+	}
+}

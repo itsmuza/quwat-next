@@ -7280,6 +7280,15 @@ fragment-cache@^0.2.1:
   dependencies:
     map-cache "^0.2.2"
 
+framer-motion@14.2.0:
+  version "14.2.0"
+  resolved "https://registry.yarnpkg.com/framer-motion/-/framer-motion-14.2.0.tgz#914ed5a13c74a962c2efaba3b8c9f4dbf6e1d1c7"
+  integrity sha512-cD2gfFujHt4r/+dZpcn5yziu7VRwQAQDakwIm/bICYXbafnpHCYokV+PnEXqErnSdv6Eh28a+SRF+f3ndGcMsQ==
+  dependencies:
+    motion-dom "14.2.0"
+    motion-utils "14.1.1"
+    tslib "^2.4.0"
+
 fresh@0.5.2:
   version "0.5.2"
   resolved "https://registry.yarnpkg.com/fresh/-/fresh-0.5.2.tgz#3d8cadd90d976569fa835ab1f8e4b23a105605a7"
@@ -10260,6 +10269,18 @@ moment@^2.29.3:
   version "2.29.4"
   resolved "https://registry.yarnpkg.com/moment/-/moment-2.29.4.tgz#3dbe052889fe7c1b2ed966fcb3a77328964ef108"
   integrity sha512-5LC9SOxjSc2HF6vO2CyuTDNivEdoz2IvyJJGj6X8DJ0eFyfszE0QiEd+iXmBvUP3WHxSjFH/vIsA0EN00cgr8w==
+
+motion-dom@14.2.0:
+  version "14.2.0"
+  resolved "https://registry.yarnpkg.com/motion-dom/-/motion-dom-14.2.0.tgz#d9c02f0c1347a46b62b822bdf0de0e0c2fb2c275"
+  integrity sha512-TDdxnjAavh2Qm4lQCQI3uoTx9IR/Id2PI8JNEXW3AcwwV2yvhoimAX3/TnE+x82gDHfPq2yx/cJ58TTw5mMr0A==
+  dependencies:
+    motion-utils "14.1.1"
+
+motion-utils@14.1.1:
+  version "14.1.1"
+  resolved "https://registry.yarnpkg.com/motion-utils/-/motion-utils-14.1.1.tgz#aa34a30a91da308178b60e98fbf3d06590773470"
+  integrity sha512-3VvN5Uvf8B6qG+OfOui6Nht5EWp+vLuU3IqcAj7ItZGKqtmTjCebl5sGZF7/08gEHRnEl1AP/fIwbcEyVrcQGQ==
 
 move-concurrently@^1.0.1:
   version "1.0.1"

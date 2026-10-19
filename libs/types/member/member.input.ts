@@ -5,8 +5,6 @@ export interface MemberInput {
 	memberNick: string;
 	memberPassword: string;
 	memberPhone: string;
-	memberType?: MemberType;
-	memberAuthType?: MemberAuthType;
 }
 
 export interface LoginInput {

@@ -1,5 +1,5 @@
 {
-	"name": "nestar-next",
+	"name": "quwat-next",
 	"version": "2.2.0",
 	"private": true,
 	"license": "ITC",
@@ -7,8 +7,13 @@
 		"dev": "next dev",
 		"build": "next build",
 		"start": "next start",
-		"lint": "next lint",
-		"changelog": "standard-version --skip.tag"
+		"lint": "next lint --dir pages --dir libs --dir apollo",
+		"changelog": "standard-version --skip.tag",
+		"typecheck": "tsc --noEmit --incremental false",
+		"check:graphql": "node scripts/check-graphql.cjs",
+		"test:migration": "node --test scripts/migration.test.cjs",
+		"check:i18n": "node scripts/check-i18n.cjs",
+		"test:i18n": "node --test scripts/i18n.test.cjs"
 	},
 	"dependencies": {
 		"@mui/material": "^5.10.1",
@@ -39,6 +44,7 @@
 		"browser-image-compression": "^2.0.0",
 		"chart.js": "^3.8.0",
 		"date-fns": "^2.28.0",
+		"framer-motion": "14.2.0",
 		"graphql": "^15.5.0",
 		"i18next": "^21.6.11",
 		"js-cookie": "^3.0.1",

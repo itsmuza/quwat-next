@@ -1,7 +1,5 @@
 import { MemberAuthType, MemberStatus, MemberType } from '../../enums/member.enum';
-import { MeLiked, TotalCounter } from '../property/property';
-import { MeFollowed } from '../follow/follow';
-
+import { MeLiked, Paginated } from '../product/product';
 export interface Member {
 	_id: string;
 	memberType: MemberType;
@@ -9,32 +7,22 @@ export interface Member {
 	memberAuthType: MemberAuthType;
 	memberPhone: string;
 	memberNick: string;
-	memberPassword?: string;
-	memberFullName?: string;
-	memberImage?: string;
-	memberAddress?: string;
-	memberDesc?: string;
-	memberProperties: number;
-	memberRank: number;
-	memberArticles: number;
+	memberFullName?: string | null;
+	memberImage?: string | null;
+	memberAddress?: string | null;
+	memberDesc?: string | null;
 	memberPoints: number;
 	memberLikes: number;
-	memberFollowers?: number;
-	memberFollowings?: number;
 	memberViews: number;
 	memberComments: number;
+	memberRank: number;
 	memberWarnings: number;
 	memberBlocks: number;
-	deletedAt?: Date;
-	createdAt: Date;
-	updatedAt: Date;
-	// Enable for authentications
-	meLiked?: MeLiked[];
-	meFollowed?: MeFollowed[];
-	accessToken?: string;
+	deletedAt?: string | null;
+	createdAt: string;
+	updatedAt: string;
+	guestLiked?: boolean;
+	meLiked?: MeLiked[] | null;
+	accessToken?: string | null;
 }
-
-export interface Members {
-	list: Member[];
-	metaCounter: TotalCounter[];
-}
+export type Members = Paginated<Member>;

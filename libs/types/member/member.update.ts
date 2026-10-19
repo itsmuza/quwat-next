@@ -1,9 +1,5 @@
 import { MemberStatus, MemberType } from '../../enums/member.enum';
-
 export interface MemberUpdate {
-	_id: string;
-	memberType?: MemberType;
-	memberStatus?: MemberStatus;
 	memberPhone?: string;
 	memberNick?: string;
 	memberPassword?: string;
@@ -11,18 +7,9 @@ export interface MemberUpdate {
 	memberImage?: string;
 	memberAddress?: string;
 	memberDesc?: string;
-	deletedAt?: Date;
 }
-
-export interface AdminMemberUpdate {
+export interface AdminMemberUpdate extends MemberUpdate {
 	_id: string;
 	memberType?: MemberType;
 	memberStatus?: MemberStatus;
-	memberPhone?: string;
-	memberNick?: string;
-	memberFullName?: string;
-	memberImage?: string;
-	memberAddress?: string;
-	memberDesc?: string;
-	deletedAt?: Date;
 }
