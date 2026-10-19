@@ -1,48 +1,29 @@
-import { NextPage } from 'next';
-import useDeviceDetect from '../libs/hooks/useDeviceDetect';
-import withLayoutMain from '../libs/components/layout/LayoutHome';
-import CommunityBoards from '../libs/components/homepage/CommunityBoards';
-import PopularProperties from '../libs/components/homepage/PopularProperties';
-import TopAgents from '../libs/components/homepage/TopAgents';
-import Events from '../libs/components/homepage/Events';
-import TrendProperties from '../libs/components/homepage/TrendProperties';
-import TopProperties from '../libs/components/homepage/TopProperties';
-import { Stack } from '@mui/material';
+import { useText } from '../libs/i18n';
 import Advertisement from '../libs/components/homepage/Advertisement';
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-
-export const getStaticProps = async ({ locale }: any) => ({
-	props: {
-		...(await serverSideTranslations(locale, ['common'])),
-	},
+import React from 'react';
+import { Stack } from '@mui/material';
+import { serverSideTranslations } from '../libs/serverTranslations';
+import withLayoutMain from '../libs/components/layout/LayoutHome';
+import ProductShelf from '../libs/components/homepage/ProductShelf';
+import TopAgents from '../libs/components/homepage/TopAgents';
+import CategoryLinks from '../libs/components/homepage/CategoryLinks';
+import { HomeServices, HomeSolutions } from '../libs/components/homepage/HomeSupport';
+export const getStaticProps = async ({ locale }: { locale: string }) => ({
+	props: { ...(await serverSideTranslations(locale, ['common'])) },
 });
-
-const Home: NextPage = () => {
-	const device = useDeviceDetect();
-
-	if (device === 'mobile') {
-		return (
-			<Stack className={'home-page'}>
-				<TrendProperties />
-				<PopularProperties />
-				<Advertisement />
-				<TopProperties />
-				<TopAgents />
-			</Stack>
-		);
-	} else {
-		return (
-			<Stack className={'home-page'}>
-				<TrendProperties />
-				<PopularProperties />
-				<Advertisement />
-				<TopProperties />
-				<TopAgents />
-				<Events />
-				<CommunityBoards />
-			</Stack>
-		);
-	}
-};
-
+function Home() {
+	const { t } = useText();
+	return (
+		<Stack className="home-page">
+			<HomeSolutions />
+			<CategoryLinks />
+			<ProductShelf title={t('Yangi mahsulotlar')} sort="createdAt" />
+			<ProductShelf title={t('Ko‘p yoqtirilganlar')} sort="productLikes" />
+			<Advertisement />
+			<ProductShelf title={t('Ommabop mahsulotlar')} sort="productRank" />
+			<TopAgents />
+			<HomeServices />
+		</Stack>
+	);
+}
 export default withLayoutMain(Home);

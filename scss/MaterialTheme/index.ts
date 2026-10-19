@@ -109,21 +109,113 @@ export const light = {
 			},
 		},
 		MuiButton: {
+			defaultProps: {
+				variant: 'outlined',
+				disableElevation: true,
+			},
 			styleOverrides: {
 				root: {
-					color: '#212121',
-					minWidth: 'auto',
-					lineHeight: '1.2',
+					minWidth: '72px',
+					minHeight: '40px',
+					padding: '10px 16px',
+					borderRadius: '8px',
+					fontWeight: 600,
+					lineHeight: '1.3',
 					boxShadow: 'none',
-					ButtonText: {
-						color: '#212121',
+					'&.Mui-focusVisible': {
+						outline: '2px solid #181a20',
+						outlineOffset: '3px',
 					},
+					'&.Mui-disabled': {
+						backgroundColor: '#f2f4f7',
+						color: '#98a2b3',
+						borderColor: '#e4e7ec',
+					},
+				},
+				sizeSmall: { minHeight: '34px', padding: '6px 12px' },
+				outlined: { backgroundColor: '#fff' },
+				outlinedPrimary: {
+					color: '#181a20',
+					borderColor: '#c8ced8',
+					'&:hover': { backgroundColor: '#f2f4f7', borderColor: '#667085' },
+				},
+				containedPrimary: {
+					color: '#fff',
+					backgroundColor: '#c7352b',
+					'&:hover': { backgroundColor: '#a82c24' },
 				},
 			},
 		},
 		MuiIconButton: {
 			styleOverrides: {
-				root: {},
+				root: {
+					minWidth: '36px',
+					minHeight: '36px',
+					border: '1px solid #d0d5dd',
+					backgroundColor: '#f8f9fb',
+					'&:hover': { backgroundColor: '#eaecf0', borderColor: '#98a2b3' },
+					'&[aria-pressed="true"]': { backgroundColor: '#eaecf0', borderColor: '#98a2b3' },
+					'&.Mui-focusVisible': { outline: '2px solid #181a20', outlineOffset: '3px' },
+					'&.Mui-disabled': { backgroundColor: '#f2f4f7', borderColor: '#e4e7ec', color: '#98a2b3' },
+				},
+			},
+		},
+		MuiPaginationItem: {
+			styleOverrides: {
+				root: {
+					border: '1px solid #d0d5dd',
+					borderRadius: '8px',
+					backgroundColor: '#fff',
+					'&.Mui-selected': {
+						backgroundColor: '#181a20',
+						color: '#fff',
+						borderColor: '#181a20',
+						'&:hover': { backgroundColor: '#30333a' },
+					},
+					'&.Mui-focusVisible': { outline: '2px solid #181a20', outlineOffset: '3px' },
+					'&.MuiPaginationItem-ellipsis': { borderColor: 'transparent', backgroundColor: 'transparent' },
+				},
+			},
+		},
+		MuiTab: {
+			styleOverrides: {
+				root: {
+					minHeight: '40px',
+					padding: '10px 16px',
+					border: '1px solid #d0d5dd',
+					borderRadius: '8px',
+					backgroundColor: '#fff',
+					'&.Mui-selected': { backgroundColor: '#181a20', color: '#fff', borderColor: '#181a20' },
+					'&.Mui-focusVisible': { outline: '2px solid #181a20', outlineOffset: '2px' },
+				},
+			},
+		},
+		MuiTabs: {
+			styleOverrides: {
+				flexContainer: { gap: '8px' },
+				indicator: { display: 'none' },
+			},
+		},
+		MuiAccordion: {
+			styleOverrides: {
+				root: {
+					border: '1px solid #d0d5dd',
+					borderRadius: '8px',
+					boxShadow: 'none',
+					marginBottom: '8px',
+					'&:before': { display: 'none' },
+				},
+			},
+		},
+		MuiAccordionSummary: {
+			styleOverrides: {
+				root: {
+					minHeight: '48px',
+					backgroundColor: '#f8f9fb',
+					borderRadius: '8px',
+					'&:hover': { backgroundColor: '#f2f4f7' },
+					'&.Mui-focusVisible': { outline: '2px solid #181a20', outlineOffset: '-2px' },
+				},
 			},
 		},
 		MuiListItemButton: {
