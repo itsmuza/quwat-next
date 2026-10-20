@@ -27,8 +27,10 @@ export default function Chat() {
 	const [clientId, setClientId] = useState('');
 	const [error, setError] = useState('');
 	const [retry, setRetry] = useState(0);
+	const [mobileViewport, setMobileViewport] = useState<{ height: number; inset: number; keyboard: boolean } | null>(null);
 	const launcherRef = useRef<HTMLButtonElement>(null);
 	const inputRef = useRef<HTMLInputElement>(null);
+	const panelRef = useRef<HTMLElement>(null);
 	const socket = useReactiveVar(socketVar);
 	const connected = status === 'connected';
 	useEffect(() => {
@@ -128,11 +130,40 @@ export default function Chat() {
 		};
 	}, [token, user._id, session.status, retry]);
 	useEffect(() => {
-		if (open) inputRef.current?.focus();
+		if (!open) return;
+		const viewport = window.visualViewport;
+		let fullHeight = window.innerHeight;
+		const updateViewport = () => {
+			if (window.matchMedia('(min-width: 1024px)').matches) {
+				setMobileViewport(null);
+				return;
+			}
+			fullHeight = Math.max(fullHeight, window.innerHeight);
+			const height = Math.round(viewport?.height ?? window.innerHeight);
+			const inset = Math.max(0, Math.round(window.innerHeight - height - (viewport?.offsetTop ?? 0)));
+			const keyboard = fullHeight - height > 150;
+			setMobileViewport((previous) =>
+				previous?.height === height && previous.inset === inset && previous.keyboard === keyboard
+					? previous
+					: { height, inset, keyboard },
+			);
+		};
+		updateViewport();
+		if (window.matchMedia('(min-width: 1024px)').matches) inputRef.current?.focus({ preventScroll: true });
+		else panelRef.current?.focus({ preventScroll: true });
+		viewport?.addEventListener('resize', updateViewport);
+		viewport?.addEventListener('scroll', updateViewport);
+		window.addEventListener('resize', updateViewport);
+		return () => {
+			viewport?.removeEventListener('resize', updateViewport);
+			viewport?.removeEventListener('scroll', updateViewport);
+			window.removeEventListener('resize', updateViewport);
+		};
 	}, [open]);
 	function close() {
 		setOpen(false);
-		launcherRef.current?.focus();
+		setMobileViewport(null);
+		launcherRef.current?.focus({ preventScroll: true });
 	}
 	function send() {
 		const text = input.trim();
@@ -151,7 +182,18 @@ export default function Chat() {
 		? t('Chat vaqtincha mavjud emas')
 		: t(status === 'reconnecting' ? 'Qayta ulanilmoqda…' : 'Chatga ulanilmoqda…');
 	return (
-		<Stack className="chatting">
+		<Stack
+			className="chatting"
+			data-keyboard-open={open && mobileViewport?.keyboard ? '' : undefined}
+			style={
+				open && mobileViewport
+					? ({
+							'--quwat-chat-visible-height': `${mobileViewport.height}px`,
+							'--quwat-chat-keyboard-inset': `${mobileViewport.inset}px`,
+					  } as React.CSSProperties)
+					: undefined
+			}
+		>
 			<button
 				ref={launcherRef}
 				type="button"
@@ -166,6 +208,8 @@ export default function Chat() {
 			</button>
 			{open && (
 				<section
+					ref={panelRef}
+					tabIndex={-1}
 					id="quwat-chat-panel"
 					className="chat-frame open"
 					role="dialog"
@@ -274,6 +318,10 @@ export default function Chat() {
 							className="send-msg-btn"
 							aria-label={t('Xabar yuborish')}
 							disabled={!connected || !input.trim()}
+							onPointerDown={(event) => {
+								// Keep the mobile keyboard open while the send button clears the draft.
+								if (event.button === 0 && document.activeElement === inputRef.current) event.preventDefault();
+							}}
 						>
 							<SendRoundedIcon />
 						</button>

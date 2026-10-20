@@ -107,7 +107,7 @@
 			}
 			> .container:has(.join-box) {
 				display: grid;
-				grid-template-columns: minmax(0, 1fr) auto;
+				grid-template-columns: minmax(0, 1fr) auto auto;
 				align-items: center;
 			}
 			&:has(.join-box) {
@@ -119,18 +119,18 @@
 					grid-row: 1;
 				}
 				.lan-box {
-					grid-column: 2;
+					grid-column: 3;
 					grid-row: 1;
 					justify-self: end;
 				}
 				.quwat-navbar-account {
-					grid-column: 1 / -1;
-					grid-row: 2;
+					grid-column: 2;
+					grid-row: 1;
 					justify-self: end;
 				}
 				.router-box {
 					grid-column: 1 / -1;
-					grid-row: 3;
+					grid-row: 2;
 				}
 			}
 			.quwat-original-brand strong {
@@ -146,6 +146,18 @@
 			}
 			.join-box {
 				height: 42px;
+			}
+		}
+		@media (max-width: 360px) {
+			> .container:has(.join-box) .quwat-original-brand {
+				gap: 6px;
+				strong {
+					font-size: 22px;
+				}
+				img {
+					width: 32px !important;
+					height: 32px;
+				}
 			}
 		}
 	}
@@ -2500,3 +2512,88 @@
 @import 'mobile-pages';
 
 @import 'cart-redesign';
+
+// Keep the mobile chat inside the visible viewport when the software keyboard opens.
+@media (max-width: 1023px) {
+	#pc-wrap.quwat-shell .chatting {
+		&[data-keyboard-open] .chat-frame.open {
+			--quwat-chat-mobile-gap: 12px;
+		}
+		.chat-frame.open {
+			bottom: calc(var(--quwat-chat-keyboard-inset, 0px) + var(--quwat-chat-mobile-gap, 80px));
+			height: min(540px, calc(var(--quwat-chat-visible-height, 100dvh) - var(--quwat-chat-mobile-gap, 80px) - 24px));
+			max-height: calc(var(--quwat-chat-visible-height, 100dvh) - var(--quwat-chat-mobile-gap, 80px) - 24px);
+			z-index: 1300;
+			&:focus {
+				outline: none;
+			}
+			.chat-bott .msg-input {
+				font-size: 16px;
+			}
+		}
+	}
+}
+
+// Guest cards have one like control over the image, without a vacant action row.
+#pc-wrap.quwat-shell .quwat-product-card .quwat-product-media {
+	position: relative;
+	min-width: 0;
+
+	.quwat-product-guest-like {
+		position: absolute;
+		top: 10px;
+		right: 10px;
+		z-index: 1;
+
+		.view-like-box {
+			gap: 0;
+		}
+		.quwat-product-like-group {
+			gap: 0;
+			padding: 0;
+			border: 0;
+			background: rgba(255, 255, 255, 0.96);
+		}
+		.quwat-product-like.MuiIconButton-root {
+			width: 40px;
+			min-width: 40px;
+			height: 40px;
+			padding: 8px;
+			border-radius: 50%;
+			background: transparent;
+			color: #596777;
+		}
+		.view-cnt {
+			margin: 0 0 0 -4px;
+			color: #475569;
+			font-size: 12px;
+			font-variant-numeric: tabular-nums;
+		}
+	}
+}
+
+#pc-wrap.quwat-shell .quwat-product-card .quwat-product-price-stock-row {
+	display: flex;
+	grid-column: 1 / -1;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+	min-width: 0;
+
+	> .quwat-product-price {
+		min-width: 0;
+		flex: 1;
+	}
+	.quwat-product-stock.quwat-product-stock-inline {
+		min-width: 0;
+		max-width: 48%;
+		margin-top: 0;
+		margin-left: auto;
+
+		.quwat-product-stock-row {
+			justify-content: flex-end;
+			flex-wrap: wrap;
+			text-align: right;
+		}
+	}
+}

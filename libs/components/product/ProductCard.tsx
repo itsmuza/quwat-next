@@ -1,6 +1,8 @@
 import { useText } from '../../i18n';
 import React from 'react';
 import Link from 'next/link';
+import { useReactiveVar } from '@apollo/client';
+import { sessionVar } from '../../../apollo/store';
 import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined';
 import { Product } from '../../types/product/product';
 import { productTypeLabels, unitLabels } from '../../enums/product.enum';
@@ -19,12 +21,15 @@ export default function ProductCard({
 	compact?: boolean;
 }) {
 	const { t, locale } = useText();
+	const session = useReactiveVar(sessionVar);
+	const guestLayout = session.status !== 'authenticated';
 	const active = product.productStatus === 'ACTIVE';
 	const available = Math.max(0, product.productQuantity - product.productReservedQuantity);
 	const quantity = new Intl.NumberFormat(locale, { maximumFractionDigits: 3 });
 	const unit = t(unitLabels[product.productUnit]);
 	const description = product.productDesc?.trim();
 	const route = { pathname: '/product/detail', query: { id: product._id } };
+	const actions = <ProductActions product={product} onChanged={onChanged} showCartLabel={compact} />;
 	const picture = (
 		<div className="quwat-product-image">
 			<ProductImage
@@ -47,13 +52,16 @@ export default function ProductCard({
 					{product.productBrand || t('Mahsulotlar')}
 				</div>
 			)}
-			{active ? (
-				<Link href={route} className="quwat-product-picture">
-					{picture}
-				</Link>
-			) : (
-				picture
-			)}
+			<div className="quwat-product-media">
+				{active ? (
+					<Link href={route} className="quwat-product-picture">
+						{picture}
+					</Link>
+				) : (
+					picture
+				)}
+				{guestLayout && active && <div className="quwat-product-guest-like">{actions}</div>}
+			</div>
 			<CardHeader>
 				{compact && (
 					<span className={`quwat-home-stock-badge${available <= 0 ? ' empty' : ''}`}>
@@ -92,32 +100,35 @@ export default function ProductCard({
 				</dl>
 			</CardHeader>
 			<CardContent>
-				<div className="quwat-product-price">{money(product.productPrice, locale)}</div>
-				<div className="quwat-product-price-unit">{t('1 {{unit}} uchun', { unit })}</div>
-				<div className="quwat-product-stock">
-					<div className="quwat-product-stock-row">
-						<span>
-							<Inventory2OutlinedIcon aria-hidden="true" />
-							{t('Omborda:')}
-						</span>
-						<strong>
-							{quantity.format(product.productQuantity)} {t(unitLabels[product.productUnit])}
-						</strong>
-					</div>
-					{active && product.productReservedQuantity > 0 && (
-						<div className="quwat-product-stock-row quwat-product-available">
-							<span>{t('Sotuvga mavjud:')}</span>
+				<div className="quwat-product-price-stock-row">
+					<div className="quwat-product-price">{money(product.productPrice, locale)}</div>
+					<div className="quwat-product-stock quwat-product-stock-inline">
+						<div className="quwat-product-stock-row">
+							<span>
+								<Inventory2OutlinedIcon aria-hidden="true" />
+								{t('Omborda:')}
+							</span>
 							<strong>
-								{quantity.format(available)} {t(unitLabels[product.productUnit])}
+								{quantity.format(product.productQuantity)} {t(unitLabels[product.productUnit])}
 							</strong>
 						</div>
-					)}
+						{active && product.productReservedQuantity > 0 && (
+							<div className="quwat-product-stock-row quwat-product-available">
+								<span>{t('Sotuvga mavjud:')}</span>
+								<strong>
+									{quantity.format(available)} {t(unitLabels[product.productUnit])}
+								</strong>
+							</div>
+						)}
+					</div>
 				</div>
 			</CardContent>
-			<CardFooter>
-				{!active && <span className="quwat-product-unavailable">{t('Sotuvda yo‘q')}</span>}
-				<ProductActions product={product} onChanged={onChanged} showCartLabel={compact} />
-			</CardFooter>
+			{(!guestLayout || !active) && (
+				<CardFooter>
+					{!active && <span className="quwat-product-unavailable">{t('Sotuvda yo‘q')}</span>}
+					{!guestLayout && actions}
+				</CardFooter>
+			)}
 		</Card>
 	);
 }

@@ -49,7 +49,7 @@
 	}
 	a:focus-visible,
 	button:focus-visible,
-	input:focus-visible {
+	input:not(.MuiOutlinedInput-input):focus-visible {
 		outline: 2px solid var(--home-accent);
 		outline-offset: 3px;
 	}

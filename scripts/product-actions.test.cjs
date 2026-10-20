@@ -67,10 +67,11 @@ const fixture = (saved) => ({
 async function flush(action = () => {}) {
  await act(async () => { action(); await new Promise(resolve => setTimeout(resolve, 15)); });
 }
-async function setup(saved = false, {locale = 'uz', productOverrides = {}, compact = false} = {}) {
- userVar({ ...emptyUser, _id: owner, memberType: 'CLIENT', memberStatus: 'ACTIVE' });
- sessionVar({ status: 'authenticated', error: '' });
- cart.activateCart(owner);
+async function setup(saved = false, {locale = 'uz', productOverrides = {}, compact = false, status = 'authenticated'} = {}) {
+ userVar(status === 'authenticated' ? { ...emptyUser, _id: owner, memberType: 'CLIENT', memberStatus: 'ACTIVE' } : {...emptyUser});
+ sessionVar({ status, error: '' });
+ if (status === 'authenticated') cart.activateCart(owner);
+ else cart.activateCart('');
  let product = {...fixture(saved), ...productOverrides};
  const requests = [];
  const pending = [];
@@ -128,6 +129,7 @@ test('cards preserve full names, large whole-som prices, fractional stock, reser
   const card = document.querySelector('.quwat-product-card');
   const {money} = require('../libs/product.ts');
   assert.equal(card.querySelector('.quwat-product-price').textContent, money(3500000000, 'uz'));
+  assert.ok(!card.querySelector('.quwat-ui-card-content').textContent.includes('1 metr uchun'));
   assert.equal(card.querySelector('[role="heading"]').textContent, name);
   assert.equal(card.querySelector('.quwat-product-brand').textContent, 'Usta professional');
   const quantities = [...card.querySelectorAll('.quwat-product-stock-row strong')].map(el => el.textContent);
@@ -138,6 +140,51 @@ test('cards preserve full names, large whole-som prices, fractional stock, reser
   assert.ok(links.every(el => el.getAttribute('href') === '/product/detail?id=507f1f77bcf86cd799439012'));
   assert.match(card.querySelector('.quwat-product-image').textContent, /Rasm mavjud emas/);
  } finally {await ui.cleanup();}
+});
+
+test('guest cards place a single accessible like outside image navigation and remove the empty footer', async () => {
+ for (const compact of [false, true]) {
+  const ui = await setup(false, {status: 'anonymous', compact});
+  try {
+   for (const card of document.querySelectorAll('.quwat-product-card')) {
+    const like = card.querySelector('[aria-label="Yoqtirish"]');
+    assert.ok(like.closest('.quwat-product-media'));
+    assert.equal(like.closest('a'), null, 'liking cannot activate product navigation');
+    assert.equal(card.querySelectorAll('[aria-label="Yoqtirish"]').length, 1);
+    assert.equal(card.querySelector('.quwat-ui-card-footer'), null);
+    assert.equal(card.querySelector('.quwat-product-bookmark'), null);
+    assert.equal(card.querySelector('.quwat-cart-add'), null);
+    assert.equal(like.disabled, false);
+   }
+   await flush(() => {
+    userVar({...emptyUser, _id: owner, memberType: 'CLIENT', memberStatus: 'ACTIVE'});
+    sessionVar({status: 'authenticated', error: ''});
+    cart.activateCart(owner);
+   });
+   for (const card of document.querySelectorAll('.quwat-product-card')) {
+    assert.equal(card.querySelector('.quwat-product-guest-like'), null);
+    assert.ok(card.querySelector('.quwat-ui-card-footer .quwat-product-like'));
+    assert.ok(card.querySelector('.quwat-ui-card-footer .quwat-product-bookmark'));
+    assert.ok(card.querySelector('.quwat-ui-card-footer .quwat-cart-add'));
+    assert.equal(card.querySelectorAll('[aria-label="Yoqtirish"]').length, 1);
+   }
+   assert.deepEqual(ui.requests, [], 'a session/layout change performs no mutations');
+  } finally {await ui.cleanup();}
+ }
+});
+
+test('unresolved and failed sessions keep the guest layout without enabling likes or purchase actions', async () => {
+ for (const status of ['loading', 'error']) {
+  const ui = await setup(false, {status});
+  try {
+   const card = document.querySelector('.quwat-product-card');
+   assert.ok(card.querySelector('.quwat-product-guest-like .quwat-product-like').disabled);
+   assert.equal(card.querySelector('.quwat-ui-card-footer'), null);
+   assert.equal(card.querySelector('.quwat-product-bookmark'), null);
+   assert.equal(card.querySelector('.quwat-cart-add'), null);
+   assert.deepEqual(ui.requests, []);
+  } finally {await ui.cleanup();}
+ }
 });
 
 test('archived saved cards retain unsave but never offer product navigation, likes or cart actions', async () => {

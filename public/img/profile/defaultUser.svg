@@ -1,1 +1,22 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><style>.cls-1{fill:#f2f2f2;}.cls-2{fill:#fff;}</style></defs><title>Asset 15</title><g id="Layer_2" data-name="Layer 2"><g id="Layer_1-2" data-name="Layer 1"><path class="cls-1" d="M50,56.39A43.61,43.61,0,0,1,89.24,81,50,50,0,1,0,0,50,49.74,49.74,0,0,0,10.76,81,43.61,43.61,0,0,1,50,56.39Z"/><path class="cls-2" d="M50,100A49.88,49.88,0,0,0,89.24,81a43.62,43.62,0,0,0-78.48,0A49.88,49.88,0,0,0,50,100Z"/><circle class="cls-2" cx="50" cy="30.46" r="18"/></g></g></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" fill="none">
+  <defs>
+    <linearGradient id="head" x1="50" y1="29" x2="79" y2="64" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#B7ADA0"/>
+      <stop offset="1" stop-color="#827A70"/>
+    </linearGradient>
+    <linearGradient id="shoulders" x1="39" y1="73" x2="88" y2="109" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#647078"/>
+      <stop offset="1" stop-color="#2C3A43"/>
+    </linearGradient>
+    <clipPath id="avatar-circle"><circle cx="64" cy="64" r="63"/></clipPath>
+  </defs>
+  <g clip-path="url(#avatar-circle)">
+    <path fill="#FFFFFF" d="M0 0h128v128H0z"/>
+    <ellipse cx="64" cy="111" rx="37" ry="5" fill="#A49A8B" fill-opacity=".15"/>
+    <path d="M64 71c-20 0-35 12-35 30v7c10 7 22 11 35 11s25-4 35-11v-7c0-18-15-30-35-30Z" fill="url(#shoulders)"/>
+    <path d="M36 91c5-11 15-17 28-17" stroke="#89939A" stroke-opacity=".5" stroke-width="2" stroke-linecap="round"/>
+    <circle cx="64" cy="46" r="19" fill="url(#head)"/>
+    <path d="M50 42c1-7 6-11 12-12" stroke="#D2C8BC" stroke-opacity=".65" stroke-width="2" stroke-linecap="round"/>
+  </g>
+  <circle cx="64" cy="64" r="62.5" stroke="#CBD2D9" stroke-width="3"/>
+</svg>

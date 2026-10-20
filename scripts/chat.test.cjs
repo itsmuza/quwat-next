@@ -143,3 +143,99 @@ test('message parser rejects malformed records and retains only safe display ide
  assert.equal(readChatMessage({text:[]}),null);assert.equal(readChatMessage({text:'x'.repeat(1001)}),null);
  assert.deepEqual(readChatMessage({text:'ok',createdAt:'bad',memberData:{_id:'id',memberNick:'name',memberPassword:'private'}}),{text:'ok',memberData:{_id:'id',memberNick:'name'}});
 });
+
+test('mobile chat opens without the keyboard, follows keyboard viewport changes and removes listeners on close', async () => {
+ const originalMatchMedia = window.matchMedia;
+ const originalViewport = Object.getOwnPropertyDescriptor(window, 'visualViewport');
+ const originalHeight = Object.getOwnPropertyDescriptor(window, 'innerHeight');
+ const viewport = new window.EventTarget();
+ const listeners = new Set();
+ const add = viewport.addEventListener.bind(viewport), remove = viewport.removeEventListener.bind(viewport);
+ viewport.addEventListener = (type, listener) => { listeners.add(type); add(type, listener); };
+ viewport.removeEventListener = (type, listener) => { listeners.delete(type); remove(type, listener); };
+ viewport.height = 800; viewport.offsetTop = 0;
+ Object.defineProperty(window, 'visualViewport', {configurable:true,value:viewport});
+ Object.defineProperty(window, 'innerHeight', {configurable:true,value:800});
+ window.matchMedia = () => ({matches:false});
+ const ui = await setup();
+ try {
+  await ui.open();
+  const panel = document.querySelector('[role="dialog"]'), container = document.querySelector('.chatting');
+  assert.equal(document.activeElement, panel);
+  assert.notEqual(document.activeElement, field());
+  assert.equal(container.style.getPropertyValue('--quwat-chat-visible-height'), '800px');
+  assert.deepEqual([...listeners].sort(), ['resize','scroll']);
+  await flush(() => {field().focus(); viewport.height=420; viewport.offsetTop=30; viewport.dispatchEvent(new window.Event('resize'));});
+  assert.equal(container.style.getPropertyValue('--quwat-chat-visible-height'), '420px');
+  assert.equal(container.style.getPropertyValue('--quwat-chat-keyboard-inset'), '350px');
+  assert.ok(container.hasAttribute('data-keyboard-open'));
+  await write('Unsent mobile draft');
+  await flush(() => {viewport.height=800; viewport.offsetTop=0; viewport.dispatchEvent(new window.Event('scroll'));});
+  assert.equal(container.hasAttribute('data-keyboard-open'), false);
+  assert.equal(field().value, 'Unsent mobile draft');
+  await flush(() => document.querySelector('.chat-top button').click());
+  assert.equal(listeners.size, 0);
+  assert.equal(container.style.getPropertyValue('--quwat-chat-visible-height'), '');
+  assert.equal(document.activeElement, document.querySelector('.chat-button'));
+  assert.equal(ui.socket.sent.length, 0);
+ } finally {
+  await ui.cleanup(); window.matchMedia=originalMatchMedia;
+  if(originalViewport) Object.defineProperty(window,'visualViewport',originalViewport); else delete window.visualViewport;
+  Object.defineProperty(window,'innerHeight',originalHeight);
+ }
+});
+
+test('mobile chat falls back to window resizing when VisualViewport is unavailable', async () => {
+ const originalMatchMedia=window.matchMedia;
+ window.matchMedia=()=>({matches:false});
+ const ui=await setup();
+ try {
+  await ui.open();
+  assert.equal(document.activeElement,document.querySelector('[role="dialog"]'));
+  await flush(()=>window.dispatchEvent(new window.Event('resize')));
+  assert.equal(document.querySelector('.chatting').style.getPropertyValue('--quwat-chat-visible-height'),`${window.innerHeight}px`);
+ } finally {await ui.cleanup();window.matchMedia=originalMatchMedia;}
+});
+
+test('sending from the mobile composer retains focus and keyboard geometry through draft clearing and the server echo', async () => {
+ const originalMatchMedia=window.matchMedia;
+ const originalViewport=Object.getOwnPropertyDescriptor(window,'visualViewport');
+ const viewport=new window.EventTarget();
+ viewport.height=window.innerHeight;viewport.offsetTop=0;
+ Object.defineProperty(window,'visualViewport',{configurable:true,value:viewport});
+ window.matchMedia=()=>({matches:false});
+ const ui=await setup();
+ try {
+  await ui.open();await ui.connect();
+  const panel=document.querySelector('[role="dialog"]'),feed=document.querySelector('.quwat-chat-feed'),container=document.querySelector('.chatting');
+  await flush(()=>{field().focus();viewport.height=window.innerHeight-320;viewport.dispatchEvent(new window.Event('resize'));});
+  assert.ok(container.hasAttribute('data-keyboard-open'));
+  await write('Mobile message');
+  const geometry=container.getAttribute('style');
+  const pointer=new window.MouseEvent('pointerdown',{bubbles:true,cancelable:true,button:0});
+  await flush(()=>{const button=send();if(button.dispatchEvent(pointer))button.focus();button.click();});
+  assert.ok(pointer.defaultPrevented);
+  assert.equal(document.activeElement,field());
+  assert.equal(field().value,'');
+  assert.deepEqual(JSON.parse(ui.socket.sent[0]),{event:'message',data:'Mobile message'});
+  await flush(()=>{ui.socket.message(message('mobile-echo','Mobile message',{senderId:'own-connection'}));viewport.dispatchEvent(new window.Event('scroll'));});
+  assert.equal(document.activeElement,field());
+  assert.equal(document.querySelector('[role="dialog"]'),panel);
+  assert.equal(document.querySelector('.quwat-chat-feed'),feed);
+  assert.ok(document.querySelector('.quwat-chat-message.own'));
+  assert.ok(container.hasAttribute('data-keyboard-open'));
+  assert.equal(container.getAttribute('style'),geometry);
+  // Focus changes alone must not claim that the still-visible keyboard closed.
+  await flush(()=>{document.querySelector('.chat-top button').focus();viewport.dispatchEvent(new window.Event('scroll'));});
+  assert.ok(container.hasAttribute('data-keyboard-open'));
+  // Hardware-keyboard users can still focus and activate the send button normally.
+  await write('Keyboard message');let prevented=false;
+  await flush(()=>Simulate.pointerDown(send(),{button:0,preventDefault:()=>{prevented=true;}}));
+  assert.equal(prevented,false);
+  await flush(()=>{send().focus();Simulate.submit(document.querySelector('.chat-bott'));});
+  assert.equal(ui.socket.sent.length,2);
+ } finally {
+  await ui.cleanup();window.matchMedia=originalMatchMedia;
+  if(originalViewport)Object.defineProperty(window,'visualViewport',originalViewport);else delete window.visualViewport;
+ }
+});
