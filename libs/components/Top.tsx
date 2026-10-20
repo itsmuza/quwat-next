@@ -147,7 +147,7 @@ export default function Top({ home = false, storefront = false }: { home?: boole
 										<Button
 											className="login-user"
 											aria-label={t('Hisob menyusi')}
-											onClick={(e) => setAccount(e.currentTarget)}
+											onClick={(e: React.MouseEvent<HTMLElement>) => setAccount(e.currentTarget)}
 										>
 											<Avatar src={imageUrl(user.memberImage)} />
 										</Button>

@@ -111,7 +111,11 @@ function Help() {
 					</Typography>
 					<div aria-live="polite">
 						{visible.map(([q, a]) => (
-							<Accordion key={q} expanded={expanded === q} onChange={(_, open) => setExpanded(open ? q : '')}>
+							<Accordion
+								key={q}
+								expanded={expanded === q}
+								onChange={(_: React.SyntheticEvent, open: boolean) => setExpanded(open ? q : '')}
+							>
 								<AccordionSummary expandIcon={<ExpandMoreIcon />}>
 									<Typography fontWeight={600}>{t(q)}</Typography>
 								</AccordionSummary>

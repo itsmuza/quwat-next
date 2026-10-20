@@ -18,7 +18,7 @@ export default function LanguageMenu({ onLightBackground = false }: { onLightBac
 				className="btn-lang quwat-language-trigger"
 				color="inherit"
 				sx={onLightBackground ? { color: '#181a20' } : undefined}
-				onClick={(e) => setAnchor(e.currentTarget)}
+				onClick={(e: React.MouseEvent<HTMLElement>) => setAnchor(e.currentTarget)}
 				endIcon={<CaretDown size={14} />}
 				aria-label={t('Til tanlash')}
 				aria-haspopup="menu"

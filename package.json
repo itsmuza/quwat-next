@@ -4,10 +4,10 @@
 	"private": true,
 	"license": "ITC",
 	"scripts": {
-		"dev": "next dev",
-		"build": "next build",
+		"dev": "next dev --webpack",
+		"build": "next build --webpack",
 		"start": "next start",
-		"lint": "next lint --dir pages --dir libs --dir apollo",
+		"lint": "eslint pages libs apollo --max-warnings 0",
 		"changelog": "standard-version --skip.tag",
 		"typecheck": "tsc --noEmit --incremental false",
 		"check:graphql": "node scripts/check-graphql.cjs",
@@ -17,7 +17,7 @@
 	},
 	"dependencies": {
 		"@mui/material": "^5.10.1",
-		"next": "14.2.0",
+		"next": "16.4.2",
 		"next-i18next": "^14.0.3",
 		"react": "18.2.0",
 		"react-dom": "18.2.0",
@@ -88,7 +88,7 @@
 		"prettier": "2.7.1",
 		"@types/numeral": "^2.0.2",
 		"standard-version": "^9.5.0",
-		"typescript": "4.6.2",
+		"typescript": "5.9.3",
 		"@types/apollo-upload-client": "^17.0.0",
 		"@types/assert": "^1.5.6",
 		"@types/axios": "^0.14.0",
@@ -100,7 +100,7 @@
 		"@types/styled-components": "^5.1.23",
 		"babel-plugin-import": "^1.13.3",
 		"babel-plugin-styled-components": "^2.0.6",
-		"eslint": "8.9.0",
-		"eslint-config-next": "12.1.0"
+		"eslint": "9.39.5",
+		"eslint-config-next": "16.4.2"
 	}
 }

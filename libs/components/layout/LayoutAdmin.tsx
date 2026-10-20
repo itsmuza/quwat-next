@@ -59,7 +59,7 @@ export default function withAdminLayout<P extends object>(Component: ComponentTy
 								<LanguageMenu onLightBackground />
 								<IconButton
 									aria-label={t('Hisob menyusi')}
-									onClick={(e) => setAccount(e.currentTarget)}
+									onClick={(e: React.MouseEvent<HTMLElement>) => setAccount(e.currentTarget)}
 									sx={{ border: 0, boxShadow: 'none', p: 0.5 }}
 								>
 									<Avatar src={imageUrl(user.memberImage)} sx={{ border: 0, boxShadow: 'none' }} />
